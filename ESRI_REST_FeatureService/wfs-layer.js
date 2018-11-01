@@ -54,10 +54,6 @@ var vectorSource = new ol.source.Vector({
 var vector = new ol.layer.Vector({
   source: vectorSource,
   style: tideStyle
-  // style: function(feature) {
-  //   var classify = feature.get('activeprod');
-  //   return styleCache[classify];
-  // }
 });
 
 // add basemap
@@ -80,62 +76,7 @@ var map = new ol.Map({
   })
 });
 
-// create overlay for mouseover highlight of feature
-var featureOverlay = new ol.layer.Vector({
-  source: new ol.source.Vector,
-  map: map,
-  style: highlightStyle
-})
 
-var textOverlay = new ol.Overlay({
-  source: new ol.source.Vector,
-  map:map
-})
 
-// function to display feature name attribute and switch between styles when feature mouseover event is called
-var highlight;
-var displayFeatureInfo = function (pixel, coordinates) {
 
-  var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
-    console.log(feature)
-    return feature;
-  });
 
-  // var info = document.getElementById('info');
-  if (feature) {
-    var info = document.getElementById('info');
-    console.log(feature.getProperties().name);
-    // textOverlay.setPosition(pixel.coordinate);
-    console.log(coordinates);
-    textOverlay.setPosition(coordinates);
-
-    info.innerHTML = feature.get('name');
-    container.style.display = 'block';
-  } else {
-    info.innerHTML = '&nbsp;';
-  }
-
-  if (feature !== highlight) {
-    if (highlight) {
-      featureOverlay.getSource().removeFeature(highlight);
-    }
-    if (feature) {
-      featureOverlay.getSource().addFeature(feature);
-    }
-    highlight = feature;
-  }
-
-  map.getTarget().style.cursor = feature ? 'pointer': '';
-
-};
-
-// mouseover event listener
-map.on('pointermove', function (evt) {
-  if (evt.dragging) {
-    return;
-  }
-  var pixel = map.getEventPixel(evt.originalEvent);
-  var coordinates = evt.coordinate;
-  console.log(coordinates);
-  displayFeatureInfo(pixel, coordinates);
-});
