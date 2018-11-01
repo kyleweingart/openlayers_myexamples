@@ -94,9 +94,9 @@ var featureOverlay = new ol.layer.Vector({
   source: new ol.source.Vector,
   map: map,
   style: highlightStyle
-})
+});
 
-// function to display feature name attribute and switch between styles when feature mouseover event is called
+// switch between styles when feature mouseover event is called
 var highlight;
 var displayFeatureInfo = function (pixel, coordinates) {
 
@@ -104,20 +104,6 @@ var displayFeatureInfo = function (pixel, coordinates) {
     console.log(feature)
     return feature;
   });
-
-  // // var info = document.getElementById('info');
-  // if (feature) {
-  //   var info = document.getElementById('info');
-  //   console.log(feature.getProperties().name);
-  //   // textOverlay.setPosition(pixel.coordinate);
-  //   console.log(coordinates);
-  //   textOverlay.setPosition(coordinates);
-
-  //   info.innerHTML = feature.get('name');
-  //   container.style.display = 'block';
-  // } else {
-  //   info.innerHTML = '&nbsp;';
-  // }
 
   if (feature !== highlight) {
     if (highlight) {
@@ -128,11 +114,9 @@ var displayFeatureInfo = function (pixel, coordinates) {
     }
     highlight = feature;
   }
-
-  // map.getTarget().style.cursor = feature ? 'pointer' : '';
-
 };
 
+// mouseover event listener
 map.on('pointermove', function (e) {
   if (e.dragging) {
     $(element).popover('destroy');
