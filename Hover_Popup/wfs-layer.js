@@ -50,14 +50,6 @@ var overlay = new ol.Overlay({
   }
 });
 
-// Add a click handler to hide the popup.
-
-closer.onclick = function () {
-  overlay.setPosition(undefined);
-  closer.blur();
-  return false;
-};
-
 // create vector source from ESRI REST Feature Server - add features to source
 
 var vectorSource = new ol.source.Vector({
@@ -174,12 +166,5 @@ map.on('pointermove', function(evt) {
   } else {
     container.style.display = 'none';
   }
-  // var coordinate = evt.coordinate;
-  // var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
-      // coordinate, 'EPSG:3857', 'EPSG:4326'));
-
-  // content.innerHTML = '<p>You clicked here:</p><code>' + hdms +
-  //     '</code>';
-  // overlay.setPosition(coordinate);
 });
 
