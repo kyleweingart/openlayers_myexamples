@@ -76,7 +76,7 @@ var map = new ol.Map({
   })
 });
 
-map.on('pointermove', function(e) {
+map.on('pointermove', function (e) {
   if (e.dragging) {
     $(element).popover('destroy');
     return;
@@ -84,7 +84,7 @@ map.on('pointermove', function(e) {
   var pixel = map.getEventPixel(e.originalEvent);
   var hit = map.hasFeatureAtPixel(pixel);
   map.getTarget().style.cursor = hit ? 'pointer' : '';
-}); 
+});
 
 
 

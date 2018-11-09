@@ -152,14 +152,14 @@ map.on('pointermove', function (e) {
 
 // add click handler to the map to render the popup.
 var featureHover;
-map.on('pointermove', function(evt) {
-  featureHover = map.forEachFeatureAtPixel(evt.pixel, function(feature,layer) {
-  console.log(feature);
-  return feature;
+map.on('pointermove', function (evt) {
+  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+    console.log(feature);
+    return feature;
   });
 
   if (featureHover) {
-    console.log(featureHover.getProperties().name) 
+    console.log(featureHover.getProperties().name)
     overlay.setPosition(evt.coordinate);
     content.innerHTML = featureHover.getProperties().name;
     container.style.display = 'block';

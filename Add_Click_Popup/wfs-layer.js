@@ -161,7 +161,7 @@ map.on('pointermove', function (e) {
 // add click handler to the map to render the popup.
 var featureClick;
 map.on('singleclick', function(evt) {
-  featureClick = map.forEachFeatureAtPixel(evt.pixel, function(feature,layer) {
+  featureClick = map.forEachFeatureAtPixel(evt.pixel, function(feature) {
   console.log(feature);
   return feature;
   });
@@ -171,12 +171,5 @@ map.on('singleclick', function(evt) {
     overlay.setPosition(evt.coordinate);
     content.innerHTML = featureClick.getProperties().name;
   }
-  // var coordinate = evt.coordinate;
-  // var hdms = ol.coordinate.toStringHDMS(ol.proj.transform(
-      // coordinate, 'EPSG:3857', 'EPSG:4326'));
-
-  // content.innerHTML = '<p>You clicked here:</p><code>' + hdms +
-  //     '</code>';
-  // overlay.setPosition(coordinate);
 });
 
