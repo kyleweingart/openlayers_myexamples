@@ -1,12 +1,46 @@
+// elements that make up the popup
+
+// var container = $('#popup');
+var container = document.getElementById('popup');
+// var content = $('#popup-content');
+var content = document.getElementById('popup-content');
+// var closer = $('#popup-closer');
+var closer = document.getElementById('popup-closer');
+
+// create an overlay to anchor the popup to the  map
+
+var overlay = new ol.Overlay({
+  element: container,
+  autoPan: true,
+  autoPanAnimation: {
+    duration: 250
+  }
+});
+
+// var raster = new ol.layer.Tile({
+//       source: new ol.source.OSM()
+//     })
+
+
 // add basemap
 var raster = new ol.layer.Tile({
   source: new ol.source.XYZ({
-    attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
-      'rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' +
-      'World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
+    attributions: 'OSM',
+    url: 'https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png'
   })
 });
+
+// add basemap
+// var raster = new ol.layer.Tile({
+//   source: new ol.source.XYZ({
+//     attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
+//       'rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
+//     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' +
+//       'World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
+//   })
+// });
+
+
 
 var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
@@ -28,7 +62,8 @@ var map = new ol.Map({
   target: document.getElementById('map'),
   view: new ol.View({
     center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 5
+    zoom: 5,
+  overlays: [overlay]
   })
 });
 
@@ -50,6 +85,24 @@ map.on('pointermove', function (e) {
   var pixel = map.getEventPixel(e.originalEvent);
   var hit = map.hasFeatureAtPixel(pixel);
   map.getTarget().style.cursor = hit ? 'pointer' : '';
-  displayFeatureInfo(pixel);
+  // displayFeatureInfo(pixel);
+});
+
+var featureHover;
+map.on('pointermove', function (evt) {
+  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+    console.log(feature.H.description);
+    return feature;
+  });
+
+  if (featureHover) {
+    console.log('hovering');
+    overlay.setPosition(evt.coordinate);
+    content.innerHTML = featureHover.H.description;
+    // content.innerHTML = featureHover.getProperties().name;
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
 });
 
