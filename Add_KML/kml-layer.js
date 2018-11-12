@@ -22,6 +22,7 @@ var vector = new ol.layer.Vector({
 //   })
 // });
 // create map
+
 var map = new ol.Map({
   layers: [raster, vector],
   target: document.getElementById('map'),
@@ -31,10 +32,24 @@ var map = new ol.Map({
   })
 });
 
-var feature = map.forEachFeatureAtPixel(pixel, function(feature) {
-  console.log(feature);
-  return feature;
+var displayFeatureInfo = function (pixel, coordinates) {
+
+  var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+    // console.log('feature');
+    console.log(feature.H.description);
+    return feature;
+  });
+
+};
+
+map.on('pointermove', function (e) {
+  if (e.dragging) {
+    $(element).popover('destroy');
+    return;
+  }
+  var pixel = map.getEventPixel(e.originalEvent);
+  var hit = map.hasFeatureAtPixel(pixel);
+  map.getTarget().style.cursor = hit ? 'pointer' : '';
+  displayFeatureInfo(pixel);
 });
-
-
 
