@@ -36,7 +36,8 @@
 
         <Style id="style1a">
             <IconStyle id="icon1a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>275.13252</heading>
                 <Icon>
                     <href>labels/Sun.png</href>
@@ -46,7 +47,8 @@
 
         <Style id="style1b">
             <IconStyle id="icon1b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>301.87271</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -56,7 +58,8 @@
 
         <Style id="style1c">
             <IconStyle id="icon1c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>322.13571</heading>
                 <Icon>
                     <href>labels/pm.png</href>
@@ -66,7 +69,8 @@
 
         <Style id="style2a">
             <IconStyle id="icon2a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>295.44966</heading>
                 <Icon>
                     <href>labels/Mon.png</href>
@@ -76,7 +80,8 @@
 
         <Style id="style2b">
             <IconStyle id="icon2b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>299.64067</heading>
                 <Icon>
                     <href>labels/two.png</href>
@@ -86,7 +91,8 @@
 
         <Style id="style2c">
             <IconStyle id="icon2c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>311.82093</heading>
                 <Icon>
                     <href>labels/am.png</href>
@@ -96,7 +102,8 @@
 
         <Style id="style3a">
             <IconStyle id="icon3a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>301.37994</heading>
                 <Icon>
                     <href>labels/Mon.png</href>
@@ -106,7 +113,8 @@
 
         <Style id="style3b">
             <IconStyle id="icon3b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>304.73720</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -116,7 +124,8 @@
 
         <Style id="style3c">
             <IconStyle id="icon3c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>312.60051</heading>
                 <Icon>
                     <href>labels/am.png</href>
@@ -126,7 +135,8 @@
 
         <Style id="style4a">
             <IconStyle id="icon4a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>304.89331</heading>
                 <Icon>
                     <href>labels/Mon.png</href>
@@ -136,7 +146,8 @@
 
         <Style id="style4b">
             <IconStyle id="icon4b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>308.54312</heading>
                 <Icon>
                     <href>labels/two.png</href>
@@ -146,7 +157,8 @@
 
         <Style id="style4c">
             <IconStyle id="icon4c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>314.56469</heading>
                 <Icon>
                     <href>labels/pm.png</href>
@@ -156,7 +168,8 @@
 
         <Style id="style5a">
             <IconStyle id="icon5a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>302.52789</heading>
                 <Icon>
                     <href>labels/Mon.png</href>
@@ -166,7 +179,8 @@
 
         <Style id="style5b">
             <IconStyle id="icon5b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>308.16192</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -176,7 +190,8 @@
 
         <Style id="style5c">
             <IconStyle id="icon5c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>315.14340</heading>
                 <Icon>
                     <href>labels/pm.png</href>
@@ -186,7 +201,8 @@
 
         <Style id="style6a">
             <IconStyle id="icon6a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>295.08233</heading>
                 <Icon>
                     <href>labels/Tue.png</href>
@@ -196,7 +212,8 @@
 
         <Style id="style6b">
             <IconStyle id="icon6b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>300.75960</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -206,7 +223,8 @@
 
         <Style id="style6c">
             <IconStyle id="icon6c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>308.70148</heading>
                 <Icon>
                     <href>labels/am.png</href>
@@ -216,7 +234,8 @@
 
         <Style id="style7a">
             <IconStyle id="icon7a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>280.04873</heading>
                 <Icon>
                     <href>labels/Tue.png</href>
@@ -226,7 +245,8 @@
 
         <Style id="style7b">
             <IconStyle id="icon7b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>288.57558</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -236,7 +256,8 @@
 
         <Style id="style7c">
             <IconStyle id="icon7c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>297.21267</heading>
                 <Icon>
                     <href>labels/pm.png</href>
@@ -246,7 +267,8 @@
 
         <Style id="style8a">
             <IconStyle id="icon8a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>272.45838</heading>
                 <Icon>
                     <href>labels/Wed.png</href>
@@ -256,7 +278,8 @@
 
         <Style id="style8b">
             <IconStyle id="icon8b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>282.35076</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -266,7 +289,8 @@
 
         <Style id="style8c">
             <IconStyle id="icon8c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>289.98344</heading>
                 <Icon>
                     <href>labels/am.png</href>
@@ -276,7 +300,8 @@
 
         <Style id="style9a">
             <IconStyle id="icon9a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>281.68321</heading>
                 <Icon>
                     <href>labels/Wed.png</href>
@@ -284,9 +309,34 @@
             </IconStyle>
         </Style>
 
-        <Style id="style9b">
+<!-- Label Style exploration -->
+        <!-- <Style id="style9b"> -->
+            <!-- <IconStyle> -->
+            <!-- <scale>3</scale> -->
+            <!-- <heading>287.36858</heading> -->
+                <!-- <Icon> -->
+                    
+                <!-- </Icon> -->
+                <!-- <LabelStyle> -->
+                    <!-- <color>ff0000cc</color> -->
+                <!-- <colorMode>random</colorMode> -->
+                    <!-- <scale>3</scale> -->
+                    <!-- <heading>287.36858</heading> -->
+                    <!-- </LabelStyle> -->
+            <!-- </IconStyle> -->
+             <!-- <LabelStyle> -->
+                <!-- <color>ff0000cc</color> -->
+                <!-- <colorMode>random</colorMode> -->
+                <!-- <scale>1.5</scale> -->
+                <!-- <heading>287.36858</heading> -->
+             <!-- </LabelStyle> -->
+             
+        <!-- </Style> -->
+
+         <Style id="style9b">
             <IconStyle id="icon9b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale>
                 <heading>287.36858</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -296,7 +346,8 @@
 
         <Style id="style9c">
             <IconStyle id="icon9c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>294.90472</heading>
                 <Icon>
                     <href>labels/pm.png</href>
@@ -306,7 +357,8 @@
 
         <Style id="style10a">
             <IconStyle id="icon10a">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>278.38228</heading>
                 <Icon>
                     <href>labels/Thu.png</href>
@@ -316,7 +368,8 @@
 
         <Style id="style10b">
             <IconStyle id="icon10b">
-                <scale>1.6</scale>
+                <!-- <scale>1.6</scale> -->
+                <scale>.9</scale> 
                 <heading>279.42149</heading>
                 <Icon>
                     <href>labels/eight.png</href>
@@ -326,7 +379,8 @@
 
         <Style id="style10c">
             <IconStyle id="icon10c">
-                <scale>2.5</scale>
+                <!-- <scale>2.5</scale> -->
+                <scale>.9</scale> 
                 <heading>286.81889</heading>
                 <Icon>
                     <href>labels/am.png</href>
@@ -510,10 +564,12 @@
         </Placemark>
 
         <Placemark id="label9b">
+            <name>2</name>
             <styleUrl>#style9b</styleUrl>
             <Point>
                 <coordinates>-90.82399,30.29881,0.0</coordinates>
             </Point>
+            <heading>287.36858</heading>
         </Placemark>
 
         <Placemark id="label9c">

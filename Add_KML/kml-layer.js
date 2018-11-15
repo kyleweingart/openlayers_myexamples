@@ -17,18 +17,18 @@ var overlay = new ol.Overlay({
   }
 });
 
-// var raster = new ol.layer.Tile({
-//       source: new ol.source.OSM()
-//     })
-
-
-// add basemap
 var raster = new ol.layer.Tile({
-  source: new ol.source.XYZ({
-    attributions: 'OSM',
-    url: 'https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png'
-  })
-});
+      source: new ol.source.OSM()
+    })
+
+
+// add basemap grayscale
+// var raster = new ol.layer.Tile({
+//   source: new ol.source.XYZ({
+//     attributions: 'OSM',
+//     url: 'https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png'
+//   })
+// });
 
 // add basemap
 // var raster = new ol.layer.Tile({
@@ -45,7 +45,9 @@ var raster = new ol.layer.Tile({
 var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
     url: 'http://127.0.0.1:8082/AL682014_34_earliest_reasonable_toa_34.kml',
-    format: new ol.format.KML(),
+    format: new ol.format.KML({
+      // extractStyles:false
+    }),
   })
 });
 
