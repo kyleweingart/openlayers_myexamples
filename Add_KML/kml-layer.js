@@ -18,8 +18,8 @@ var overlay = new ol.Overlay({
 });
 
 var raster = new ol.layer.Tile({
-      source: new ol.source.OSM()
-    })
+  source: new ol.source.OSM()
+})
 
 
 // add basemap grayscale
@@ -46,10 +46,57 @@ var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
     url: 'http://127.0.0.1:8082/AL682014_34_earliest_reasonable_toa_34.kml',
     format: new ol.format.KML({
-      // extractStyles:false
+      extractStyles: false,
+      extractAttributes: true
     }),
-  })
+    projection: 'EPSG:3857',
+  }),
+  style: styleFunction
 });
+
+function styleFunction(feature) {
+  var style = new ol.style.Style({
+    stroke: new ol.style.Stroke({ color: 'red', width: 2 }),
+    text: new ol.style.Text({
+      font: '12px Calibir, sans-serif',
+      text: getText(vector),
+      textAlign: 'center',
+      textBaseline: 'top',
+      placement: 'line',
+      rotation: 30
+    }),
+
+  })
+  return style;
+}
+
+
+function getText(layer) {
+  var descriptionText;
+  var source = layer.getSource();
+  source.forEachFeature(function (feature) {
+    if (feature.H.description == null) {
+      console.log('undefined');
+      descriptionText;
+    } else {
+      var description = (feature.H.description).replace(/<(?:.|\n)*?>/gm, '');
+      descriptionText = description.trim();
+      console.log(descriptionText);
+      // return descriptionText;
+    }
+  })
+  return descriptionText;
+}
+
+
+
+
+
+
+
+
+
+
 
 // var vector = new ol.layer.Vector({
 //   source: new ol.source.Vector({
@@ -60,51 +107,52 @@ var vector = new ol.layer.Vector({
 // create map
 
 var map = new ol.Map({
-  layers: [raster, vector],
-  target: document.getElementById('map'),
-  view: new ol.View({
-    center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 5,
-  overlays: [overlay]
-  })
-});
-
-var displayFeatureInfo = function (pixel, coordinates) {
-
-  var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
-    // console.log('feature');
-    console.log(feature.H.description);
-    return feature;
+    layers: [raster, vector],
+    target: document.getElementById('map'),
+    view: new ol.View({
+      center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
+      zoom: 5,
+      overlays: [overlay]
+    })
   });
 
-};
+  var displayFeatureInfo = function (pixel, coordinates) {
 
-map.on('pointermove', function (e) {
-  if (e.dragging) {
-    $(element).popover('destroy');
-    return;
-  }
-  var pixel = map.getEventPixel(e.originalEvent);
-  var hit = map.hasFeatureAtPixel(pixel);
-  map.getTarget().style.cursor = hit ? 'pointer' : '';
-  // displayFeatureInfo(pixel);
-});
+    var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+      // console.log('feature');
+      console.log(feature.H.description);
+      return feature;
+    });
 
-var featureHover;
-map.on('pointermove', function (evt) {
-  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
-    console.log(feature.H.description);
-    return feature;
+  };
+
+  map.on('pointermove', function (e) {
+    if (e.dragging) {
+      $(element).popover('destroy');
+      return;
+    }
+    var pixel = map.getEventPixel(e.originalEvent);
+    var hit = map.hasFeatureAtPixel(pixel);
+    map.getTarget().style.cursor = hit ? 'pointer' : '';
+    // displayFeatureInfo(pixel);
   });
 
-  if (featureHover) {
-    console.log('hovering');
-    overlay.setPosition(evt.coordinate);
-    content.innerHTML = featureHover.H.description;
-    // content.innerHTML = featureHover.getProperties().name;
-    container.style.display = 'block';
-  } else {
-    container.style.display = 'none';
-  }
-});
+  var featureHover;
+  map.on('pointermove', function (evt) {
+    featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+      console.log(feature);
+      console.log(feature.H.description);
+      return feature;
+    });
+
+    if (featureHover) {
+      console.log('hovering');
+      overlay.setPosition(evt.coordinate);
+      content.innerHTML = featureHover.H.description;
+      // content.innerHTML = featureHover.getProperties().name;
+      container.style.display = 'block';
+    } else {
+      container.style.display = 'none';
+    }
+  });
 
