@@ -55,11 +55,18 @@ var vector = new ol.layer.Vector({
 });
 
 function styleFunction(feature) {
+  var description = feature.get('description');
+  if (!description) {
+    console.log(description);
+  } else {
+    description = description.replace(/<(?:.|\n)*?>/gm, '');
+    var textDescription = description.trim();
+  }
   var style = new ol.style.Style({
     stroke: new ol.style.Stroke({ color: 'red', width: 2 }),
     text: new ol.style.Text({
       font: '12px Calibir, sans-serif',
-      text: getText(vector),
+      text: textDescription,
       textAlign: 'center',
       textBaseline: 'top',
       placement: 'line',
@@ -70,31 +77,24 @@ function styleFunction(feature) {
   return style;
 }
 
+// a good example of me struggling to get feature.description as a label for each feature - needed to do this inside the style function;
 
-function getText(layer) {
-  var descriptionText;
-  var source = layer.getSource();
-  source.forEachFeature(function (feature) {
-    if (feature.H.description == null) {
-      console.log('undefined');
-      descriptionText;
-    } else {
-      var description = (feature.H.description).replace(/<(?:.|\n)*?>/gm, '');
-      descriptionText = description.trim();
-      console.log(descriptionText);
-      // return descriptionText;
-    }
-  })
-  return descriptionText;
-}
-
-
-
-
-
-
-
-
+// function getText(layer) {
+//   var descriptionText;
+//   var source = layer.getSource();
+//   source.forEachFeature(function (feature) {
+//     if (feature.H.description == null) {
+//       console.log('undefined');
+//       descriptionText;
+//     } else {
+//       var description = (feature.H.description).replace(/<(?:.|\n)*?>/gm, '');
+//       descriptionText = description.trim();
+//       console.log(descriptionText);
+//       // return descriptionText;
+//     }
+//   })
+//   return descriptionText;
+// }
 
 
 
