@@ -55,28 +55,61 @@ var vector = new ol.layer.Vector({
 });
 
 function styleFunction(feature) {
+
   var description = feature.get('description');
-  if (!description) {
-    console.log(description);
-  } else {
+  if (description) {
     description = description.replace(/<(?:.|\n)*?>/gm, '');
-    var textDescription = description.trim();
-  }
+    var trimDescription = description.trim();
+    if (trimDescription !== 'Wind Speed Probability 5% contour') {
+      var textDescription = trimDescription;
+    }
+  };
+
+  var textFill = new ol.style.Fill({
+    color: '#fff'
+  });
+  var textStroke = new ol.style.Stroke({
+    color: 'rgba(0, 0, 0, 0.6)',
+    width: 3
+  });
+  
   var style = new ol.style.Style({
-    stroke: new ol.style.Stroke({ color: 'red', width: 2 }),
+    stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
     text: new ol.style.Text({
-      font: '12px Calibir, sans-serif',
+      font: '16px Calibir, sans-serif',
+      offsetX: -10,
       text: textDescription,
       textAlign: 'center',
-      textBaseline: 'top',
+      // textBaseline: 'top',
       placement: 'line',
-      rotation: 30
+      rotation: 30,
+      fill: new ol.style.Fill({
+        color: 'rgba(0, 0, 0, 0.6'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#fff',
+        width: 3
+      })
     }),
 
   })
   return style;
 }
 
+
+function getAngle(layer) {
+  var geomCoords = [];
+  source = layer.getSource()
+  source.forEachFeature(function (feature) {
+    if (feature.H.description) {
+      var geoms = [feature.H.geometry.B];
+      console.log(geoms[0]);
+      var geomsFilter = geoms.filter(geoms=>geoms !== 0)
+      // geomCoords.push(feature.H.geometry.B);
+      console.log(geomsFilter);
+    }  
+})
+}
 // a good example of me struggling to get feature.description as a label for each feature - needed to do this inside the style function;
 
 // function getText(layer) {
@@ -107,52 +140,52 @@ function styleFunction(feature) {
 // create map
 
 var map = new ol.Map({
-    layers: [raster, vector],
-    target: document.getElementById('map'),
-    view: new ol.View({
-      center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
-      zoom: 5,
-      overlays: [overlay]
-    })
+  layers: [raster, vector],
+  target: document.getElementById('map'),
+  view: new ol.View({
+    center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
+    zoom: 5,
+    overlays: [overlay]
+  })
+});
+
+var displayFeatureInfo = function (pixel, coordinates) {
+
+  var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+    // console.log('feature');
+    console.log(feature.H.description);
+    return feature;
   });
 
-  var displayFeatureInfo = function (pixel, coordinates) {
+};
 
-    var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
-      // console.log('feature');
-      console.log(feature.H.description);
-      return feature;
-    });
+map.on('pointermove', function (e) {
+  if (e.dragging) {
+    $(element).popover('destroy');
+    return;
+  }
+  var pixel = map.getEventPixel(e.originalEvent);
+  var hit = map.hasFeatureAtPixel(pixel);
+  map.getTarget().style.cursor = hit ? 'pointer' : '';
+  // displayFeatureInfo(pixel);
+});
 
-  };
-
-  map.on('pointermove', function (e) {
-    if (e.dragging) {
-      $(element).popover('destroy');
-      return;
-    }
-    var pixel = map.getEventPixel(e.originalEvent);
-    var hit = map.hasFeatureAtPixel(pixel);
-    map.getTarget().style.cursor = hit ? 'pointer' : '';
-    // displayFeatureInfo(pixel);
+var featureHover;
+map.on('pointermove', function (evt) {
+  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+    console.log(feature);
+    console.log(feature.H.description);
+    return feature;
   });
 
-  var featureHover;
-  map.on('pointermove', function (evt) {
-    featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
-      console.log(feature);
-      console.log(feature.H.description);
-      return feature;
-    });
-
-    if (featureHover) {
-      console.log('hovering');
-      overlay.setPosition(evt.coordinate);
-      content.innerHTML = featureHover.H.description;
-      // content.innerHTML = featureHover.getProperties().name;
-      container.style.display = 'block';
-    } else {
-      container.style.display = 'none';
-    }
-  });
+  if (featureHover) {
+    console.log('hovering');
+    overlay.setPosition(evt.coordinate);
+    content.innerHTML = featureHover.H.description;
+    // content.innerHTML = featureHover.getProperties().name;
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
+});
 
