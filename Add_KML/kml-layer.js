@@ -102,11 +102,9 @@ function getAngle(layer) {
   source = layer.getSource()
   source.forEachFeature(function (feature) {
     if (feature.H.description) {
-      var geoms = [feature.H.geometry.B];
-      console.log(geoms[0]);
+      var geoms = feature.H.geometry.B;
       var geomsFilter = geoms.filter(geoms=>geoms !== 0)
-      // geomCoords.push(feature.H.geometry.B);
-      console.log(geomsFilter);
+      geomCoords.push(geomsFilter);
     }  
 })
 }
