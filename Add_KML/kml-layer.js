@@ -103,10 +103,32 @@ function getAngle(layer) {
   source.forEachFeature(function (feature) {
     if (feature.H.description) {
       var geoms = feature.H.geometry.B;
-      var geomsFilter = geoms.filter(geoms=>geoms !== 0)
+      var geomsFilter = geoms.filter(geoms=>geoms !== 0);
+      geomsFilter = geomsFilter.map(geomsFilter=>parseFloat(geomsFilter.toFixed(2)));
       geomCoords.push(geomsFilter);
-    }  
+    }      
 })
+  for (var i=0; i < geomCoords.length; i++) {
+        console.log(i);
+        for (var j=0; j < geomCoords[i].length - 3; j+=2){
+          var x = geomCoords[i][j];
+          console.log('x: ' + x);
+          var y = geomCoords[i][j+1];
+          console.log('y: ' + y);
+          var ex = geomCoords[i][j+2];
+          console.log('ex: ' + ex);
+          var ey = geomCoords[i][j+3];
+          console.log('ey: ' + ey);
+          var disty = ey-y;
+          console.log('disty: ' + disty);
+          var distx = ex-x;
+          console.log('distx: ' + distx);
+          var theta = Math.atan2(disty, distx);
+          theta *= 180/Math.PI;
+          console.log(theta);
+        }
+  }
+// return geomCoords;
 }
 // a good example of me struggling to get feature.description as a label for each feature - needed to do this inside the style function;
 
