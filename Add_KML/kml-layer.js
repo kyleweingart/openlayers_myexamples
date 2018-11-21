@@ -54,8 +54,50 @@ var vector = new ol.layer.Vector({
   style: styleFunction
 });
 
-function styleFunction(feature) {
+// function styleFunction(feature) {
 
+//   var description = feature.get('description');
+//   if (description) {
+//     description = description.replace(/<(?:.|\n)*?>/gm, '');
+//     var trimDescription = description.trim();
+//     if (trimDescription !== 'Wind Speed Probability 5% contour') {
+//       var textDescription = trimDescription;
+//     }
+//   };
+
+//   var textFill = new ol.style.Fill({
+//     color: '#fff'
+//   });
+//   var textStroke = new ol.style.Stroke({
+//     color: 'rgba(0, 0, 0, 0.6)',
+//     width: 3
+//   });
+  
+//   var style = new ol.style.Style({
+//     stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
+//     text: new ol.style.Text({
+//       font: '16px Calibir, sans-serif',
+//       offsetX: -10,
+//       text: textDescription,
+//       textAlign: 'center',
+//       // textBaseline: 'top',
+//       placement: 'line',
+//       rotation: -1.30,
+//       fill: new ol.style.Fill({
+//         color: 'rgba(0, 0, 0, 0.6'
+//       }),
+//       stroke: new ol.style.Stroke({
+//         color: '#fff',
+//         width: 3
+//       })
+//     }),
+
+//   })
+//   return style;
+// }
+
+function styleFunction(feature) {
+  var geomCoords = [];
   var description = feature.get('description');
   if (description) {
     description = description.replace(/<(?:.|\n)*?>/gm, '');
@@ -63,7 +105,75 @@ function styleFunction(feature) {
     if (trimDescription !== 'Wind Speed Probability 5% contour') {
       var textDescription = trimDescription;
     }
-  };
+    var angles = [];
+    var geoms = feature.H.geometry.B;
+    var geomsFilter = geoms.filter(geoms=>geoms !== 0);
+    geomsFilter = geomsFilter.map(geomsFilter=>parseFloat(geomsFilter.toFixed(2)));
+    console.log(geomsFilter);
+    for (var i=0; i < geomsFilter.length - 3; i+=2){
+      var x = geomsFilter[i];
+      // console.log('x: ' + x);
+      var y = geomsFilter[i+1];
+      // console.log('y: ' + y);
+      var ex = geomsFilter[i+2];
+      // console.log('ex: ' + ex);
+      var ey = geomsFilter[i+3];
+      // console.log('ey: ' + ey);
+      var disty = ey-y;
+      // console.log('disty: ' + disty);
+      var distx = ex-x;
+      // console.log('distx: ' + distx);
+      var theta = Math.atan2(disty, distx);
+      // theta *= 180/Math.PI;
+      // if (theta < 0) theta = 360 + theta;
+      // console.log(theta);
+      angles.push(theta);
+    } 
+    var avgAngle = angles.reduce(
+      ( accumulator, currentValue ) => accumulator + currentValue,
+      0
+    ) / angles.length;
+    // console.log(avgAngle)
+    var negAvgAngle = -Math.abs(avgAngle);
+    console.log(negAvgAngle);
+  }
+    // geomCoords.push(geomsFilter);
+    // description = description.replace(/<(?:.|\n)*?>/gm, '');
+    // var trimDescription = description.trim();
+    // if (trimDescription !== 'Wind Speed Probability 5% contour') {
+    //   var textDescription = trimDescription;
+    // }
+  
+
+  // for (var i=0; i < geomCoords.length; i++) {
+  //   // console.log(i);
+  //   var angles = [];
+    // for (var j=0; j < geomCoords[i].length - 3; j+=2){
+    //   var x = geomCoords[[i];
+    //   // console.log('x: ' + x);
+    //   var y = geomCoords[i+1];
+    //   // console.log('y: ' + y);
+    //   var ex = geomCoords[i+2];
+    //   // console.log('ex: ' + ex);
+    //   var ey = geomCoords[i+3];
+    //   // console.log('ey: ' + ey);
+    //   var disty = ey-y;
+    //   // console.log('disty: ' + disty);
+    //   var distx = ex-x;
+    //   // console.log('distx: ' + distx);
+    //   var theta = Math.atan2(disty, distx);
+    //   // theta *= 180/Math.PI;
+    //   // if (theta < 0) theta = 360 + theta;
+    //   // console.log(theta);
+    //   angles.push(theta);
+    // }
+
+    // var avgAngle = angles.reduce(
+    //   ( accumulator, currentValue ) => accumulator + currentValue,
+    //   0
+    // ) / angles.length;
+    // console.log(avgAngle)
+  
 
   var textFill = new ol.style.Fill({
     color: '#fff'
@@ -82,7 +192,7 @@ function styleFunction(feature) {
       textAlign: 'center',
       // textBaseline: 'top',
       placement: 'line',
-      rotation: 30,
+      rotation: negAvgAngle,
       fill: new ol.style.Fill({
         color: 'rgba(0, 0, 0, 0.6'
       }),
@@ -96,9 +206,10 @@ function styleFunction(feature) {
   return style;
 }
 
-
+// function to get average angle of a line 
 function getAngle(layer) {
   var geomCoords = [];
+  var geomAngles = [];
   source = layer.getSource()
   source.forEachFeature(function (feature) {
     if (feature.H.description) {
@@ -110,26 +221,39 @@ function getAngle(layer) {
 })
   for (var i=0; i < geomCoords.length; i++) {
         console.log(i);
+        var angles = [];
         for (var j=0; j < geomCoords[i].length - 3; j+=2){
           var x = geomCoords[i][j];
-          console.log('x: ' + x);
+          // console.log('x: ' + x);
           var y = geomCoords[i][j+1];
-          console.log('y: ' + y);
+          // console.log('y: ' + y);
           var ex = geomCoords[i][j+2];
-          console.log('ex: ' + ex);
+          // console.log('ex: ' + ex);
           var ey = geomCoords[i][j+3];
-          console.log('ey: ' + ey);
+          // console.log('ey: ' + ey);
           var disty = ey-y;
-          console.log('disty: ' + disty);
+          // console.log('disty: ' + disty);
           var distx = ex-x;
-          console.log('distx: ' + distx);
+          // console.log('distx: ' + distx);
           var theta = Math.atan2(disty, distx);
-          theta *= 180/Math.PI;
+          // theta *= 180/Math.PI;
+          // if (theta < 0) theta = 360 + theta;
           console.log(theta);
+          angles.push(theta);
         }
+        // might be able to add a function that looks at the geomCoords and decides the proper orientation of the labels ( if storm is moving west vs east the labels should be stacked differently)
+        var avgAngle = angles.reduce(
+          ( accumulator, currentValue ) => accumulator + currentValue,
+          0
+        ) / angles.length;
+        // console.log(avgAngle);
+        // console.log(angles);
+        geomAngles.push(avgAngle);
+        // console.log(geomAngles)
   }
 // return geomCoords;
 }
+
 // a good example of me struggling to get feature.description as a label for each feature - needed to do this inside the style function;
 
 // function getText(layer) {
