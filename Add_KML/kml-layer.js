@@ -52,9 +52,9 @@ var vector = new ol.layer.Vector({
   style: styleFunction
 });
 
-
+// refactor this code - look at label examples in openlayers docs
 function styleFunction(feature, resolution) {
-  console.log(resolution);
+  // console.log(resolution);
   maxResolution = 10000;
   var geomCoords = [];
   var description = feature.get('description');
@@ -70,7 +70,7 @@ function styleFunction(feature, resolution) {
     var geoms = feature.H.geometry.B;
     var geomsFilter = geoms.filter(geoms => geoms !== 0);
     geomsFilter = geomsFilter.map(geomsFilter => parseFloat(geomsFilter.toFixed(2)));
-    console.log(geomsFilter);
+    // console.log(geomsFilter);
     for (var i = 0; i < geomsFilter.length - 3; i += 2) {
       var x = geomsFilter[i];
       // console.log('x: ' + x);
@@ -97,7 +97,7 @@ function styleFunction(feature, resolution) {
     // might be able to add a function that looks at the geomCoords and decides the proper orientation of the labels ( if storm is moving west vs east the labels should be stacked differently)
     // console.log(avgAngle)
     var negAvgAngle = -Math.abs(avgAngle);
-    console.log(negAvgAngle);
+    // console.log(negAvgAngle);
   }
 
   var textFill = new ol.style.Fill({
@@ -215,19 +215,20 @@ var map = new ol.Map({
   view: new ol.View({
     center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
     zoom: 5,
-    overlays: [overlay]
-  })
+    
+  }),
+  overlays: [overlay]
 });
 
-var displayFeatureInfo = function (pixel, coordinates) {
+// var displayFeatureInfo = function (pixel, coordinates) {
 
-  var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
-    // console.log('feature');
-    console.log(feature.H.description);
-    return feature;
-  });
+//   var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+//     // console.log('feature');
+//     // console.log(feature.H.description);
+//     return feature;
+//   });
 
-};
+// };
 
 map.on('pointermove', function (e) {
   if (e.dragging) {
@@ -243,16 +244,17 @@ map.on('pointermove', function (e) {
 var featureHover;
 map.on('pointermove', function (evt) {
   featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
-    console.log(feature);
-    console.log(feature.H.description);
+    // console.log(feature);
+    // console.log(feature.H.description);
     return feature;
   });
 
   if (featureHover) {
-    console.log('hovering');
+    // console.log('hovering');
+    // console.log(featureHover.H.description);
     overlay.setPosition(evt.coordinate);
     content.innerHTML = featureHover.H.description;
-    // content.innerHTML = featureHover.getProperties().name;
+    console.log(content.innerHTML);
     container.style.display = 'block';
   } else {
     container.style.display = 'none';
