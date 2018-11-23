@@ -215,7 +215,7 @@ var map = new ol.Map({
   view: new ol.View({
     center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
     zoom: 5,
-    
+
   }),
   overlays: [overlay]
 });
@@ -244,9 +244,12 @@ map.on('pointermove', function (e) {
 var featureHover;
 map.on('pointermove', function (evt) {
   featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
-    // console.log(feature);
-    // console.log(feature.H.description);
+    var description = feature.get('description');
+    var description = description.replace(/<(?:.|\n)*?>/gm, '');
+    var trimDescription = description.trim();
+    if (trimDescription !== 'Wind Speed Probability 5% contour')
     return feature;
+    // console.log(feature);
   });
 
   if (featureHover) {
@@ -254,10 +257,11 @@ map.on('pointermove', function (evt) {
     // console.log(featureHover.H.description);
     overlay.setPosition(evt.coordinate);
     content.innerHTML = featureHover.H.description;
-    console.log(content.innerHTML);
+    // console.log(content.innerHTML);
     container.style.display = 'block';
   } else {
     container.style.display = 'none';
   }
 });
+
 
