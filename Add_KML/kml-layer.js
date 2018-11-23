@@ -232,7 +232,7 @@ var map = new ol.Map({
 
 map.on('pointermove', function (e) {
   if (e.dragging) {
-    $(element).popover('destroy');
+    // $(element).popover('destroy');
     return;
   }
   var pixel = map.getEventPixel(e.originalEvent);
