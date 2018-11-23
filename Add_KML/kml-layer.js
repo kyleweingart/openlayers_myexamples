@@ -65,6 +65,21 @@ var getText = function (feature, resolution) {
   return textDescription;
 }
 
+var textSize = function (resolution) {
+  console.log(resolution);
+  if (resolution < 10000 && resolution > 6500){
+    font = '16px Calibir, sans-serif';
+    console.log('16px');
+  } else if (resolution < 6500 && resolution > 3000){
+    font = '20px Calibir, sans-serif';
+    console.log('20px');
+  } else if (resolution < 3000){
+    font = '24px Calibir, sans-serif';
+    console.log('24px');
+  }
+  return font;
+}
+
 var getTextAngle = function (feature) {
   var angles = [];
   var geoms = feature.H.geometry.B;
@@ -113,7 +128,7 @@ function styleFunction(feature, resolution) {
   var style = new ol.style.Style({
     stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
     text: new ol.style.Text({
-      font: '16px Calibir, sans-serif',
+      font: textSize(resolution),
       offsetX: -10,
       text: getText(feature, resolution),
       textAlign: 'center',
