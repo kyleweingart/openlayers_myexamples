@@ -42,6 +42,7 @@ var vector = new ol.layer.Vector({
   style: styleFunction
 });
 
+// function to trim the description field in the kml
 function trimDescription(feature) {
   var description = feature.get('description');
   if (description) {
@@ -54,16 +55,17 @@ function trimDescription(feature) {
   }
 }
 
-// refactor this code - look at label examples in openlayers docs
-function styleFunction(feature, resolution) {
-  // console.log(resolution);
+var getText = function (feature, resolution) {
   maxResolution = 10000;
-  // var description = feature.get('description');
   if (resolution > maxResolution) {
     textDescription = '';
   } else {
     textDescription = trimDescription(feature);
   }
+  return textDescription;
+}
+
+var getTextAngle = function (feature) {
   var angles = [];
   var geoms = feature.H.geometry.B;
   var geomsFilter = geoms.filter(geoms => geoms !== 0);
@@ -94,37 +96,41 @@ function styleFunction(feature, resolution) {
   ) / angles.length;
   // might be able to add a function that looks at the geomCoords and decides the proper orientation of the labels ( if storm is moving west vs east the labels should be stacked differently)
   var negAvgAngle = -Math.abs(avgAngle);
-  
+  return negAvgAngle;
+}
 
-var textFill = new ol.style.Fill({
-  color: '#fff'
-});
-var textStroke = new ol.style.Stroke({
-  color: 'rgba(0, 0, 0, 0.6)',
-  width: 3
-});
+// refactor this code - look at label examples in openlayers docs
+function styleFunction(feature, resolution) {
 
-var style = new ol.style.Style({
-  stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
-  text: new ol.style.Text({
-    font: '16px Calibir, sans-serif',
-    offsetX: -10,
-    text: textDescription,
-    textAlign: 'center',
-    // textBaseline: 'top',
-    placement: 'line',
-    rotation: negAvgAngle,
-    fill: new ol.style.Fill({
-      color: 'rgba(0, 0, 0, 0.6'
+  var textFill = new ol.style.Fill({
+    color: '#fff'
+  });
+  var textStroke = new ol.style.Stroke({
+    color: 'rgba(0, 0, 0, 0.6)',
+    width: 3
+  });
+
+  var style = new ol.style.Style({
+    stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
+    text: new ol.style.Text({
+      font: '16px Calibir, sans-serif',
+      offsetX: -10,
+      text: getText(feature, resolution),
+      textAlign: 'center',
+      // textBaseline: 'top',
+      placement: 'line',
+      rotation: getTextAngle(feature),
+      fill: new ol.style.Fill({
+        color: 'rgba(0, 0, 0, 0.6'
+      }),
+      stroke: new ol.style.Stroke({
+        color: '#fff',
+        width: 3
+      })
     }),
-    stroke: new ol.style.Stroke({
-      color: '#fff',
-      width: 3
-    })
-  }),
 
-})
-return style;
+  })
+  return style;
 }
 
 
@@ -170,9 +176,9 @@ return style;
 //       0
 //     ) / angles.length;
 //     geomAngles.push(avgAngle);
-   
+
 //   }
-  
+
 // }
 
 // a good example of me struggling to get feature.description as a label for each feature - needed to do this inside the style function;
@@ -220,7 +226,7 @@ map.on('pointermove', function (evt) {
   featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
     textDescription = trimDescription(feature);
     if (textDescription !== undefined) {
-    return feature;
+      return feature;
     }
   });
 
