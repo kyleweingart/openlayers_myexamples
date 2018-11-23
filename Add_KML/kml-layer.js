@@ -41,21 +41,26 @@ var raster = new ol.layer.Tile({
 
 var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: 'http://127.0.0.1:8082/AL682014_34_earliest_reasonable_toa_34.kml',
+    url: 'http://127.0.0.1:8081/AL682014_34_earliest_reasonable_toa_34.kml',
     format: new ol.format.KML({
       extractStyles: false,
       extractAttributes: true
     }),
     projection: 'EPSG:3857',
   }),
+  // maxResolution: 10000,
   style: styleFunction
 });
 
 
-function styleFunction(feature) {
+function styleFunction(feature, resolution) {
+  console.log(resolution);
+  maxResolution = 10000;
   var geomCoords = [];
   var description = feature.get('description');
-  if (description) {
+  if (resolution > maxResolution) {
+    textDescription = '';
+  } else if (description) {
     description = description.replace(/<(?:.|\n)*?>/gm, '');
     var trimDescription = description.trim();
     if (trimDescription !== 'Wind Speed Probability 5% contour') {
@@ -63,30 +68,30 @@ function styleFunction(feature) {
     }
     var angles = [];
     var geoms = feature.H.geometry.B;
-    var geomsFilter = geoms.filter(geoms=>geoms !== 0);
-    geomsFilter = geomsFilter.map(geomsFilter=>parseFloat(geomsFilter.toFixed(2)));
+    var geomsFilter = geoms.filter(geoms => geoms !== 0);
+    geomsFilter = geomsFilter.map(geomsFilter => parseFloat(geomsFilter.toFixed(2)));
     console.log(geomsFilter);
-    for (var i=0; i < geomsFilter.length - 3; i+=2){
+    for (var i = 0; i < geomsFilter.length - 3; i += 2) {
       var x = geomsFilter[i];
       // console.log('x: ' + x);
-      var y = geomsFilter[i+1];
+      var y = geomsFilter[i + 1];
       // console.log('y: ' + y);
-      var ex = geomsFilter[i+2];
+      var ex = geomsFilter[i + 2];
       // console.log('ex: ' + ex);
-      var ey = geomsFilter[i+3];
+      var ey = geomsFilter[i + 3];
       // console.log('ey: ' + ey);
-      var disty = ey-y;
+      var disty = ey - y;
       // console.log('disty: ' + disty);
-      var distx = ex-x;
+      var distx = ex - x;
       // console.log('distx: ' + distx);
       var theta = Math.atan2(disty, distx);
       // theta *= 180/Math.PI;
       // if (theta < 0) theta = 360 + theta;
       // console.log(theta);
       angles.push(theta);
-    } 
+    }
     var avgAngle = angles.reduce(
-      ( accumulator, currentValue ) => accumulator + currentValue,
+      (accumulator, currentValue) => accumulator + currentValue,
       0
     ) / angles.length;
     // might be able to add a function that looks at the geomCoords and decides the proper orientation of the labels ( if storm is moving west vs east the labels should be stacked differently)
@@ -102,7 +107,7 @@ function styleFunction(feature) {
     color: 'rgba(0, 0, 0, 0.6)',
     width: 3
   });
-  
+
   var style = new ol.style.Style({
     stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
     text: new ol.style.Text({
@@ -135,44 +140,44 @@ function getAngle(layer) {
   source.forEachFeature(function (feature) {
     if (feature.H.description) {
       var geoms = feature.H.geometry.B;
-      var geomsFilter = geoms.filter(geoms=>geoms !== 0);
-      geomsFilter = geomsFilter.map(geomsFilter=>parseFloat(geomsFilter.toFixed(2)));
+      var geomsFilter = geoms.filter(geoms => geoms !== 0);
+      geomsFilter = geomsFilter.map(geomsFilter => parseFloat(geomsFilter.toFixed(2)));
       geomCoords.push(geomsFilter);
-    }      
-})
-  for (var i=0; i < geomCoords.length; i++) {
-        console.log(i);
-        var angles = [];
-        for (var j=0; j < geomCoords[i].length - 3; j+=2){
-          var x = geomCoords[i][j];
-          // console.log('x: ' + x);
-          var y = geomCoords[i][j+1];
-          // console.log('y: ' + y);
-          var ex = geomCoords[i][j+2];
-          // console.log('ex: ' + ex);
-          var ey = geomCoords[i][j+3];
-          // console.log('ey: ' + ey);
-          var disty = ey-y;
-          // console.log('disty: ' + disty);
-          var distx = ex-x;
-          // console.log('distx: ' + distx);
-          var theta = Math.atan2(disty, distx);
-          // theta *= 180/Math.PI;
-          // if (theta < 0) theta = 360 + theta;
-          console.log(theta);
-          angles.push(theta);
-        }
-        // might be able to add a function that looks at the geomCoords and decides the proper orientation of the labels ( if storm is moving west vs east the labels should be stacked differently)
-        var avgAngle = angles.reduce(
-          ( accumulator, currentValue ) => accumulator + currentValue,
-          0
-        ) / angles.length;
-        // console.log(avgAngle);
-        // console.log(angles);
-        geomAngles.push(avgAngle);
-        // console.log(geomAngles)
+    }
+  })
+  for (var i = 0; i < geomCoords.length; i++) {
+    console.log(i);
+    var angles = [];
+    for (var j = 0; j < geomCoords[i].length - 3; j += 2) {
+      var x = geomCoords[i][j];
+      // console.log('x: ' + x);
+      var y = geomCoords[i][j + 1];
+      // console.log('y: ' + y);
+      var ex = geomCoords[i][j + 2];
+      // console.log('ex: ' + ex);
+      var ey = geomCoords[i][j + 3];
+      // console.log('ey: ' + ey);
+      var disty = ey - y;
+      // console.log('disty: ' + disty);
+      var distx = ex - x;
+      // console.log('distx: ' + distx);
+      var theta = Math.atan2(disty, distx);
+      // theta *= 180/Math.PI;
+      // if (theta < 0) theta = 360 + theta;
+      console.log(theta);
+      angles.push(theta);
+    }
+    // might be able to add a function that looks at the geomCoords and decides the proper orientation of the labels ( if storm is moving west vs east the labels should be stacked differently)
+    var avgAngle = angles.reduce(
+      (accumulator, currentValue) => accumulator + currentValue,
+      0
+    ) / angles.length;
+    // console.log(avgAngle);
+    // console.log(angles);
+    geomAngles.push(avgAngle);
+    // console.log(geomAngles)
   }
-// return geomCoords;
+  // return geomCoords;
 }
 
 // a good example of me struggling to get feature.description as a label for each feature - needed to do this inside the style function;
