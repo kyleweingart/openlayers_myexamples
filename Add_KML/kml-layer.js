@@ -67,13 +67,13 @@ var getText = function (feature, resolution) {
 
 var textSize = function (resolution) {
   console.log(resolution)
-  size = Math.round(70000 / resolution);
+  var size = Math.round(70000 / resolution);
   if (size > 25) {
     size = 25;
   } else if (size < 9) {
     size = 9;
   }
-  font = size + 'px Calibir, sans-serif';
+  var font = size + 'px Calibir, sans-serif';
   return font;
 }
 // var textSize = function (resolution) {
