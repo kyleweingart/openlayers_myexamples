@@ -31,7 +31,7 @@ var raster = new ol.layer.Tile({
 
 var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: 'http://127.0.0.1:8081/AL682014_34_earliest_reasonable_toa_34.kml',
+    url: 'http://127.0.0.1:8082/AL682014_34_earliest_reasonable_toa_34.kml',
     format: new ol.format.KML({
       extractStyles: false,
       extractAttributes: true
@@ -110,21 +110,23 @@ var getTextAngle = function (feature) {
   return negAvgAngle;
 }
 
+
+var styleCache = {};
 // refactor this code - look at label examples in openlayers docs
 function styleFunction(feature, resolution) {
-
-  var textFill = new ol.style.Fill({
-    color: '#fff'
-  });
-  var textStroke = new ol.style.Stroke({
-    color: 'rgba(0, 0, 0, 0.6)',
-    width: 3
-  });
-
-  var style = new ol.style.Style({
+  var font = textSize(resolution);
+  // var textFill = new ol.style.Fill({
+  //   color: '#fff'
+  // });
+  // var textStroke = new ol.style.Stroke({
+  //   color: 'rgba(0, 0, 0, 0.6)',
+  //   width: 3
+  // });
+  if (!styleCache[font]) {}
+  styleCache[font] = new ol.style.Style({
     stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
     text: new ol.style.Text({
-      font: textSize(resolution),
+      font: font,
       offsetX: -10,
       text: getText(feature, resolution),
       textAlign: 'center',
@@ -141,7 +143,8 @@ function styleFunction(feature, resolution) {
     }),
 
   })
-  return style;
+  console.log(styleCache);
+  return [styleCache[font]];
 }
 
 
