@@ -67,9 +67,9 @@ var getText = function (feature, resolution) {
 
 var textSize = function (resolution) {
   console.log(resolution)
-  size = Math.round(70000/resolution);
+  size = Math.round(70000 / resolution);
   if (size > 25) {
-  size = 25;
+    size = 25;
   } else if (size < 9) {
     size = 9;
   }
@@ -122,7 +122,7 @@ var getTextAngle = function (feature) {
 }
 
 
-var styleCache = {};
+
 // refactor this code - look at label examples in openlayers docs
 function styleFunction(feature, resolution) {
   var font = textSize(resolution);
@@ -133,8 +133,8 @@ function styleFunction(feature, resolution) {
   //   color: 'rgba(0, 0, 0, 0.6)',
   //   width: 3
   // });
-  if (!styleCache[font]) {}
-  styleCache[font] = new ol.style.Style({
+
+  var style = new ol.style.Style({
     stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
     text: new ol.style.Text({
       font: font,
@@ -151,12 +151,12 @@ function styleFunction(feature, resolution) {
         color: '#fff',
         width: 3
       })
-    }),
-
-  })
-  console.log(styleCache);
-  return [styleCache[font]];
+    })
+  });
+  return style;
 }
+
+
 
 
 // function to get average angle of a line 
