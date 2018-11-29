@@ -66,15 +66,51 @@ var getText = function (feature, resolution) {
 }
 
 var textSize = function (resolution) {
-  if (resolution < 10000 && resolution > 6500){
-    font = '16px Calibir, sans-serif';
-  } else if (resolution < 6500 && resolution > 3000){
-    font = '20px Calibir, sans-serif';
-  } else if (resolution < 3000){
-    font = '24px Calibir, sans-serif';
+  console.log(resolution)
+  size = Math.round(80000/resolution);
+  if (size > 25) {
+  size = 25;
+  } else if (size < 10) {
+    size = 9;
   }
+  console.log(size);
+  font = size + 'px Calibir, sans-serif';
+  
+  //   console.log(size);
+  //   font = size + 'px Calibir, sans-serif';
+  //  if (resolution < 10000 && resolution >= 4000) {
+  //   size = Math.round(1000/resolution * 100);
+  //   console.log(size);
+  //   font = size + 'px Calibir, sans-serif';
+  // } else if (resolution < 4000 && resolution >= 3000) {
+  //   size = Math.round(1000/resolution * 95);
+  //   console.log(size);
+  //   font = size + 'px Calibir, sans-serif';
+  // } else if (resolution < 3000 && resolution >= 2000) {
+  //   size = Math.round(1000/resolution * 90);
+  //   console.log(size);
+  //   font = size + 'px Calibir, sans-serif';
+  // } else if (resolution < 2000 && resolution >= 1000) {
+  //   size = Math.round(1000/resolution * 50);
+  //   console.log(size);
+  //   font = size + 'px Calibir, sans-serif';
+  // } else if (resolution < 1000){
+  //   size = Math.round(1000/resolution * 40);
+  //   console.log(size);
+  //   font = size + 'px Calibir, sans-serif';
+  // } 
   return font;
 }
+// var textSize = function (resolution) {
+//   if (resolution < 10000 && resolution > 6500){
+//     font = '16px Calibir, sans-serif';
+//   } else if (resolution < 6500 && resolution > 3000){
+//     font = '20px Calibir, sans-serif';
+//   } else if (resolution < 3000){
+//     font = '24px Calibir, sans-serif';
+//   }
+//   return font;
+// }
 
 var getTextAngle = function (feature) {
   var angles = [];
@@ -252,5 +288,4 @@ map.on('pointermove', function (evt) {
     container.style.display = 'none';
   }
 });
-
 
