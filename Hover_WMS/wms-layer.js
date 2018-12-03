@@ -119,7 +119,7 @@ map.on('pointermove', function (e) {
 
 // add click handler to the map to render the popup.
 var layerHover;
-map.on('pointermove', function(evt) {
+map.on('singleclick', function(evt) {
   var viewResolution = map.getView().getResolution();
   var layerHover = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, 'EPSG:3857',
     {'INFO_FORMAT': 'text/html'});
