@@ -1,9 +1,9 @@
-var serviceUrl = 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/' +
-  'NOS_Observations/CO_OPS_Stations/FeatureServer/';
+// var serviceUrl = 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/' +
+//   'NOS_Observations/CO_OPS_Stations/FeatureServer/';
 
-var layer = '0';
+// var layer = '0';
 
-var esrijsonFormat = new ol.format.EsriJSON();
+
 
 // create triangle shape
 var image = new ol.style.RegularShape({
@@ -52,116 +52,81 @@ var overlay = new ol.Overlay({
 
 // create vector source from ESRI REST Feature Server - add features to source
 
-var vectorSource = new ol.source.Vector({
-  loader: function (extent, resolution, projection) {
-    var url = serviceUrl + layer + '/query/?f=json&' +
-      'returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=' +
-      encodeURIComponent('{"xmin":' + extent[0] + ',"ymin":' +
-        extent[1] + ',"xmax":' + extent[2] + ',"ymax":' + extent[3] +
-        ',"spatialReference":{"wkid":102100}}') +
-      '&geometryType=esriGeometryEnvelope&inSR=102100&outFields=*' +
-      '&outSR=102100';
-    $.ajax({
-      url: url, dataType: 'jsonp', success: function (response) {
-        if (response.error) {
-          alert(response.error.message + '\n' +
-            response.error.details.join('\n'));
-        } else {
-          // dataProjection will be read from document
-          var features = esrijsonFormat.readFeatures(response, {
-            featureProjection: projection
-          });
-          if (features.length > 0) {
-            vectorSource.addFeatures(features);
-          }
-        }
-      }
-    });
-  },
-  strategy: ol.loadingstrategy.tile(ol.tilegrid.createXYZ({
-    tileSize: 512
-  }))
+var wmsSource = new ol.source.TileWMS({
+  url: 'https://ahocevar.com/geoserver/wms',
+        params: {'LAYERS': 'ne:ne'},
+        serverType: 'geoserver',
+        crossOrigin: 'anonymous'        
 });
 
 // create vector layer to display features in vector source
-var vector = new ol.layer.Vector({
-  source: vectorSource,
-  style: tideStyle
-});
-
-// add basemap
-var raster = new ol.layer.Tile({
-  source: new ol.source.XYZ({
-    attributions: 'Tiles © <a href="https://services.arcgisonline.com/ArcGIS/' +
-      'rest/services/World_Topo_Map/MapServer">ArcGIS</a>',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/' +
-      'World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
-  })
+var wmsLayer = new ol.layer.Tile({
+  source: wmsSource,
+  // style: tideStyle
 });
 
 // create map
 var map = new ol.Map({
-  layers: [raster, vector],
+  layers: [wmsLayer],
   target: document.getElementById('map'),
   view: new ol.View({
-    center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 5
+    center: [0,0],
+    zoom: 1
   }),
   overlays: [overlay]
 });
 
 // create overlay for mouseover highlight of feature
-var featureOverlay = new ol.layer.Vector({
-  source: new ol.source.Vector,
-  map: map,
-  style: highlightStyle
-});
+// var featureOverlay = new ol.layer.Vector({
+//   source: new ol.source.Vector,
+//   map: map,
+//   style: highlightStyle
+// });
 
 // switch between styles when feature mouseover event is called
-var highlight;
-var displayFeatureInfo = function (pixel, coordinates) {
+// var highlight;
+// var displayFeatureInfo = function (pixel, coordinates) {
 
-  var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
-    // console.log(feature)
-    return feature;
-  });
+//   var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
+//     // console.log(feature)
+//     return feature;
+//   });
 
-  if (feature !== highlight) {
-    if (highlight) {
-      featureOverlay.getSource().removeFeature(highlight);
-    }
-    if (feature) {
-      featureOverlay.getSource().addFeature(feature);
-    }
-    highlight = feature;
-  }
-};
+//   if (feature !== highlight) {
+//     if (highlight) {
+//       featureOverlay.getSource().removeFeature(highlight);
+//     }
+//     if (feature) {
+//       featureOverlay.getSource().addFeature(feature);
+//     }
+//     highlight = feature;
+//   }
+// };
 
 // mouseover event listener
 map.on('pointermove', function (e) {
   if (e.dragging) {
-    $(element).popover('destroy');
     return;
   }
   var pixel = map.getEventPixel(e.originalEvent);
-  var hit = map.hasFeatureAtPixel(pixel);
+  var hit = map.forEachLayerAtPixel(pixel, function() {
+    return true;
+  });
   map.getTarget().style.cursor = hit ? 'pointer' : '';
-  displayFeatureInfo(pixel);
+  
 });
 
 
 // add click handler to the map to render the popup.
-var featureHover;
-map.on('pointermove', function (evt) {
-  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
-    console.log(feature);
-    return feature;
-  });
-
-  if (featureHover) {
-    console.log(featureHover.getProperties().name)
+var layerHover;
+map.on('pointermove', function(evt) {
+  var viewResolution = map.getView().getResolution();
+  var layerHover = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, 'EPSG:3857',
+    {'INFO_FORMAT': 'text/html'});
+  if (layerHover) {
+    console.log(layerHover);
     overlay.setPosition(evt.coordinate);
-    content.innerHTML = featureHover.getProperties().name;
+    content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
     container.style.display = 'block';
   } else {
     container.style.display = 'none';
