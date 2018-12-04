@@ -115,9 +115,9 @@ map.on('pointermove', function (e) {
   map.getTarget().style.cursor = hit ? 'pointer' : '';
   if (hit) {
     var layerHover = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
-      { 'INFO_FORMAT': 'text/html' , 'propertyName': 'name'});
+      { 'INFO_FORMAT': 'application/json' , 'propertyName': 'name'});
     overlay.setPosition(e.coordinate);
-    content.innerHTML ='<object type="text/html" data="' + layerHover + '"></object>';
+    content.innerHTML ='<object type="application/json" data="' + layerHover + '"></object>';
     // content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
     container.style.display = 'block';
   } else {
@@ -134,13 +134,21 @@ var viewProjection = map.getView().getProjection();
 map.on('singleclick', function (evt) {
   
   var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
-    { 'INFO_FORMAT': 'text/html',
+    { 'INFO_FORMAT': 'application/json',
   'propertyName': 'name' });
   if (url) {
-    console.log(url);
+    $.ajax({
+      type: 'GET',
+      url: url
+    }).done(function(data) {
+    // console.log(url);
     overlay.setPosition(evt.coordinate);
-    content.innerHTML = '<iframe seamless src="' + url + '"></iframe>';
+    console.log(data.features[0].properties.name);
+    content.innerHTML = data.features[0].properties.name;
     container.style.display = 'block';
+    });
+    // content.innerHTML = '<iframe seamless src="' + url + '"></iframe>';
+    // container.style.display = 'block';
   } else {
     container.style.display = 'none';
   }
