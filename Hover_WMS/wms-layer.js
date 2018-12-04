@@ -114,9 +114,8 @@ map.on('pointermove', function (e) {
   });
   map.getTarget().style.cursor = hit ? 'pointer' : '';
   if (hit) {
-    var viewResolution = map.getView().getResolution();
-    var layerHover = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, 'EPSG:3857',
-      { 'INFO_FORMAT': 'text/html' });
+    var layerHover = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
+      { 'INFO_FORMAT': 'text/html' , 'propertyName': 'name'});
     overlay.setPosition(e.coordinate);
     content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
     container.style.display = 'block';
@@ -126,18 +125,20 @@ map.on('pointermove', function (e) {
 });
 
 
-
+var viewResolution = map.getView().getResolution();
+var viewProjection = map.getView().getProjection();
 
 // add click handler to the map to render the popup.
-var layerHover;
+
 map.on('singleclick', function (evt) {
-  var viewResolution = map.getView().getResolution();
-  var layerHover = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, 'EPSG:3857',
-    { 'INFO_FORMAT': 'text/html' });
-  if (layerHover) {
-    console.log(layerHover);
+  
+  var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    { 'INFO_FORMAT': 'text/html',
+  'propertyName': 'name' });
+  if (url) {
+    console.log(url);
     overlay.setPosition(evt.coordinate);
-    content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
+    content.innerHTML = '<iframe seamless src="' + url + '"></iframe>';
     container.style.display = 'block';
   } else {
     container.style.display = 'none';
