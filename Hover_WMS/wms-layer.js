@@ -54,9 +54,9 @@ var overlay = new ol.Overlay({
 
 var wmsSource = new ol.source.TileWMS({
   url: 'https://ahocevar.com/geoserver/wms',
-        params: {'LAYERS': 'ne:ne'},
-        serverType: 'geoserver',
-        crossOrigin: 'anonymous'        
+  params: { 'LAYERS': 'ne:ne' },
+  serverType: 'geoserver',
+  crossOrigin: 'anonymous'
 });
 
 // create vector layer to display features in vector source
@@ -70,7 +70,7 @@ var map = new ol.Map({
   layers: [wmsLayer],
   target: document.getElementById('map'),
   view: new ol.View({
-    center: [0,0],
+    center: [0, 0],
     zoom: 1
   }),
   overlays: [overlay]
@@ -109,20 +109,31 @@ map.on('pointermove', function (e) {
     return;
   }
   var pixel = map.getEventPixel(e.originalEvent);
-  var hit = map.forEachLayerAtPixel(pixel, function() {
+  var hit = map.forEachLayerAtPixel(pixel, function () {
     return true;
   });
   map.getTarget().style.cursor = hit ? 'pointer' : '';
-  
+  if (hit) {
+    var viewResolution = map.getView().getResolution();
+    var layerHover = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, 'EPSG:3857',
+      { 'INFO_FORMAT': 'text/html' });
+    overlay.setPosition(e.coordinate);
+    content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
+    container.style.display = 'block';
+  } else {
+    container.style.display = 'none';
+  }
 });
+
+
 
 
 // add click handler to the map to render the popup.
 var layerHover;
-map.on('singleclick', function(evt) {
+map.on('singleclick', function (evt) {
   var viewResolution = map.getView().getResolution();
   var layerHover = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, 'EPSG:3857',
-    {'INFO_FORMAT': 'text/html'});
+    { 'INFO_FORMAT': 'text/html' });
   if (layerHover) {
     console.log(layerHover);
     overlay.setPosition(evt.coordinate);
