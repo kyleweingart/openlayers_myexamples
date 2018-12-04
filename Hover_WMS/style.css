@@ -25,10 +25,9 @@
   white-space:nowrap;
 }
 
-#popup-content {
+/* #popup-content {
   height: 75px;
   width: 250px;
-  /* background-color: blue; */
   overflow: hidden;
   white-space: nowrap;
-}
+} */
