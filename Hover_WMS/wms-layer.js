@@ -117,7 +117,8 @@ map.on('pointermove', function (e) {
     var layerHover = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
       { 'INFO_FORMAT': 'text/html' , 'propertyName': 'name'});
     overlay.setPosition(e.coordinate);
-    content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
+    content.innerHTML ='<object type="text/html" data="' + layerHover + '"></object>';
+    // content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
     container.style.display = 'block';
   } else {
     container.style.display = 'none';
