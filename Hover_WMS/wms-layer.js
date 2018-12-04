@@ -1,13 +1,8 @@
 
-// create bigger shape to be used with mouseover event
+// create bigger stroke to be used with feature mouseclick event
 var highlightImage = new ol.style.Style({
   stroke: new ol.style.Stroke({ color: 'gray', width: 2 }),
 });
-
-// apply shape to new style
-// var highlightStyle = new ol.style.Style({
-//   image: highlightImage
-// });
 
 // elements that make up the popup
 
@@ -28,7 +23,7 @@ var overlay = new ol.Overlay({
   }
 });
 
-// create vector source from ESRI REST Feature Server - add features to source
+// create source from TileWMS source 
 
 var wmsSource = new ol.source.TileWMS({
   url: 'https://ahocevar.com/geoserver/wms',
@@ -40,7 +35,6 @@ var wmsSource = new ol.source.TileWMS({
 // create vector layer to display features in vector source
 var wmsLayer = new ol.layer.Tile({
   source: wmsSource,
-  // style: tideStyle
 });
 
 // create map
