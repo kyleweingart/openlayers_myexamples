@@ -71,11 +71,11 @@ var map = new ol.Map({
 });
 
 // create overlay for mouseover highlight of feature
-// var featureOverlay = new ol.layer.Vector({
-//   source: new ol.source.Vector,
-//   map: map,
-//   style: highlightStyle
-// });
+var featureOverlay = new ol.layer.Vector({
+  source: new ol.source.Vector,
+  map: map,
+  style: highlightStyle
+});
 
 // switch between styles when feature mouseover event is called
 // var highlight;
@@ -107,16 +107,23 @@ map.on('pointermove', function (e) {
     return true;
   });
   map.getTarget().style.cursor = hit ? 'pointer' : '';
-  if (hit) {
-    var layerHover = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
-      { 'INFO_FORMAT': 'application/json', 'propertyName': 'name' });
-    overlay.setPosition(e.coordinate);
-    content.innerHTML = '<object type="application/json" data="' + layerHover + '"></object>';
-    // content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
-    container.style.display = 'block';
-  } else {
-    container.style.display = 'none';
-  }
+  // if (hit) {
+  //   var url = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
+  //     { 'INFO_FORMAT': 'application/json', 'propertyName': 'name' });
+  //   // adding the following lines would use url as the src data to display without the need for ajax request - however the control of display is not as good. 
+  //   // content.innerText = '<object type="application/json" data="' + layerHover + '"></object>';
+  //   // content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
+  //   $.ajax({
+  //     type: 'GET',
+  //     url: url
+  //   }).done(function (data) {
+  //     overlay.setPosition(e.coordinate);
+  //     content.innerText = data.features[0].properties.name;
+  //     container.style.display = 'block';
+  //   });
+  // } else {
+  //   container.style.display = 'none';
+  // }
 });
 
 
