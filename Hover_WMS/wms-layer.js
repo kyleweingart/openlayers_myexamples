@@ -1,29 +1,13 @@
 
-// create triangle shape
-var image = new ol.style.RegularShape({
-  points: 3,
-  radius: 10,
-  fill: new ol.style.Fill({ color: '#2f4f4f' }),
-  stroke: new ol.style.Stroke({ color: '#6d8383', width: 1 })
-});
-
-// apply shape to style
-var tideStyle = new ol.style.Style({
-  image: image
-});
-
 // create bigger shape to be used with mouseover event
-var highlightImage = new ol.style.RegularShape({
-  points: 3,
-  radius: 15,
-  fill: new ol.style.Fill({ color: 'black' }),
+var highlightImage = new ol.style.Style({
   stroke: new ol.style.Stroke({ color: 'gray', width: 2 }),
 });
 
 // apply shape to new style
-var highlightStyle = new ol.style.Style({
-  image: highlightImage
-});
+// var highlightStyle = new ol.style.Style({
+//   image: highlightImage
+// });
 
 // elements that make up the popup
 
@@ -74,7 +58,7 @@ var map = new ol.Map({
 var featureOverlay = new ol.layer.Vector({
   source: new ol.source.Vector,
   map: map,
-  style: highlightStyle
+  style: highlightImage
 });
 
 // switch between styles when feature mouseover event is called
@@ -126,7 +110,7 @@ map.on('pointermove', function (e) {
   // }
 });
 
-
+var parser = new ol.format.WMSGetFeatureInfo();
 var viewResolution = map.getView().getResolution();
 var viewProjection = map.getView().getProjection();
 
@@ -150,5 +134,20 @@ map.on('singleclick', function (evt) {
       container.style.display = 'none';
     }
   });
+});
+
+map.on('singleclick', function (evt) {
+  var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    {
+      'INFO_FORMAT': 'application/vnd.ogc.gml',
+    });
+  $.ajax({
+    type: 'GET',
+    url: url
+  }).done(function (data) {
+    var features = parser.readFeatures(data);
+    featureOverlay.getSource().clear();
+    featureOverlay.getSource().addFeatures(features);
+  })
 });
 
