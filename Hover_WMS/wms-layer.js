@@ -77,116 +77,129 @@ var featureOverlay = new ol.layer.Vector({
 
 // mouseover event listener to show popup
 var hoverName;
+var timer;
 map.on('pointermove', function (e) {
+  myFunction();
   if (e.dragging) {
     console.log(dragging);
     return;
   }
+
+  function myFunction() {
+    myVar = setTimeout(alertFunc, 3000);
+  }
+
+  function alertFunc() {
+    console.log("Hello!");
+  }
+  // clearTimeout(timer);
+  // timer = setTimeout(function () { console.log('TimeOVer'); }, 3000);
+
+  //   var pixel = map.getEventPixel(e.originalEvent);
+  //   var featureName = map.forEachLayerAtPixel(pixel, function () {
+  //     var url = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
+  //       { 'INFO_FORMAT': 'application/vnd.ogc.gml', 'propertyName': 'name' });
+  //     $.ajax({
+  //       type: 'GET',
+  //       url: url
+  //     }).done(function (data) {
+  //       var features = parser.readFeatures(data);
+  //       featureName = features[0].H.name;
+  //       console.log(featureName)
+  //       return featureName;
+  //       // overlay.setPosition(e.coordinate);
+  //       // content.innerText = data.features[0].properties.name;
+  //       // container.style.display = 'block';
+  //     }).then(function (featureName) {
+  //     if (featureName === hoverName) {
+  //       console.log(featureName);
+  //       console.log('Match- return');
+  //     }  else if (featureName !== hoverName) {
+  //       console.log('no Match');
+  //         if (hoverName) {
+  //           console.log('clear or remove hoverName variable');
+  //         }
+  //         if (featureName) {
+  //           console.log('add feature');
+  //         }
+  //         hoverName = featureName;
+  //     }
+  //   });
+  // });
+});
+
+
+
+
+// mouseover event listener to change cursor style on hover
+map.on('pointermove', function (e) {
+  if (e.dragging) {
+    return;
+  }
   var pixel = map.getEventPixel(e.originalEvent);
-  var featureName = map.forEachLayerAtPixel(pixel, function () {
-    var url = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
-      { 'INFO_FORMAT': 'application/vnd.ogc.gml', 'propertyName': 'name' });
-    $.ajax({
-      type: 'GET',
-      url: url
-    }).done(function (data) {
-      var features = parser.readFeatures(data);
-      featureName = features[0].H.name;
-      console.log(featureName)
-      return featureName;
-      // overlay.setPosition(e.coordinate);
-      // content.innerText = data.features[0].properties.name;
-      // container.style.display = 'block';
-    }).then(function (featureName) {
-    if (featureName === hoverName) {
-      console.log(featureName);
-      console.log('Match- return');
-    }  else if (featureName !== hoverName) {
-      console.log('no Match');
-        if (hoverName) {
-          console.log('clear or remove hoverName variable');
-        }
-        if (featureName) {
-          console.log('add feature');
-        }
-        hoverName = featureName;
+  var hit = map.forEachLayerAtPixel(pixel, function () {
+    return true;
+  });
+  map.getTarget().style.cursor = hit ? 'pointer' : '';
+  // if (hit) {
+  //   var url = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
+  //     { 'INFO_FORMAT': 'application/json', 'propertyName': 'name' });
+  //   // adding the following lines would use url as the src data to display without the need for ajax request - however the control of display is not as good. 
+  //   // content.innerText = '<object type="application/json" data="' + layerHover + '"></object>';
+  //   // content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
+  //   $.ajax({
+  //     type: 'GET',
+  //     url: url
+  //   }).done(function (data) {
+  //     overlay.setPosition(e.coordinate);
+  //     content.innerText = data.features[0].properties.name;
+  //     container.style.display = 'block';
+  //   });
+  // } else {
+  //   container.style.display = 'none';
+  // }
+});
+
+var parser = new ol.format.WMSGetFeatureInfo();
+var viewResolution = map.getView().getResolution();
+var viewProjection = map.getView().getProjection();
+
+// add click handler to the map to render the popup.
+
+map.on('singleclick', function (evt) {
+  var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    {
+      'INFO_FORMAT': 'application/json',
+      'propertyName': 'name'
+    });
+  $.ajax({
+    type: 'GET',
+    url: url
+  }).done(function (data) {
+    if (data.features.length > 0) {
+      overlay.setPosition(evt.coordinate);
+      content.innerText = data.features[0].properties.name;
+      container.style.display = 'block';
+    } else {
+      container.style.display = 'none';
     }
   });
 });
+
+// add click handler to highlight the selected feature
+
+map.on('singleclick', function (evt) {
+  var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    {
+      'INFO_FORMAT': 'application/vnd.ogc.gml',
+    });
+  $.ajax({
+    type: 'GET',
+    url: url
+  }).done(function (data) {
+    var features = parser.readFeatures(data);
+    featureOverlay.getSource().clear();
+    featureOverlay.getSource().addFeatures(features);
+  })
 });
-
-
-
-
-  // mouseover event listener to change cursor style on hover
-  map.on('pointermove', function (e) {
-    if (e.dragging) {
-      return;
-    }
-    var pixel = map.getEventPixel(e.originalEvent);
-    var hit = map.forEachLayerAtPixel(pixel, function () {
-      return true;
-    });
-    map.getTarget().style.cursor = hit ? 'pointer' : '';
-    // if (hit) {
-    //   var url = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
-    //     { 'INFO_FORMAT': 'application/json', 'propertyName': 'name' });
-    //   // adding the following lines would use url as the src data to display without the need for ajax request - however the control of display is not as good. 
-    //   // content.innerText = '<object type="application/json" data="' + layerHover + '"></object>';
-    //   // content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
-    //   $.ajax({
-    //     type: 'GET',
-    //     url: url
-    //   }).done(function (data) {
-    //     overlay.setPosition(e.coordinate);
-    //     content.innerText = data.features[0].properties.name;
-    //     container.style.display = 'block';
-    //   });
-    // } else {
-    //   container.style.display = 'none';
-    // }
-  });
-
-  var parser = new ol.format.WMSGetFeatureInfo();
-  var viewResolution = map.getView().getResolution();
-  var viewProjection = map.getView().getProjection();
-
-  // add click handler to the map to render the popup.
-
-  map.on('singleclick', function (evt) {
-    var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
-      {
-        'INFO_FORMAT': 'application/json',
-        'propertyName': 'name'
-      });
-    $.ajax({
-      type: 'GET',
-      url: url
-    }).done(function (data) {
-      if (data.features.length > 0) {
-        overlay.setPosition(evt.coordinate);
-        content.innerText = data.features[0].properties.name;
-        container.style.display = 'block';
-      } else {
-        container.style.display = 'none';
-      }
-    });
-  });
-
-  // add click handler to highlight the selected feature
-
-  map.on('singleclick', function (evt) {
-    var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
-      {
-        'INFO_FORMAT': 'application/vnd.ogc.gml',
-      });
-    $.ajax({
-      type: 'GET',
-      url: url
-    }).done(function (data) {
-      var features = parser.readFeatures(data);
-      featureOverlay.getSource().clear();
-      featureOverlay.getSource().addFeatures(features);
-    })
-  });
 
