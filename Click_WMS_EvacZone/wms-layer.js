@@ -25,15 +25,20 @@ var overlay = new ol.Overlay({
 
 // create source from TileWMS source 
 
-var wmsSource = new ol.source.TileWMS({
-  url: 'https://ahocevar.com/geoserver/wms',
-  params: { 'LAYERS': 'ne:ne' },
+var evacZoneSource = new ol.source.TileWMS({
+  url: 'https://hvx-mapserver.hurrevac.com/geoserver/gwc/service/wms',
+  params: { 
+    'LAYERS': 'nhp:al_baldwinevaczones_baldwin',
+    'TILED': true,
+    'VERSION': '1.1.1',
+    'FORMAT': 'image/png8'
+  },
   serverType: 'geoserver',
   crossOrigin: 'anonymous'
 });
 
-add basemap grayscale
-var raster = new ol.layer.Tile({
+// add basemap grayscale
+var basemap = new ol.layer.Tile({
   source: new ol.source.XYZ({
     attributions: 'OSM',
     url: 'https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png'
@@ -42,12 +47,13 @@ var raster = new ol.layer.Tile({
 
 // create vector layer to display features in vector source
 var wmsLayer = new ol.layer.Tile({
-  source: wmsSource,
+  source: evacZoneSource,
+  title: 'evacZone'
 });
 
 // create map
 var map = new ol.Map({
-  layers: [wmsLayer],
+  layers: [basemap, wmsLayer],
   target: document.getElementById('map'),
   view: new ol.View({
     center: [0, 0],
@@ -56,7 +62,7 @@ var map = new ol.Map({
   overlays: [overlay]
 });
 
-// create overlay for mouseover highlight of feature
+// create overlay for mouse click highlight of feature
 var featureOverlay = new ol.layer.Vector({
   source: new ol.source.Vector,
   map: map,
@@ -67,89 +73,18 @@ var parser = new ol.format.WMSGetFeatureInfo();
 var viewResolution = map.getView().getResolution();
 var viewProjection = map.getView().getProjection();
 
-// switch between styles when feature mouseover event is called
-// var highlight;
-// var displayFeatureInfo = function (pixel, coordinates) {
 
-//   var feature = map.forEachFeatureAtPixel(pixel, function (feature) {
-//     // console.log(feature)
-//     return feature;
-//   });
 
-//   if (feature !== highlight) {
-//     if (highlight) {
-//       featureOverlay.getSource().removeFeature(highlight);
-//     }
-//     if (feature) {
-//       featureOverlay.getSource().addFeature(feature);
-//     }
-//     highlight = feature;
+// map.on('pointermove', function (e) {
+//   if (e.dragging) {
+//     return;
 //   }
-// };
-
-// mouseover event listener to show popup
-
-var mouseCoordinates = [];
-
-map.on('pointermove', function (e) {
-  // mouseCoordinates = map.getEventPixel(e.originalEvent);
-mouseCoordinates.push(e.coordinate);
-clearTimeout();
-setTimeout(function () {
-  getUrl(mouseCoordinates.length - 1);
-  // console.log(typeof(mouseCoordinates.length - 1));
-}, 1000);
-// return mouseCoordinates;
-  // console.log(mouseCoordinates);
-});
-
-function getUrl(coordinates) {
-  if (mouseCoordinates.length > 0) {
-  var url = wmsSource.getGetFeatureInfoUrl(coordinates, viewResolution, viewProjection,
-        { 'INFO_FORMAT': 'text/html', 'propertyName': 'name' });
-  // console.log(url);    
-  mouseCoordinates = [];
-  } else {
-    return;
-  }
-}
-
-$('#map').mouseover(function () {
-  clearTimeout();
-  setTimeout(function () {
-    console.log(mouseCoordinates);
-  }, 5000);
-});
-
-
-// mouseover event listener to change cursor style on hover
-map.on('pointermove', function (e) {
-  if (e.dragging) {
-    return;
-  }
-  var pixel = map.getEventPixel(e.originalEvent);
-  var hit = map.forEachLayerAtPixel(pixel, function () {
-    return true;
-  });
-  map.getTarget().style.cursor = hit ? 'pointer' : '';
-  // if (hit) {
-  //   var url = wmsSource.getGetFeatureInfoUrl(e.coordinate, viewResolution, viewProjection,
-  //     { 'INFO_FORMAT': 'application/json', 'propertyName': 'name' });
-  //   // adding the following lines would use url as the src data to display without the need for ajax request - however the control of display is not as good. 
-  //   // content.innerText = '<object type="application/json" data="' + layerHover + '"></object>';
-  //   // content.innerHTML = '<iframe seamless src="' + layerHover + '"></iframe>';
-  //   $.ajax({
-  //     type: 'GET',
-  //     url: url
-  //   }).done(function (data) {
-  //     overlay.setPosition(e.coordinate);
-  //     content.innerText = data.features[0].properties.name;
-  //     container.style.display = 'block';
-  //   });
-  // } else {
-  //   container.style.display = 'none';
-  // }
-});
+//   var pixel = map.getEventPixel(e.originalEvent);
+//   var hit = map.forEachLayerAtPixel(pixel, function () {
+//     return true;
+//   });
+//   map.getTarget().style.cursor = hit ? 'pointer' : '';
+// });
 
 
 
