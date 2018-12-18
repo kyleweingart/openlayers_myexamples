@@ -183,6 +183,7 @@ map.on('singleclick', function (evt) {
     console.log(features);
     featureOverlay.getSource().clear();
     featureOverlay.getSource().addFeatures(features);
+    console.log(featureOverlay.getSource().getProjection());
   })
 });
 

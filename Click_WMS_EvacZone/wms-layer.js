@@ -120,6 +120,7 @@ map.on('singleclick', function (evt) {
   var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
     {
       'INFO_FORMAT': 'application/vnd.ogc.gml',
+      propertyName: 'geom'
     });
   $.ajax({
     type: 'GET',
@@ -127,8 +128,13 @@ map.on('singleclick', function (evt) {
   }).done(function (data) {
     var features = parser.readFeatures(data);
     console.log(features);
+    geom = features[0].H.geom;
+    features[0].setGeometry(geom);
+    console.log(features[0]);
     featureOverlay.getSource().clear();
     featureOverlay.getSource().addFeatures(features);
+    console.log(featureOverlay.getSource().getProjection());
+  console.log(featureOverlay.getSource().getExtent());
   })
 });
 
