@@ -32,6 +32,14 @@ var wmsSource = new ol.source.TileWMS({
   crossOrigin: 'anonymous'
 });
 
+add basemap grayscale
+var raster = new ol.layer.Tile({
+  source: new ol.source.XYZ({
+    attributions: 'OSM',
+    url: 'https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png'
+  })
+});
+
 // create vector layer to display features in vector source
 var wmsLayer = new ol.layer.Tile({
   source: wmsSource,
