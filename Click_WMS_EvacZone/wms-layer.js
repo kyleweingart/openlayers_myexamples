@@ -27,7 +27,7 @@ var overlay = new ol.Overlay({
 
 var evacZoneSource = new ol.source.TileWMS({
   url: 'https://hvx-mapserver.hurrevac.com/geoserver/gwc/service/wms',
-  params: { 
+  params: {
     'LAYERS': 'nhp:al_baldwinevaczones_baldwin',
     'TILED': true,
     'VERSION': '1.1.1',
@@ -57,7 +57,7 @@ var map = new ol.Map({
   target: document.getElementById('map'),
   view: new ol.View({
     center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
-    zoom:7
+    zoom: 7
   }),
   overlays: [overlay]
 });
@@ -82,7 +82,7 @@ map.on('pointermove', function (e) {
   var pixel = map.getEventPixel(e.originalEvent);
   var hit = map.forEachLayerAtPixel(pixel, function (layer) {
     return layer;
-  }, null , function(layer) {
+  }, null, function (layer) {
     var layerName = layer.get('title');
     return (layerName === 'evacZone');
   });
@@ -92,26 +92,28 @@ map.on('pointermove', function (e) {
 
 
 // add click handler to the map to render the popup.
+// this logic has been added to the below click event but I left this here to 
+// show additional methods/formats
 
-map.on('singleclick', function (evt) {
-  var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
-    {
-      'INFO_FORMAT': 'application/json',
-      'propertyName': 'name'
-    });
-  $.ajax({
-    type: 'GET',
-    url: url
-  }).done(function (data) {
-    if (data.features.length > 0) {
-      overlay.setPosition(evt.coordinate);
-      content.innerText = data.features[0].properties.zone_name;
-      container.style.display = 'block';
-    } else {
-      container.style.display = 'none';
-    }
-  });
-});
+// map.on('singleclick', function (evt) {
+//   var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+//     {
+//       'INFO_FORMAT': 'application/json',
+//       'propertyName': 'name'
+//     });
+//   $.ajax({
+//     type: 'GET',
+//     url: url
+//   }).done(function (data) {
+//     if (data.features.length > 0) {
+//       overlay.setPosition(evt.coordinate);
+//       content.innerText = data.features[0].properties.zone_name;
+//       container.style.display = 'block';
+//     } else {
+//       container.style.display = 'none';
+//     }
+//   });
+// });
 
 // add click handler to highlight the selected feature
 
@@ -120,7 +122,6 @@ map.on('singleclick', function (evt) {
   var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
     {
       'INFO_FORMAT': 'application/vnd.ogc.gml',
-      // 'INFO_FORMAT': 'application/json',
     });
   $.ajax({
     type: 'GET',
@@ -128,21 +129,24 @@ map.on('singleclick', function (evt) {
   }).done(function (data) {
     var features = parser.readFeatures(data);
     if (features.length > 0) {
-    var features = parser.readFeatures(data);
-    console.log(features);
-    // below works but has generalized data
-    // geom = features[0].H.geom;
-    // features[0].setGeometry(geom);
-    features[0].getGeometry().transform('EPSG:4326','EPSG:3857')
-    featureOverlay.getSource().clear();
-    featureOverlay.getSource().addFeatures(features);
+      var features = parser.readFeatures(data);
+      console.log(features);
+      // below works but has generalized data
+      // geom = features[0].H.geom;
+      // features[0].setGeometry(geom);
+      features[0].getGeometry().transform('EPSG:4326', 'EPSG:3857')
+      featureOverlay.getSource().clear();
+      featureOverlay.getSource().addFeatures(features);
+      overlay.setPosition(evt.coordinate);
+      content.innerText = features[0].H.zone_name;
+      container.style.display = 'block';
     } else {
       featureOverlay.getSource().clear();
+      container.style.display = 'none';
     }
-    
+
   })
 });
 
-// TO DO: make highlight and popup all part of 1 event 
 // Try this same functionality out with WFS
 
