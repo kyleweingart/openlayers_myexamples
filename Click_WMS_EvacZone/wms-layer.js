@@ -127,16 +127,22 @@ map.on('singleclick', function (evt) {
     url: url
   }).done(function (data) {
     var features = parser.readFeatures(data);
+    if (features.length > 0) {
+    var features = parser.readFeatures(data);
     console.log(features);
     // below works but has generalized data
     // geom = features[0].H.geom;
     // features[0].setGeometry(geom);
     features[0].getGeometry().transform('EPSG:4326','EPSG:3857')
-    console.log(features[0]);
     featureOverlay.getSource().clear();
     featureOverlay.getSource().addFeatures(features);
-    console.log(featureOverlay.getSource().getProjection());
-  console.log(featureOverlay.getSource().getExtent());
+    } else {
+      featureOverlay.getSource().clear();
+    }
+    
   })
 });
+
+// TO DO: make highlight and popup all part of 1 event 
+// Try this same functionality out with WFS
 
