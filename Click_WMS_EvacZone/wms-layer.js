@@ -75,16 +75,19 @@ var viewProjection = map.getView().getProjection();
 
 
 
-// map.on('pointermove', function (e) {
-//   if (e.dragging) {
-//     return;
-//   }
-//   var pixel = map.getEventPixel(e.originalEvent);
-//   var hit = map.forEachLayerAtPixel(pixel, function () {
-//     return true;
-//   });
-//   map.getTarget().style.cursor = hit ? 'pointer' : '';
-// });
+map.on('pointermove', function (e) {
+  if (e.dragging) {
+    return;
+  }
+  var pixel = map.getEventPixel(e.originalEvent);
+  var hit = map.forEachLayerAtPixel(pixel, function (layer) {
+    return layer;
+  }, null , function(layer) {
+    var layerName = layer.get('title');
+    return (layerName === 'evacZone');
+  });
+  map.getTarget().style.cursor = hit ? 'pointer' : '';
+});
 
 
 
@@ -102,7 +105,7 @@ map.on('singleclick', function (evt) {
   }).done(function (data) {
     if (data.features.length > 0) {
       overlay.setPosition(evt.coordinate);
-      content.innerText = data.features[0].properties.name;
+      content.innerText = data.features[0].properties.zone_name;
       container.style.display = 'block';
     } else {
       container.style.display = 'none';
@@ -114,7 +117,7 @@ map.on('singleclick', function (evt) {
 
 map.on('singleclick', function (evt) {
   console.log(evt.coordinate);
-  var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+  var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
     {
       'INFO_FORMAT': 'application/vnd.ogc.gml',
     });
