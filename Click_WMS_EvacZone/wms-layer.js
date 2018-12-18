@@ -56,8 +56,8 @@ var map = new ol.Map({
   layers: [basemap, wmsLayer],
   target: document.getElementById('map'),
   view: new ol.View({
-    center: [0, 0],
-    zoom: 1
+    center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
+    zoom:7
   }),
   overlays: [overlay]
 });
@@ -91,7 +91,7 @@ var viewProjection = map.getView().getProjection();
 // add click handler to the map to render the popup.
 
 map.on('singleclick', function (evt) {
-  var url = wmsSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+  var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
     {
       'INFO_FORMAT': 'application/json',
       'propertyName': 'name'
