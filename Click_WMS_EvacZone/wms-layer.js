@@ -73,8 +73,6 @@ var parser = new ol.format.WMSGetFeatureInfo();
 var viewResolution = map.getView().getResolution();
 var viewProjection = map.getView().getProjection();
 
-
-
 map.on('pointermove', function (e) {
   if (e.dragging) {
     return;
@@ -129,7 +127,6 @@ map.on('singleclick', function (evt) {
   }).done(function (data) {
     var features = parser.readFeatures(data);
     if (features.length > 0) {
-      var features = parser.readFeatures(data);
       console.log(features);
       // below works but has generalized data
       // geom = features[0].H.geom;
@@ -140,6 +137,7 @@ map.on('singleclick', function (evt) {
       overlay.setPosition(evt.coordinate);
       content.innerText = features[0].H.zone_name;
       container.style.display = 'block';
+      console.log(overlay);
     } else {
       featureOverlay.getSource().clear();
       container.style.display = 'none';
