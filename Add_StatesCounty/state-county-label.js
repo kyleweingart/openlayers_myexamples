@@ -22,6 +22,7 @@ var wmsState = new ol.layer.Tile({
     })
 })
 
+
 // county WFS USGS
 var wfsCounty = new ol.layer.Vector({
     source: new ol.source.Vector({
@@ -29,13 +30,71 @@ var wfsCounty = new ol.layer.Vector({
         format: new ol.format.GeoJSON(),
         strategy: ol.loadingstrategy.all
     }),
-    style: new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'rgba(4, 26, 0, 1.0)',
-            width: 1
+    style: styleFunction,
+    // style: new ol.style.Style({
+    //     stroke: new ol.style.Stroke({
+    //         color: 'rgba(4, 26, 0, 1.0)',
+    //         width: 1
+    //     }),
+    //     text: new ol.style.Text({
+    //         text: "County"
+    //     })
+    // }),
+    maxResolution: 2500
+});
+
+var getText = function (feature, resolution) {
+    maxResolution = 600;
+    if (resolution > maxResolution) {
+      textDescription = '';
+    } else {
+      textDescription = feature.get('COUNTY');
+    }
+    return textDescription;
+  }
+
+  // style county WFS
+function styleFunction(feature, resolution) {
+    // lenght of the array determines how many parts are in the polyong
+    // potentially i could use this in the geometry function 
+    // might be able to use this in the getText function as well to only label the largest features
+    console.log(feature.getGeometry().getPolygons());
+    console.log('county: ' + feature.get('COUNTY') + ' length: ' + feature.H.geometry.c.length);
+    var polyStyle = new ol.style.Style({
+      stroke: new ol.style.Stroke({ 
+          color: 'rgba(10,10,10,1.0)', 
+          width: 1 
         })
     })
-});
+     var textStyle = new ol.style.Style({
+        text: new ol.style.Text({
+        font: '10px Calibir, sans-serif',
+        text: getText(feature, resolution),
+        textAlign: 'center',
+        scale: '1.5',
+        fill: new ol.style.Fill({
+          color: 'rgba(0, 0, 0, 0.6'
+        }),
+        stroke: new ol.style.Stroke({
+          color: '#fff',
+          width: 3
+        }),
+        geometry: function(feature){
+            var retPoint;
+            console.log(feature.getSource());
+            // console.log(feature.getSource().getGeometry().getType());
+            if (feature.getGeometry().getType() === 'MultiPolygon') {
+                retPoint =  getMaxPoly(feature.getGeometry().getPolygons()).getInteriorPoint();
+              } else if (feature.getGeometry().getType() === 'Polygon') {
+                retPoint = feature.getGeometry().getInteriorPoint();
+              }
+              console.log(retPoint)
+              return retPoint;
+            }
+      })
+    })
+    return [polyStyle,textStyle];
+  }
 
 // state WFS USGS
 var wfsState = new ol.layer.Vector({
@@ -57,6 +116,8 @@ var map = new ol.Map({
         target: document.getElementById('map'),
         view: new ol.View({
             center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
-            zoom: 7
+            zoom: 3
         }),
     });
+
+console.log(map.getView().getResolution());
