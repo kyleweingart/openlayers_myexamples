@@ -125,6 +125,8 @@ var wmsStateCountyTigerTile = new ol.layer.Tile({
     })
 })
 
+// still working on this - default brings in states and states labels - how do i get county and county labels?
+// see desktop - few ESRI api, etc. 
 var wmsCurrentTiger = new ol.layer.Tile({
     source: new ol.source.TileArcGISRest({
         params: {LAYERS: [86, 87]},
