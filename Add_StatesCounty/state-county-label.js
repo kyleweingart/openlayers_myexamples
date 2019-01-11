@@ -58,43 +58,63 @@ function styleFunction(feature, resolution) {
     // lenght of the array determines how many parts are in the polyong
     // potentially i could use this in the geometry function 
     // might be able to use this in the getText function as well to only label the largest features
-    console.log(feature.getGeometry().getPolygons());
+    console.log(feature.getGeometry().getInteriorPoints());
+    console.log(feature.getGeometry().getType());
+    console.log(feature.getGeometry().getPolygons().length);
+    // get interior points needs research
     console.log('county: ' + feature.get('COUNTY') + ' length: ' + feature.H.geometry.c.length);
-    var polyStyle = new ol.style.Style({
+    var polyStyleConfig = {
       stroke: new ol.style.Stroke({ 
           color: 'rgba(10,10,10,1.0)', 
           width: 1 
         })
-    })
-     var textStyle = new ol.style.Style({
+    }
+    
+    var textStyleConfig = {
         text: new ol.style.Text({
-        font: '10px Calibir, sans-serif',
-        text: getText(feature, resolution),
-        textAlign: 'center',
-        scale: '1.5',
-        fill: new ol.style.Fill({
-          color: 'rgba(0, 0, 0, 0.6'
-        }),
+         font: '10px Calibir, sans-serif',
+         text: getText(feature, resolution),
+         textAlign: 'center',
+         scale: '1.5',
+         fill: new ol.style.Fill({
+           color: 'rgba(0, 0, 0, 0.6)'
+          }),
         stroke: new ol.style.Stroke({
           color: '#fff',
           width: 3
+          })
         }),
         geometry: function(feature){
             var retPoint;
-            console.log(feature.getSource());
-            // console.log(feature.getSource().getGeometry().getType());
-            if (feature.getGeometry().getType() === 'MultiPolygon') {
-                retPoint =  getMaxPoly(feature.getGeometry().getPolygons()).getInteriorPoint();
-              } else if (feature.getGeometry().getType() === 'Polygon') {
-                retPoint = feature.getGeometry().getInteriorPoint();
+            if (feature.getGeometry().getPolygons().length > 1) {
+                console.log('greater than 1');
+                var maxPoly =  getMaxPoly(feature.getGeometry().getPolygons())
+                
+                retPoint = maxPoly.getInteriorPoints();
+              } else if (feature.getGeometry().getPolygons().length === 1) {
+                console.log('1');
+                retPoint = feature.getGeometry().getInteriorPoints();
               }
               console.log(retPoint)
               return retPoint;
             }
-      })
-    })
+      }
+    var textStyle = new ol.style.Style(textStyleConfig);
+    var polyStyle = new ol.style.Style(polyStyleConfig);
     return [polyStyle,textStyle];
   }
+
+  function getMaxPoly(polys) {
+    var polyObj = [];
+    //now need to find which one is the greater and so label only this
+    for (var b = 0; b < polys.length; b++) {
+      polyObj.push({ poly: polys[b], area: polys[b].getArea() });
+    }
+    polyObj.sort(function (a, b) { return a.area - b.area });
+    console.log(polys);
+    console.log(polyObj);
+    return polyObj[polyObj.length - 1].poly;
+   }
 
 // state WFS USGS
 var wfsState = new ol.layer.Vector({
@@ -119,5 +139,3 @@ var map = new ol.Map({
             zoom: 3
         }),
     });
-
-console.log(map.getView().getResolution());
