@@ -1,3 +1,6 @@
+// there are many example layers to choose from including WMS & WFS calls and different loading 
+// strategies - add layers you want to display to the map variable. 
+
 // basemap grayscale
 var basemap = new ol.layer.Tile({
     source: new ol.source.XYZ({
@@ -31,18 +34,10 @@ var wfsCounty = new ol.layer.Vector({
         strategy: ol.loadingstrategy.all
     }),
     style: styleFunction,
-    // style: new ol.style.Style({
-    //     stroke: new ol.style.Stroke({
-    //         color: 'rgba(4, 26, 0, 1.0)',
-    //         width: 1
-    //     }),
-    //     text: new ol.style.Text({
-    //         text: "County"
-    //     })
-    // }),
     maxResolution: 2500
 });
 
+// show label at large scale resolutions
 var getText = function (feature, resolution) {
     maxResolution = 600;
     if (resolution > maxResolution) {
