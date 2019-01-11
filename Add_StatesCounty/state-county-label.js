@@ -41,61 +41,61 @@ var wfsCounty = new ol.layer.Vector({
 var getText = function (feature, resolution) {
     maxResolution = 600;
     if (resolution > maxResolution) {
-      textDescription = '';
+        textDescription = '';
     } else {
-      textDescription = feature.get('COUNTY');
+        textDescription = feature.get('COUNTY');
     }
     return textDescription;
-  }
+}
 
-  // style county WFS-config for stroke and label
+// style county WFS-config for stroke and label
 function styleFunction(feature, resolution) {
     var polyStyleConfig = {
-      stroke: new ol.style.Stroke({ 
-          color: 'rgba(10,10,10,1.0)', 
-          width: 1 
+        stroke: new ol.style.Stroke({
+            color: 'rgba(10,10,10,1.0)',
+            width: 1
         })
     }
-    
+
     var textStyleConfig = {
         text: new ol.style.Text({
-         font: '10px Calibir, sans-serif',
-         text: getText(feature, resolution),
-         textAlign: 'center',
-         scale: '1.5',
-         fill: new ol.style.Fill({
-           color: 'rgba(0, 0, 0, 0.6)'
-          }),
-        stroke: new ol.style.Stroke({
-          color: '#fff',
-          width: 3
-          })
+            font: '10px Calibir, sans-serif',
+            text: getText(feature, resolution),
+            textAlign: 'center',
+            scale: '1.5',
+            fill: new ol.style.Fill({
+                color: 'rgba(0, 0, 0, 0.6)'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#fff',
+                width: 3
+            })
         }),
-        geometry: function(feature){
+        geometry: function (feature) {
             var retPoint;
             if (feature.getGeometry().getPolygons().length > 1) {
-                retPoint =  getMaxPoly(feature.getGeometry().getPolygons())
-              } else if (feature.getGeometry().getPolygons().length === 1) {
+                retPoint = getMaxPoly(feature.getGeometry().getPolygons())
+            } else if (feature.getGeometry().getPolygons().length === 1) {
                 retPoint = feature.getGeometry().getInteriorPoints();
-              }
-              return retPoint;
             }
-      }
+            return retPoint;
+        }
+    }
     var textStyle = new ol.style.Style(textStyleConfig);
     var polyStyle = new ol.style.Style(polyStyleConfig);
-    return [polyStyle,textStyle];
-  }
+    return [polyStyle, textStyle];
+}
 
 //   helper function to find biggest polygon- could just return a threshold;
-  function getMaxPoly(polys) {
+function getMaxPoly(polys) {
     var polyObj = [];
     //now need to find which one is the greater and so label only this
     for (var b = 0; b < polys.length; b++) {
-      polyObj.push({ poly: polys[b], area: polys[b].getArea() });
+        polyObj.push({ poly: polys[b], area: polys[b].getArea() });
     }
     polyObj.sort(function (a, b) { return a.area - b.area });
     return polyObj[polyObj.length - 1].poly;
-   }
+}
 
 // state WFS USGS
 var wfsState = new ol.layer.Vector({
@@ -112,11 +112,32 @@ var wfsState = new ol.layer.Vector({
     })
 });
 
+var wmsStateCountyTiger = new ol.layer.Image({
+    source: new ol.source.ImageArcGISRest({
+        params: {},
+        url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer'
+    })
+})
+
+var wmsStateCountyTigerTile = new ol.layer.Tile({
+    source: new ol.source.TileArcGISRest({
+        url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer'
+    })
+})
+
+var wmsCurrentTiger = new ol.layer.Tile({
+    source: new ol.source.TileArcGISRest({
+        params: {LAYERS: [86, 87]},
+        // url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer/export?layers=show:86,87'
+        url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer'
+    })
+})
+
 var map = new ol.Map({
-        layers: [basemap, wfsState, wfsCounty],
-        target: document.getElementById('map'),
-        view: new ol.View({
-            center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
-            zoom: 3
-        }),
-    });
+    layers: [wmsCurrentTiger],
+    target: document.getElementById('map'),
+    view: new ol.View({
+        center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 3
+    }),
+});
