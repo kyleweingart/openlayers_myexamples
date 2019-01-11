@@ -53,16 +53,8 @@ var getText = function (feature, resolution) {
     return textDescription;
   }
 
-  // style county WFS
+  // style county WFS-config for stroke and label
 function styleFunction(feature, resolution) {
-    // lenght of the array determines how many parts are in the polyong
-    // potentially i could use this in the geometry function 
-    // might be able to use this in the getText function as well to only label the largest features
-    console.log(feature.getGeometry().getInteriorPoints());
-    console.log(feature.getGeometry().getType());
-    console.log(feature.getGeometry().getPolygons().length);
-    // get interior points needs research
-    console.log('county: ' + feature.get('COUNTY') + ' length: ' + feature.H.geometry.c.length);
     var polyStyleConfig = {
       stroke: new ol.style.Stroke({ 
           color: 'rgba(10,10,10,1.0)', 
@@ -87,15 +79,10 @@ function styleFunction(feature, resolution) {
         geometry: function(feature){
             var retPoint;
             if (feature.getGeometry().getPolygons().length > 1) {
-                console.log('greater than 1');
-                var maxPoly =  getMaxPoly(feature.getGeometry().getPolygons())
-                
-                retPoint = maxPoly.getInteriorPoints();
+                retPoint =  getMaxPoly(feature.getGeometry().getPolygons())
               } else if (feature.getGeometry().getPolygons().length === 1) {
-                console.log('1');
                 retPoint = feature.getGeometry().getInteriorPoints();
               }
-              console.log(retPoint)
               return retPoint;
             }
       }
@@ -104,6 +91,7 @@ function styleFunction(feature, resolution) {
     return [polyStyle,textStyle];
   }
 
+//   helper function to find biggest polygon- could just return a threshold;
   function getMaxPoly(polys) {
     var polyObj = [];
     //now need to find which one is the greater and so label only this
@@ -111,8 +99,6 @@ function styleFunction(feature, resolution) {
       polyObj.push({ poly: polys[b], area: polys[b].getArea() });
     }
     polyObj.sort(function (a, b) { return a.area - b.area });
-    console.log(polys);
-    console.log(polyObj);
     return polyObj[polyObj.length - 1].poly;
    }
 
