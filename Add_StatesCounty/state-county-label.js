@@ -27,6 +27,7 @@ var wmsState = new ol.layer.Tile({
 
 
 // county WFS USGS
+// could add different load strategy like BBox to increase load times
 var wfsCounty = new ol.layer.Vector({
     source: new ol.source.Vector({
         url: 'https://www.sciencebase.gov/catalogMaps/mapping/ows/4f4e4a2ee4b07f02db615738?service=WFS&request=GetFeature&version=1.0.0&typename=sb:US_County_Boundaries&outputFormat=application/json',
