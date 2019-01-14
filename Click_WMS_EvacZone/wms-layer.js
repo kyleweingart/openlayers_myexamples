@@ -37,6 +37,18 @@ var evacZoneSource = new ol.source.TileWMS({
   crossOrigin: 'anonymous'
 });
 
+var usaceDistricts = new ol.source.TileWMS({
+  url: 'https://hvx-mapserver.hurrevac.com/geoserver/gwc/service/wms',
+  params: {
+    'LAYERS': 'nhp:usace_districts',
+    'TILED': true,
+    'VERSION': '1.1.1',
+    'FORMAT': 'image/png8'
+  },
+  serverType: 'geoserver',
+  crossOrigin: 'anonymous'
+});
+
 // add basemap grayscale
 var basemap = new ol.layer.Tile({
   source: new ol.source.XYZ({
@@ -51,9 +63,16 @@ var wmsLayer = new ol.layer.Tile({
   title: 'evacZone'
 });
 
+var districtLayer = new ol.layer.Tile({
+  source: usaceDistricts,
+  title: 'usace-district'
+});
+
+
+
 // create map
 var map = new ol.Map({
-  layers: [basemap, wmsLayer],
+  layers: [basemap, wmsLayer, districtLayer],
   target: document.getElementById('map'),
   view: new ol.View({
     center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
