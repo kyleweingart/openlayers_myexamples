@@ -112,6 +112,7 @@ var wfsState = new ol.layer.Vector({
     })
 });
 
+// State_County Tiger ArcGIS Rest Service as Image
 var wmsStateCountyTiger = new ol.layer.Image({
     source: new ol.source.ImageArcGISRest({
         params: {},
@@ -119,24 +120,35 @@ var wmsStateCountyTiger = new ol.layer.Image({
     })
 })
 
+// State_County Tiger ArcGIS Rest Service as TILEs
 var wmsStateCountyTigerTile = new ol.layer.Tile({
     source: new ol.source.TileArcGISRest({
         url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer'
     })
 })
 
-// still working on this - default brings in states and states labels - how do i get county and county labels?
-// see desktop - few ESRI api, etc. 
+// Current Tiger with State, County, County Labels as Tiles- faster load time - multiple labels
 var wmsCurrentTiger = new ol.layer.Tile({
     source: new ol.source.TileArcGISRest({
-        params: {LAYERS: [86, 87]},
-        // url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer/export?layers=show:86,87'
+        params: {
+            'LAYERS':"show:84,86,87"
+        },
+        url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer'
+    })
+})
+
+// Current Tiger with State, County, County Labels as Images - superior labeling/cartography
+var wmsCurrentTigerImage = new ol.layer.Image({
+    source: new ol.source.ImageArcGISRest({
+        params: {
+            'LAYERS':"show:84,86,87"
+        },
         url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer'
     })
 })
 
 var map = new ol.Map({
-    layers: [wmsCurrentTiger],
+    layers: [wmsCurrentTigerImage],
     target: document.getElementById('map'),
     view: new ol.View({
         center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
