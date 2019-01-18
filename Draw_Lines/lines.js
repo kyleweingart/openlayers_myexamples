@@ -12,6 +12,12 @@ var linestring_feature = new ol.Feature({
 var vector = new ol.layer.Vector({
     source: new ol.source.Vector({
         features: [linestring_feature]
+    }),
+    style: new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'black',
+            width: 5
+        })
     })
 })
 
