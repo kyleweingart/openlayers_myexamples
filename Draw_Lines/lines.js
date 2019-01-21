@@ -43,11 +43,11 @@ var getLabelText = function(feature) {
 
 function pointStyleFunction(feature) {
     return new ol.style.Style({
-        image: new ol.style.Circle({
-            radius: 10,
-            fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.1)'}),
-            stroke: new ol.style.Stroke({color: 'red', width: 1})
-          }),
+        // image: new ol.style.Circle({
+        //     radius: 10,
+        //     fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.1)'}),
+        //     stroke: new ol.style.Stroke({color: 'red', width: 1})
+        //   }),
         text: new ol.style.Text({
             font: '12px',
             text: getLabelText(feature)
@@ -61,7 +61,7 @@ var label = new ol.layer.Vector({
     style: pointStyleFunction
 })
 
-var pointCoords = [{ coords: [2, 84], label: 'NHC' }, { coords: [-178, 84], label: 'JTWC' }, { coords: [-142,84], label: 'CPHC' }]
+var pointCoords = [{ coords: [-70, 84], label: 'NHC' }, { coords: [90, 84], label: 'JTWC' }, { coords: [-160,84], label: 'CPHC' }]
 
 for (var i = 0; i <= 2; i++) {
     console.log(pointCoords[i]);
