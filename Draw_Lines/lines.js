@@ -61,7 +61,7 @@ var label = new ol.layer.Vector({
     style: pointStyleFunction
 })
 
-var pointCoords = [{ coords: [2, 84], title: 'NHC' }, { coords: [-178, 84], title: 'JTWC' }, { coords: [-142,84], title: 'CPHC' }]
+var pointCoords = [{ coords: [2, 84], label: 'NHC' }, { coords: [-178, 84], label: 'JTWC' }, { coords: [-142,84], label: 'CPHC' }]
 
 for (var i = 0; i <= 2; i++) {
     console.log(pointCoords[i]);
@@ -70,7 +70,7 @@ for (var i = 0; i <= 2; i++) {
     console.log(coordsPrj);
     var point_feature = new ol.Feature({
         geometry: coordsPrj,
-        title: pointCoords[i].title
+        title: pointCoords[i].label
     })
     label.getSource().addFeature(point_feature);
 };
