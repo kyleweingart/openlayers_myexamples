@@ -2,10 +2,12 @@ var raster = new ol.layer.Tile({
     source: new ol.source.OSM()
 })
 
+var coords = [[0, 0], [0, 85]];
+var coordsPrj = new ol.geom.LineString(coords);
+coordsPrj.transform('EPSG:4326', 'EPSG:3857');
+
 var linestring_feature = new ol.Feature({
-    geometry: new ol.geom.LineString(
-        [[0, -20000000], [0, 20000000]]
-        ),
+    geometry: coordsPrj,
     title: 'Prime Meridian'
 });
 
