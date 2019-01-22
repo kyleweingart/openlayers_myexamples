@@ -32,6 +32,25 @@ function lineStyleFunction(feature) {
             })
         })
     }));
+} else if (feature.get('position') === 'right') {
+    styles.push(new ol.style.Style({
+        geometry: new ol.geom.Point(lastCoordinate),
+        text: new ol.style.Text({
+            font: '12px sans-serif',
+            textAlign: 'start',
+            textBaseline: 'top',
+            offsetX: 10,
+            offsetY: 10,
+            text: feature.get('label'),
+            fill: new ol.style.Fill({
+                color: 'rgba(0, 0, 255, 0.6'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#e7e7e7',
+                width: 3
+            })
+        })
+    }));
 }
     return styles;
 }
@@ -46,15 +65,16 @@ var vector = new ol.layer.Vector({
 
 
 var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'NHC', position: 'left' }, 
+{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'JTWC', position: 'right' },
 { coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border', label: 'JTWC', position: 'left'}, 
 { coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'left' },
 { coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'NHC', position: 'right' }, { coords: [[180, 0], [-180, 0]] }];
 
 for (var i = 0; i <= lineCoords.length - 1; i++) {
-    console.log(lineCoords[i]);
+    // console.log(lineCoords[i]);
     var coordsPrj = new ol.geom.LineString(lineCoords[i].coords);
     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
-    console.log(coordsPrj);
+    // console.log(coordsPrj);
     var linestring_feature = new ol.Feature({
         geometry: coordsPrj,
         title: lineCoords[i].title,
