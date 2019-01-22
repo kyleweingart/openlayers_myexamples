@@ -6,19 +6,22 @@ var raster = new ol.layer.Tile({
 function lineStyleFunction(feature) {
     var geom = feature.getGeometry();
     var lastCoordinate = geom.getLastCoordinate();
-    console.log(lastCoordinate);
-    console.log(geom);
     var styles = [new ol.style.Style({
         stroke: new ol.style.Stroke({
             color: 'rgba(0, 0, 255, 0.6',
             width: 2
         })
     })];
-
+    
+    if (feature.get('position') === 'left') {
     styles.push(new ol.style.Style({
         geometry: new ol.geom.Point(lastCoordinate),
         text: new ol.style.Text({
-            font: '12px',
+            font: '12px sans-serif',
+            textAlign: 'end',
+            textBaseline: 'top',
+            offsetX: -10,
+            offsetY: 10,
             text: feature.get('label'),
             fill: new ol.style.Fill({
                 color: 'rgba(0, 0, 255, 0.6'
@@ -29,6 +32,7 @@ function lineStyleFunction(feature) {
             })
         })
     }));
+}
     return styles;
 }
 
@@ -41,9 +45,12 @@ var vector = new ol.layer.Vector({
 })
 
 
-var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'NHC' }, { coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border', label: 'JTWC' }, { coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'CPHC' }, { coords: [[180, 0], [-180, 0]] }];
+var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'NHC', position: 'left' }, 
+{ coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border', label: 'JTWC', position: 'left'}, 
+{ coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'left' },
+{ coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'NHC', position: 'right' }, { coords: [[180, 0], [-180, 0]] }];
 
-for (var i = 0; i <= 3; i++) {
+for (var i = 0; i <= lineCoords.length - 1; i++) {
     console.log(lineCoords[i]);
     var coordsPrj = new ol.geom.LineString(lineCoords[i].coords);
     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
@@ -51,7 +58,8 @@ for (var i = 0; i <= 3; i++) {
     var linestring_feature = new ol.Feature({
         geometry: coordsPrj,
         title: lineCoords[i].title,
-        label: lineCoords[i].label
+        label: lineCoords[i].label,
+        position: lineCoords[i].position
     })
     vector.getSource().addFeature(linestring_feature);
 };
