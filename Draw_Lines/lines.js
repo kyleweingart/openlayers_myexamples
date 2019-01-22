@@ -4,13 +4,34 @@ var raster = new ol.layer.Tile({
 
 
 function lineStyleFunction(feature) {
-    return new ol.style.Style({
+    var geom = feature.getGeometry();
+    var lastCoordinate = geom.getLastCoordinate();
+    console.log(lastCoordinate);
+    console.log(geom);
+    var styles = [new ol.style.Style({
         stroke: new ol.style.Stroke({
-            color: 'black',
-            width: 3
-        }),
-    })
+            color: 'rgba(0, 0, 255, 0.6',
+            width: 2
+        })
+    })];
+
+    styles.push(new ol.style.Style({
+        geometry: new ol.geom.Point(lastCoordinate),
+        text: new ol.style.Text({
+            font: '12px',
+            text: feature.get('label'),
+            fill: new ol.style.Fill({
+                color: 'rgba(0, 0, 255, 0.6'
+            }),
+            stroke: new ol.style.Stroke({
+                color: '#e7e7e7',
+                width: 3
+            })
+        })
+    }));
+    return styles;
 }
+
 
 var vector = new ol.layer.Vector({
     source: new ol.source.Vector({
@@ -20,7 +41,7 @@ var vector = new ol.layer.Vector({
 })
 
 
-var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border' }, { coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border' }, { coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border' }, { coords: [[180, 0], [-180, 0]] }];
+var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'NHC' }, { coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border', label: 'JTWC' }, { coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'CPHC' }, { coords: [[180, 0], [-180, 0]] }];
 
 for (var i = 0; i <= 3; i++) {
     console.log(lineCoords[i]);
@@ -29,57 +50,63 @@ for (var i = 0; i <= 3; i++) {
     console.log(coordsPrj);
     var linestring_feature = new ol.Feature({
         geometry: coordsPrj,
-        title: lineCoords[i].title
+        title: lineCoords[i].title,
+        label: lineCoords[i].label
     })
     vector.getSource().addFeature(linestring_feature);
 };
 
 
 
-var getLabelText = function(feature) {
-    var text = feature.get('title');
-    return text;
-}
+// var getLabelText = function(feature) {
+//     var text = feature.get('');
+//     return text;
+// }
 
-function pointStyleFunction(feature) {
-    return new ol.style.Style({
-        // image: new ol.style.Circle({
-        //     radius: 10,
-        //     fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.1)'}),
-        //     stroke: new ol.style.Stroke({color: 'red', width: 1})
-        //   }),
-        text: new ol.style.Text({
-            font: '12px',
-            text: getLabelText(feature)
-        })
-    })
-}
-var label = new ol.layer.Vector({
-    source: new ol.source.Vector({
-        features: []
-    }),
-    style: pointStyleFunction
-})
+// function pointStyleFunction(feature) {
+//     return new ol.style.Style({
+//         // image: new ol.style.Circle({
+//         //     radius: 10,
+//         //     fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.1)'}),
+//         //     stroke: new ol.style.Stroke({color: 'red', width: 1})
+//         //   }),
+//         text: new ol.style.Text({
+//             font: '12px',
+//             text: getLabelText(feature),
+//             fill: new ol.style.Fill({
+//                 color: 'rgba(0, 0, 255, 0.6'
+//               }),
+//               stroke: new ol.style.Stroke({
+//                 color: '#e7e7e7',
+//                 width: 3
+//               })
+//         })
+//     })
+// }
+// var label = new ol.layer.Vector({
+//     source: new ol.source.Vector({
+//         features: []
+//     }),
+//     style: pointStyleFunction
+// })
 
-var pointCoords = [{ coords: [-70, 84], label: 'NHC' }, { coords: [90, 84], label: 'JTWC' }, { coords: [-160,84], label: 'CPHC' }]
+// var pointCoords = [{ coords: [-15, 84], label: 'NHC' }, { coords: [-125, 84], label: 'NHC' }, 
+// { coords: [15, 84], label: 'JTWC' }, { coords: [165, 84], label: 'JTWC' }, { coords: [-160,84], label: 'CPHC' }]
 
-for (var i = 0; i <= 2; i++) {
-    console.log(pointCoords[i]);
-    var coordsPrj = new ol.geom.Point(pointCoords[i].coords);
-    coordsPrj.transform('EPSG:4326', 'EPSG:3857');
-    console.log(coordsPrj);
-    var point_feature = new ol.Feature({
-        geometry: coordsPrj,
-        title: pointCoords[i].label
-    })
-    label.getSource().addFeature(point_feature);
-};
-
-console.log(label.getSource().getFeatures());
-
+// for (var i = 0; i <= pointCoords.length - 1; i++) {
+//     console.log(pointCoords[i]);
+//     var coordsPrj = new ol.geom.Point(pointCoords[i].coords);
+//     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
+//     console.log(coordsPrj);
+//     var point_feature = new ol.Feature({
+//         geometry: coordsPrj,
+//         title: pointCoords[i].label
+//     })
+//     label.getSource().addFeature(point_feature);
+// };
 
 var map = new ol.Map({
-    layers: [raster, label, vector],
+    layers: [raster, vector],
     target: document.getElementById('map'),
     view: new ol.View({
         center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
