@@ -5,7 +5,20 @@ var raster = new ol.layer.Tile({
 
 function lineStyleFunction(feature) {
     var geom = feature.getGeometry();
+    var view = map.getView();
+    size = map.getSize();
+    console.log(view);
+    var viewExtent = view.calculateExtent(size);
     var lastCoordinate = geom.getLastCoordinate();
+    // var firstCoordinate = geom.getFirstCoordinate();
+    var vTl = ol.extent.getTopLeft(viewExtent);
+    
+    if (vTl[1] >= lastCoordinate[1] || (vTl[1] <= 1000000)) {
+        var pt = lastCoordinate;
+      } else if (vTl[1] < lastCoordinate[1]) {
+        pt = [lastCoordinate[0], vTl[1]];
+      }
+
     var styles = [new ol.style.Style({
         stroke: new ol.style.Stroke({
             color: 'rgba(0, 0, 255, 0.6',
@@ -15,7 +28,7 @@ function lineStyleFunction(feature) {
     
     if (feature.get('position') === 'left') {
     styles.push(new ol.style.Style({
-        geometry: new ol.geom.Point(lastCoordinate),
+        geometry: new ol.geom.Point(pt),
         text: new ol.style.Text({
             font: '12px sans-serif',
             textAlign: 'end',
@@ -34,7 +47,7 @@ function lineStyleFunction(feature) {
     }));
 } else if (feature.get('position') === 'right') {
     styles.push(new ol.style.Style({
-        geometry: new ol.geom.Point(lastCoordinate),
+        geometry: new ol.geom.Point(pt),
         text: new ol.style.Text({
             font: '12px sans-serif',
             textAlign: 'start',
