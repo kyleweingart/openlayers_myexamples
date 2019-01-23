@@ -6,68 +6,128 @@ var raster = new ol.layer.Tile({
 function lineStyleFunction(feature) {
     var geom = feature.getGeometry();
     var view = map.getView();
-    size = map.getSize();
-    console.log(view);
+    var size = map.getSize();
+    var resolution = view.getResolution();
+    console.log(resolution);
     var viewExtent = view.calculateExtent(size);
     var lastCoordinate = geom.getLastCoordinate();
     // var firstCoordinate = geom.getFirstCoordinate();
     var vTl = ol.extent.getTopLeft(viewExtent);
-    
+
     if (vTl[1] >= lastCoordinate[1] || (vTl[1] <= 1000000)) {
         var pt = lastCoordinate;
-      } else if (vTl[1] < lastCoordinate[1]) {
+    } else if (vTl[1] < lastCoordinate[1]) {
         pt = [lastCoordinate[0], vTl[1]];
-      }
+    }
 
-    var styles = [new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'rgba(0, 0, 255, 0.6',
-            width: 2
-        })
-    })];
-    
+
+    var styles = [];
+
+    if (feature.get('position') !== 'center') {
+        styles.push(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(0, 0, 255, 0.6',
+                width: 2
+            })
+        }));
+    }
+
     if (feature.get('position') === 'left') {
-    styles.push(new ol.style.Style({
-        geometry: new ol.geom.Point(pt),
-        text: new ol.style.Text({
-            font: '12px sans-serif',
-            textAlign: 'end',
-            textBaseline: 'top',
-            offsetX: -10,
-            offsetY: 10,
-            text: feature.get('label'),
-            fill: new ol.style.Fill({
-                color: 'rgba(0, 0, 255, 0.6'
-            }),
-            stroke: new ol.style.Stroke({
-                color: '#e7e7e7',
-                width: 3
+        styles.push(new ol.style.Style({
+            geometry: new ol.geom.Point(pt),
+            text: new ol.style.Text({
+                font: '12px sans-serif',
+                textAlign: 'end',
+                textBaseline: 'top',
+                offsetX: -10,
+                offsetY: 10,
+                text: getText(feature, resolution),
+                // text: feature.get('label'),
+                fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 255, 0.6'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#e7e7e7',
+                    width: 3
+                })
             })
-        })
-    }));
-} else if (feature.get('position') === 'right') {
-    styles.push(new ol.style.Style({
-        geometry: new ol.geom.Point(pt),
-        text: new ol.style.Text({
-            font: '12px sans-serif',
-            textAlign: 'start',
-            textBaseline: 'top',
-            offsetX: 10,
-            offsetY: 10,
-            text: feature.get('label'),
-            fill: new ol.style.Fill({
-                color: 'rgba(0, 0, 255, 0.6'
-            }),
-            stroke: new ol.style.Stroke({
-                color: '#e7e7e7',
-                width: 3
+        }));
+    }
+
+    if (feature.get('position') === 'right') {
+        styles.push(new ol.style.Style({
+            geometry: new ol.geom.Point(pt),
+            text: new ol.style.Text({
+                font: '12px sans-serif',
+                textAlign: 'start',
+                textBaseline: 'top',
+                offsetX: 10,
+                offsetY: 10,
+                text: getText(feature, resolution),
+                // text: feature.get('label'),
+                fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 255, 0.6'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#e7e7e7',
+                    width: 3
+                })
             })
-        })
-    }));
-}
+        }));
+    }
+
+    if (feature.get('position') === 'center') {
+        styles.push(new ol.style.Style({
+            geometry: new ol.geom.Point(pt),
+            text: new ol.style.Text({
+                font: '12px sans-serif',
+                textAlign: 'center',
+                textBaseline: 'top',
+                // offsetX: getOffset(feature,resolution),
+                offsetY: 10,
+                text: getText(feature, resolution),
+                // text: feature.get('label'),
+                fill: new ol.style.Fill({
+                    color: 'rgba(0, 0, 255, 0.6'
+                }),
+                stroke: new ol.style.Stroke({
+                    color: '#e7e7e7',
+                    width: 3
+                })
+            })
+        }));
+    }
     return styles;
 }
 
+// var getOffset = function (feature, resolution) {
+//     if (resolution > 45000) {
+//         if (feature.get('label') === 'CPHC' && feature.get('position') === 'right') {
+//             var offset = '25';       
+//         } else {
+//             offset = '10';
+//         }
+//     } else {
+//         offset = '10';
+//     }
+//     return offset;
+// }
+
+var getText = function (feature, resolution) {
+    if (resolution > 45000) {
+        if ((feature.get('label') === 'CPHC' && feature.get('position') === 'left') || (feature.get('label') === 'CPHC' && feature.get('position') === 'right')) {
+            var text = '';
+        } else {
+            text = feature.get('label');
+        }
+    } else if (resolution <= 45000) {
+        if (feature.get('position') === 'center') {
+           text = '';
+        } else 
+        text = feature.get('label')
+    }
+    return text;
+}
 
 var vector = new ol.layer.Vector({
     source: new ol.source.Vector({
@@ -77,11 +137,14 @@ var vector = new ol.layer.Vector({
 })
 
 
-var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'NHC', position: 'left' }, 
+var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'NHC', position: 'left' },
 { coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'JTWC', position: 'right' },
-{ coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border', label: 'JTWC', position: 'left'}, 
+{ coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border', label: 'JTWC', position: 'left' },
 { coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'left' },
-{ coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'NHC', position: 'right' }, { coords: [[180, 0], [-180, 0]] }];
+{ coords: [[180, 0], [180, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'right' },
+{ coords: [[-160, 0], [-160, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'center' },
+{ coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'NHC', position: 'right' },
+{ coords: [[180, 0], [-180, 0]] }];
 
 for (var i = 0; i <= lineCoords.length - 1; i++) {
     // console.log(lineCoords[i]);
@@ -155,3 +218,8 @@ var map = new ol.Map({
         zoom: 1
     }),
 });
+
+var resolution = map.getView().getResolution();
+// var resolution = view.getResolution()
+console.log(resolution);
+
