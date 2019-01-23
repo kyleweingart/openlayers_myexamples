@@ -2,7 +2,6 @@ var raster = new ol.layer.Tile({
     source: new ol.source.OSM()
 })
 
-
 function lineStyleFunction(feature) {
     var geom = feature.getGeometry();
     var view = map.getView();
@@ -19,7 +18,6 @@ function lineStyleFunction(feature) {
     } else if (vTl[1] < lastCoordinate[1]) {
         pt = [lastCoordinate[0], vTl[1]];
     }
-
 
     var styles = [];
 
@@ -64,7 +62,6 @@ function lineStyleFunction(feature) {
                 offsetX: 10,
                 offsetY: 10,
                 text: getText(feature, resolution),
-                // text: feature.get('label'),
                 fill: new ol.style.Fill({
                     color: 'rgba(0, 0, 255, 0.6'
                 }),
@@ -83,10 +80,8 @@ function lineStyleFunction(feature) {
                 font: '12px sans-serif',
                 textAlign: 'center',
                 textBaseline: 'top',
-                // offsetX: getOffset(feature,resolution),
                 offsetY: 10,
                 text: getText(feature, resolution),
-                // text: feature.get('label'),
                 fill: new ol.style.Fill({
                     color: 'rgba(0, 0, 255, 0.6'
                 }),
@@ -99,19 +94,6 @@ function lineStyleFunction(feature) {
     }
     return styles;
 }
-
-// var getOffset = function (feature, resolution) {
-//     if (resolution > 45000) {
-//         if (feature.get('label') === 'CPHC' && feature.get('position') === 'right') {
-//             var offset = '25';       
-//         } else {
-//             offset = '10';
-//         }
-//     } else {
-//         offset = '10';
-//     }
-//     return offset;
-// }
 
 var getText = function (feature, resolution) {
     if (resolution > 45000) {
@@ -147,10 +129,8 @@ var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label
 { coords: [[180, 0], [-180, 0]] }];
 
 for (var i = 0; i <= lineCoords.length - 1; i++) {
-    // console.log(lineCoords[i]);
     var coordsPrj = new ol.geom.LineString(lineCoords[i].coords);
     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
-    // console.log(coordsPrj);
     var linestring_feature = new ol.Feature({
         geometry: coordsPrj,
         title: lineCoords[i].title,
@@ -159,55 +139,6 @@ for (var i = 0; i <= lineCoords.length - 1; i++) {
     })
     vector.getSource().addFeature(linestring_feature);
 };
-
-
-
-// var getLabelText = function(feature) {
-//     var text = feature.get('');
-//     return text;
-// }
-
-// function pointStyleFunction(feature) {
-//     return new ol.style.Style({
-//         // image: new ol.style.Circle({
-//         //     radius: 10,
-//         //     fill: new ol.style.Fill({color: 'rgba(255, 0, 0, 0.1)'}),
-//         //     stroke: new ol.style.Stroke({color: 'red', width: 1})
-//         //   }),
-//         text: new ol.style.Text({
-//             font: '12px',
-//             text: getLabelText(feature),
-//             fill: new ol.style.Fill({
-//                 color: 'rgba(0, 0, 255, 0.6'
-//               }),
-//               stroke: new ol.style.Stroke({
-//                 color: '#e7e7e7',
-//                 width: 3
-//               })
-//         })
-//     })
-// }
-// var label = new ol.layer.Vector({
-//     source: new ol.source.Vector({
-//         features: []
-//     }),
-//     style: pointStyleFunction
-// })
-
-// var pointCoords = [{ coords: [-15, 84], label: 'NHC' }, { coords: [-125, 84], label: 'NHC' }, 
-// { coords: [15, 84], label: 'JTWC' }, { coords: [165, 84], label: 'JTWC' }, { coords: [-160,84], label: 'CPHC' }]
-
-// for (var i = 0; i <= pointCoords.length - 1; i++) {
-//     console.log(pointCoords[i]);
-//     var coordsPrj = new ol.geom.Point(pointCoords[i].coords);
-//     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
-//     console.log(coordsPrj);
-//     var point_feature = new ol.Feature({
-//         geometry: coordsPrj,
-//         title: pointCoords[i].label
-//     })
-//     label.getSource().addFeature(point_feature);
-// };
 
 var map = new ol.Map({
     layers: [raster, vector],
@@ -219,7 +150,4 @@ var map = new ol.Map({
     }),
 });
 
-var resolution = map.getView().getResolution();
-// var resolution = view.getResolution()
-console.log(resolution);
 
