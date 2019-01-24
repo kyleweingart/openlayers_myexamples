@@ -2,12 +2,12 @@ var raster = new ol.layer.Tile({
     source: new ol.source.OSM()
 })
 
-function lineStyleFunction(feature) {
+function lineStyleFunction(feature, resolution) {
     var geom = feature.getGeometry();
     var view = map.getView();
     var size = map.getSize();
-    var resolution = view.getResolution();
-    console.log(resolution);
+    // var resolution = view.getResolution();
+    // console.log(resolution);
     var viewExtent = view.calculateExtent(size);
     var lastCoordinate = geom.getLastCoordinate();
     // var firstCoordinate = geom.getFirstCoordinate();
@@ -21,17 +21,17 @@ function lineStyleFunction(feature) {
 
     var styles = [];
 
-   
-        styles.push(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(255, 120, 0, 0.8',
-                width: 1,
-                lineDash: [0.5, 4]
-            })
-        }));
-    
 
-    if (feature.get('position') === 'left') {
+    styles.push(new ol.style.Style({
+        stroke: new ol.style.Stroke({
+            color: 'rgba(255, 120, 0, 0.8',
+            width: 1,
+            lineDash: [0.5, 4]
+        })
+    }));
+
+
+    if (feature.get('type') === 'longitude') {
         styles.push(new ol.style.Style({
             geometry: new ol.geom.Point(pt),
             text: new ol.style.Text({
@@ -53,7 +53,7 @@ function lineStyleFunction(feature) {
         }));
     }
 
-    if (feature.get('position') === 'right') {
+    if (feature.get('type') === 'latitude') {
         styles.push(new ol.style.Style({
             geometry: new ol.geom.Point(pt),
             text: new ol.style.Text({
@@ -74,25 +74,25 @@ function lineStyleFunction(feature) {
         }));
     }
 
-    if (feature.get('position') === 'center') {
-        styles.push(new ol.style.Style({
-            geometry: new ol.geom.Point(pt),
-            text: new ol.style.Text({
-                font: '12px sans-serif',
-                textAlign: 'center',
-                textBaseline: 'top',
-                offsetY: 10,
-                text: getText(feature, resolution),
-                fill: new ol.style.Fill({
-                    color: 'rgba(0, 0, 255, 0.6'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: '#e7e7e7',
-                    width: 3
-                })
-            })
-        }));
-    }
+    // if (feature.get('position') === 'center') {
+    //     styles.push(new ol.style.Style({
+    //         geometry: new ol.geom.Point(pt),
+    //         text: new ol.style.Text({
+    //             font: '12px sans-serif',
+    //             textAlign: 'center',
+    //             textBaseline: 'top',
+    //             offsetY: 10,
+    //             text: getText(feature, resolution),
+    //             fill: new ol.style.Fill({
+    //                 color: 'rgba(0, 0, 255, 0.6'
+    //             }),
+    //             stroke: new ol.style.Stroke({
+    //                 color: '#e7e7e7',
+    //                 width: 3
+    //             })
+    //         })
+    //     }));
+    // }
     return styles;
 }
 
@@ -122,25 +122,39 @@ var vector = new ol.layer.Vector({
 })
 
 
-var lineCoords = [{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'NHC', position: 'left' },
-{ coords: [[0, 0], [0, 85]], title: 'NHC / JTWC border', label: 'JTWC', position: 'right' },
-{ coords: [[180, 0], [180, 85]], title: 'JTWC / CPHC border', label: 'JTWC', position: 'left' },
-{ coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'left' },
-{ coords: [[180, 0], [180, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'right' },
-{ coords: [[-160, 0], [-160, 85]], title: 'CPHC / NHC border', label: 'CPHC', position: 'center' },
-{ coords: [[-140, 0], [-140, 85]], title: 'CPHC / NHC border', label: 'NHC', position: 'right' },
-{ coords: [[180, 0], [-180, 0]] }];
+var graticuleCoords = [];
 
-for (var i = 0; i <= lineCoords.length - 1; i++) {
-    var coordsPrj = new ol.geom.LineString(lineCoords[i].coords);
+
+for (var i = -85; i < 86; i++) {
+    if (i < 0) {
+        graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i) + ' S', type: 'latitude' })
+    } else if (i === 0) {
+        graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i) , type: 'latitude' })
+    } else if (i > 0) {
+        graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i) + ' N', type: 'latitude'})
+    }
+}
+
+for (var j = -180; j < 181; j++) {
+    if (j < 0) {
+        graticuleCoords.push({ coords: [[j, 85], [j, -85]], label: String(j) + ' W', type: 'longitude' })
+    } else if (j === 0) {
+        graticuleCoords.push({ coords: [[j, 85], [j, -85]], label: String(j), type: 'longitude' })
+    } else if (j > 0) {
+        graticuleCoords.push({ coords: [[j, 85], [j, -85]], label: String(j) + ' E', type: 'longitude' })
+    }
+}
+
+
+for (var e = 0; e <= graticuleCoords.length - 1; e++) {
+    var coordsPrj = new ol.geom.LineString(graticuleCoords[e].coords);
     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
-    var linestring_feature = new ol.Feature({
+    var graticule_feature = new ol.Feature({
         geometry: coordsPrj,
-        title: lineCoords[i].title,
-        label: lineCoords[i].label,
-        position: lineCoords[i].position
+        label: graticuleCoords[e].label,
+        type: graticuleCoords[e].type
     })
-    vector.getSource().addFeature(linestring_feature);
+    vector.getSource().addFeature(graticule_feature);
 };
 
 var map = new ol.Map({
