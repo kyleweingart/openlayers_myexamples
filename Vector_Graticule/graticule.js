@@ -21,14 +21,15 @@ function lineStyleFunction(feature) {
 
     var styles = [];
 
-    if (feature.get('position') !== 'center') {
+   
         styles.push(new ol.style.Style({
             stroke: new ol.style.Stroke({
-                color: 'rgba(0, 0, 255, 0.6',
-                width: 2
+                color: 'rgba(255, 120, 0, 0.8',
+                width: 1,
+                lineDash: [0.5, 4]
             })
         }));
-    }
+    
 
     if (feature.get('position') === 'left') {
         styles.push(new ol.style.Style({
@@ -107,10 +108,10 @@ var getText = function (feature, resolution) {
             text = '';
         } else {
             text = feature.get('label')
+        }
+
     }
-   
-}
-return text;
+    return text;
 }
 
 var vector = new ol.layer.Vector({
