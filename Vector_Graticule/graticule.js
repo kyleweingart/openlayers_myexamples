@@ -6,6 +6,7 @@ function lineStyleFunction(feature, resolution) {
     var geom = feature.getGeometry();
     var view = map.getView();
     var size = map.getSize();
+    console.log(resolution);
     // var resolution = view.getResolution();
     // console.log(resolution);
     var viewExtent = view.calculateExtent(size);
@@ -20,15 +21,25 @@ function lineStyleFunction(feature, resolution) {
     }
 
     var styles = [];
-
-
-    styles.push(new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'rgba(255, 120, 0, 0.8',
-            width: 1,
-            lineDash: [0.5, 4]
-        })
-    }));
+//  trying find multiples need to work on this 
+    if (resolution > 75000) {
+        var gratCoords = feature.get('coords');
+        if (gratCoords[0][0]%10 === 1);
+        styles.push(new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'rgba(255, 120, 0, 0.8',
+                width: 1,
+                lineDash: [0.5, 4]
+            })
+        }));
+    }
+    // styles.push(new ol.style.Style({
+    //     stroke: new ol.style.Stroke({
+    //         color: 'rgba(255, 120, 0, 0.8',
+    //         width: 1,
+    //         lineDash: [0.5, 4]
+    //     })
+    // }));
 
 
     if (feature.get('type') === 'longitude') {
@@ -73,26 +84,6 @@ function lineStyleFunction(feature, resolution) {
             })
         }));
     }
-
-    // if (feature.get('position') === 'center') {
-    //     styles.push(new ol.style.Style({
-    //         geometry: new ol.geom.Point(pt),
-    //         text: new ol.style.Text({
-    //             font: '12px sans-serif',
-    //             textAlign: 'center',
-    //             textBaseline: 'top',
-    //             offsetY: 10,
-    //             text: getText(feature, resolution),
-    //             fill: new ol.style.Fill({
-    //                 color: 'rgba(0, 0, 255, 0.6'
-    //             }),
-    //             stroke: new ol.style.Stroke({
-    //                 color: '#e7e7e7',
-    //                 width: 3
-    //             })
-    //         })
-    //     }));
-    // }
     return styles;
 }
 
@@ -109,7 +100,6 @@ var getText = function (feature, resolution) {
         } else {
             text = feature.get('label')
         }
-
     }
     return text;
 }
@@ -129,9 +119,9 @@ for (var i = -85; i < 86; i++) {
     if (i < 0) {
         graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i) + ' S', type: 'latitude' })
     } else if (i === 0) {
-        graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i) , type: 'latitude' })
+        graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i), type: 'latitude' })
     } else if (i > 0) {
-        graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i) + ' N', type: 'latitude'})
+        graticuleCoords.push({ coords: [[180, i], [-180, i]], label: String(i) + ' N', type: 'latitude' })
     }
 }
 
@@ -151,6 +141,7 @@ for (var e = 0; e <= graticuleCoords.length - 1; e++) {
     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
     var graticule_feature = new ol.Feature({
         geometry: coordsPrj,
+        coords: graticuleCoords[e].coords,
         label: graticuleCoords[e].label,
         type: graticuleCoords[e].type
     })
