@@ -21,17 +21,23 @@ function lineStyleFunction(feature, resolution) {
     }
 
     var styles = [];
-//  trying find multiples need to work on this 
+    //  trying find multiples need to work on this 
     if (resolution > 75000) {
+        console.log('greater');
         var gratCoords = feature.get('coords');
-        if (gratCoords[0][0]%10 === 1);
-        styles.push(new ol.style.Style({
-            stroke: new ol.style.Stroke({
-                color: 'rgba(255, 120, 0, 0.8',
-                width: 1,
-                lineDash: [0.5, 4]
-            })
-        }));
+        console.log(gratCoords);
+        console.log(gratCoords[0][1]);
+        console.log(gratCoords[0][1] % 20);
+        if ((gratCoords[0][0] % 30 === 0 && feature.get('type') === 'longitude')  || (gratCoords[0][1] % 20 === 0 && feature.get('type') === 'latitude')) {
+            console.log(feature);
+            styles.push(new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(255, 120, 0, 0.8',
+                    width: 1,
+                    lineDash: [0.5, 4]
+                })
+            }));
+        }
     }
     // styles.push(new ol.style.Style({
     //     stroke: new ol.style.Stroke({

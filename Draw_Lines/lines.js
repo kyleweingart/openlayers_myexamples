@@ -104,9 +104,11 @@ var getText = function (feature, resolution) {
         }
     } else if (resolution <= 45000) {
         if (feature.get('position') === 'center') {
-           text = '';
-        } else 
-        text = feature.get('label')
+            text = '';
+        } else {
+            text = feature.get('label')
+        }
+
     }
     return text;
 }
