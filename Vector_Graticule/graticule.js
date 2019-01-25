@@ -59,7 +59,39 @@ function lineStyleFunction(feature, resolution) {
             var style = getStyles(feature, pt);
         }
         return style;
+    }  else if (resolution > 25000 && resolution <= 50000) {
+        if ((gratCoords[0][0] % 30 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 30 === 0 && feature.get('type') === 'latitude')) {
+            var style = getStyles(feature, pt);
+        }
+        return style;
+    }  else if (resolution > 10000 && resolution <= 25000) {
+        if ((gratCoords[0][0] % 20 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 20 === 0 && feature.get('type') === 'latitude')) {
+            var style = getStyles(feature, pt);
+        }
+        return style;
+    }  else if (resolution > 5000 && resolution <= 10000) {
+        if ((gratCoords[0][0] % 10 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 10 === 0 && feature.get('type') === 'latitude')) {
+            var style = getStyles(feature, pt);
+        }
+        return style;
+    }  else if (resolution > 2500 && resolution <= 5000) {
+        if ((gratCoords[0][0] % 5 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 5 === 0 && feature.get('type') === 'latitude')) {
+            var style = getStyles(feature, pt);
+        }
+        return style;      
+    }   else if (resolution > 1500 && resolution <= 2500) {
+        if ((gratCoords[0][0] % 2 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 2 === 0 && feature.get('type') === 'latitude')) {
+            var style = getStyles(feature, pt);
+        }
+        return style;
+    }   else if (resolution < 1500) {
+        // if ((gratCoords[0][0] % 30 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 30 === 0 && feature.get('type') === 'latitude')) {
+            var style = getStyles(feature, pt);
+        
+        return style;
     }
+
+}
 
     var vector = new ol.layer.Vector({
         source: new ol.source.Vector({
@@ -91,7 +123,6 @@ function lineStyleFunction(feature, resolution) {
             graticuleCoords.push({ coords: [[j, -85], [j, 85]], label: String(j) + ' E', type: 'longitude' })
         }
     }
-
 
     for (var e = 0; e <= graticuleCoords.length - 1; e++) {
         var coordsPrj = new ol.geom.LineString(graticuleCoords[e].coords);
