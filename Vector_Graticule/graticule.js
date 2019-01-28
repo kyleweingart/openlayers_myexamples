@@ -178,8 +178,8 @@ for (var j = -180; j < 181; j++) {
     }
 }
 
-for (var k = 0; e <= graticuleCoords.length - 1; k++) {
-    var coordsPrj = new ol.geom.LineString(graticuleCoords[e].coords);
+for (var k = 0; k <= graticuleCoords.length - 1; k++) {
+    var coordsPrj = new ol.geom.LineString(graticuleCoords[k].coords);
     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
     var graticule_feature = new ol.Feature({
         geometry: coordsPrj,
