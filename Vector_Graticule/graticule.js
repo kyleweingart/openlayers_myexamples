@@ -4,7 +4,7 @@ var raster = new ol.layer.Tile({
 
 
 
-function getStyles(feature, pt) {
+function getLongStyles(feature, pt, pt2) {
 
     var styles =
         [
@@ -30,7 +30,38 @@ function getStyles(feature, pt) {
                         width: 2
                     })
                 }),
-            }))
+            })),
+        ];
+    return styles;
+}
+
+function getLatStyles(feature, pt) {
+
+    var styles =
+        [
+            (new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                    color: 'rgba(255, 120, 0, 0.8',
+                    width: 1,
+                    lineDash: [0.5, 4]
+                }),
+            })),
+            (new ol.style.Style({
+                geometry: new ol.geom.Point(pt),
+                text: new ol.style.Text({
+                    font: '11px sans-serif',
+                    // textBaseline: 'top',
+                    offsetX: -15,
+                    text: feature.get('label'),
+                    fill: new ol.style.Fill({
+                        color: 'rgb(20, 20, 20)'
+                    }),
+                    stroke: new ol.style.Stroke({
+                        color: '#ffffff',
+                        width: 2
+                    })
+                }),
+            })),
         ];
     return styles;
 }
@@ -49,14 +80,14 @@ function lineStyleFunction(feature, resolution) {
     // console.log('last Coordiante ' + lastCoordinate[0]);
     // || (vTl[1] <= resolution * 100 / 3))
     // longitude
-    if (vTl[1] >= lastCoordinate[1] && feature.get('type') === 'longitude') {  
+    if (vTl[1] >= lastCoordinate[1] && feature.get('type') === 'longitude') {
         var pt = lastCoordinate;
     } else if (vTl[1] < lastCoordinate[1] && feature.get('type') === 'longitude') {
         pt = [lastCoordinate[0], vTl[1]];
     } else if (feature.get('type') === 'latitude') {
         console.log('VTR: ' + vTr);
         console.log('last Coordiante ' + lastCoordinate);
-        pt = [vTr[0], firstCoordinate[1]];
+        var pt = [vTr[0], firstCoordinate[1]];
     }
 
     // having issues crossing the international date line with latitude labels - might need to tweeak this so it works somehow
@@ -65,39 +96,53 @@ function lineStyleFunction(feature, resolution) {
     var gratCoords = feature.get('coords');
 
     if (resolution > 50000) {
-        if ((gratCoords[0][0] % 45 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 45 === 0 && feature.get('type') === 'latitude')) {
-            var style = getStyles(feature, pt);
+        if (gratCoords[0][0] % 45 === 0 && feature.get('type') === 'longitude') {
+            var style = getLongStyles(feature, pt);
+        } else if (gratCoords[0][1] % 45 === 0 && feature.get('type') === 'latitude') {
+            style = getLatStyles(feature, pt);
         }
         return style;
     } else if (resolution > 25000 && resolution <= 50000) {
-        if ((gratCoords[0][0] % 30 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 30 === 0 && feature.get('type') === 'latitude')) {
-            var style = getStyles(feature, pt);
+        if (gratCoords[0][0] % 30 === 0 && feature.get('type') === 'longitude') {
+            style = getLongStyles(feature, pt);
+        } else if (gratCoords[0][1] % 30 === 0 && feature.get('type') === 'latitude') {
+            style = getLatStyles(feature, pt);
         }
         return style;
     } else if (resolution > 10000 && resolution <= 25000) {
-        if ((gratCoords[0][0] % 20 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 20 === 0 && feature.get('type') === 'latitude')) {
-            var style = getStyles(feature, pt);
+        if (gratCoords[0][0] % 20 === 0 && feature.get('type') === 'longitude') {
+            style = getLongStyles(feature, pt);
+        } else if (gratCoords[0][1] % 20 === 0 && feature.get('type') === 'latitude') {
+            style = getLatStyles(feature, pt);
         }
         return style;
     } else if (resolution > 5000 && resolution <= 10000) {
-        if ((gratCoords[0][0] % 10 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 10 === 0 && feature.get('type') === 'latitude')) {
-            var style = getStyles(feature, pt);
+        if (gratCoords[0][0] % 10 === 0 && feature.get('type') === 'longitude') {
+            style = getLongStyles(feature, pt);
+        } else if (gratCoords[0][1] % 10 === 0 && feature.get('type') === 'latitude') {
+            style = getLatStyles(feature, pt);
         }
         return style;
     } else if (resolution > 2500 && resolution <= 5000) {
-        if ((gratCoords[0][0] % 5 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 5 === 0 && feature.get('type') === 'latitude')) {
-            var style = getStyles(feature, pt);
+        if (gratCoords[0][0] % 5 === 0 && feature.get('type') === 'longitude') {
+            style = getLongStyles(feature, pt);
+        } else if (gratCoords[0][1] % 5 === 0 && feature.get('type') === 'latitude') {
+            style = getLatStyles(feature, pt);
         }
         return style;
     } else if (resolution > 1500 && resolution <= 2500) {
-        if ((gratCoords[0][0] % 2 === 0 && feature.get('type') === 'longitude') || (gratCoords[0][1] % 2 === 0 && feature.get('type') === 'latitude')) {
-            var style = getStyles(feature, pt);
+        if (gratCoords[0][0] % 2 === 0 && feature.get('type') === 'longitude') {
+            style = getLongStyles(feature, pt);
+        } else if (gratCoords[0][1] % 2 === 0 && feature.get('type') === 'latitude') {
+            style = getLatStyles(feature, pt);
         }
         return style;
     } else if (resolution < 1500) {
-
-        var style = getStyles(feature, pt);
-
+        if (feature.get('type') === 'longitude') {
+            style = getLongStyles(feature, pt);
+        } else if (feature.get('type') === 'latitude') {
+            style = getLatStyles(feature, pt)
+        }
         return style;
     }
 
