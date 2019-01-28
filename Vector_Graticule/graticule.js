@@ -4,7 +4,7 @@ var raster = new ol.layer.Tile({
 
 
 
-function getLongStyles(feature, pt, pt2) {
+function getLongStyles(feature, pt) {
 
     var styles =
         [
@@ -86,7 +86,6 @@ function lineStyleFunction(feature, resolution) {
         pt = [lastCoordinate[0], vTl[1]];
     } else if (feature.get('type') === 'latitude') {
         console.log('VTR: ' + vTr);
-        console.log('last Coordiante ' + lastCoordinate);
         var pt = [vTr[0], firstCoordinate[1]];
     }
 
@@ -179,14 +178,14 @@ for (var j = -180; j < 181; j++) {
     }
 }
 
-for (var e = 0; e <= graticuleCoords.length - 1; e++) {
+for (var k = 0; e <= graticuleCoords.length - 1; k++) {
     var coordsPrj = new ol.geom.LineString(graticuleCoords[e].coords);
     coordsPrj.transform('EPSG:4326', 'EPSG:3857');
     var graticule_feature = new ol.Feature({
         geometry: coordsPrj,
-        coords: graticuleCoords[e].coords,
-        label: graticuleCoords[e].label,
-        type: graticuleCoords[e].type
+        coords: graticuleCoords[k].coords,
+        label: graticuleCoords[k].label,
+        type: graticuleCoords[k].type
     })
     vector.getSource().addFeature(graticule_feature);
 };
