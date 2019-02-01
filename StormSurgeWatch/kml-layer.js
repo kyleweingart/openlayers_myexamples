@@ -31,9 +31,9 @@ var raster = new ol.layer.Tile({
 
 var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: 'http://127.0.0.1:8082/AL682014_34_earliest_reasonable_toa_34.kml',
+    url: 'http://127.0.0.1:8082/AL142018_WatchWarningSS_007adv.kml',
     format: new ol.format.KML({
-      extractStyles: false,
+      extractStyles: true,
       extractAttributes: true
     }),
     projection: 'EPSG:3857',
