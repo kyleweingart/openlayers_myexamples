@@ -33,19 +33,6 @@ var vector = new ol.layer.Vector({
   }),
 });
 
-// function to trim the description field in the kml
-function trimDescription(feature) {
-  var description = feature.get('description');
-  if (description) {
-    description = description.replace(/<(?:.|\n)*?>/gm, '');
-    var trimDescription = description.trim();
-    if (trimDescription !== 'Wind Speed Probability 5% contour') {
-      var textDescription = trimDescription;
-      return textDescription;
-    }
-  }
-}
-
 var map = new ol.Map({
   layers: [raster, vector],
   target: document.getElementById('map'),
@@ -69,7 +56,7 @@ map.on('pointermove', function (e) {
 var featureHover;
 map.on('pointermove', function (evt) {
   featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
-    textDescription = trimDescription(feature);
+    textDescription = feature.get('name');
     if (textDescription !== undefined) {
       return feature;
     }
