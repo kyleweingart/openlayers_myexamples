@@ -55,7 +55,7 @@ map.on('pointermove', function (e) {
 
 var featureHover;
 map.on('pointermove', function (evt) {
-  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature, layer) {
+  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
     textDescription = feature.get('name');
     if (textDescription !== undefined) {
       return feature;
