@@ -7,6 +7,21 @@
     font-family: Arial, sans-serif;
 }
 
+.toc {
+    border: 1px solid black;
+    position: fixed;
+    height: 300px;
+    width:100px;
+    padding:5px;
+    top: 200px;
+    background-color: white;
+    bottom: 10;
+    color: gray;
+    left: 5;
+    right: 25;
+    z-index:1
+}
+
 .ol-attribution>ul {
     font-size: 1rem;
 }

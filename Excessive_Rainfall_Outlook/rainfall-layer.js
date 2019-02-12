@@ -20,21 +20,21 @@ var raster = new ol.layer.Tile({
   source: new ol.source.OSM()
 })
 
-var vector = new ol.layer.Vector({
-  source: new ol.source.Vector({
-    url: 'http://127.0.0.1:8082/AL142018_WatchWarningSS_007adv.kml',
-    crossOrigin: 'anonymous',
-    format: new ol.format.KML({
-      extractStyles: true,
-      extractAttributes: true
-    }),
-    projection: 'EPSG:3857',
+// var vector = new ol.layer.Vector({
+//   source: new ol.source.Vector({
+//     url: 'http://127.0.0.1:8082/AL142018_WatchWarningSS_007adv.kml',
+//     crossOrigin: 'anonymous',
+//     format: new ol.format.KML({
+//       extractStyles: true,
+//       extractAttributes: true
+//     }),
+//     projection: 'EPSG:3857',
     
-  }),
-});
+//   }),
+// });
 
 var map = new ol.Map({
-  layers: [raster, vector],
+  layers: [raster],
   target: document.getElementById('map'),
   view: new ol.View({
     center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
