@@ -33,7 +33,6 @@ var vector = new ol.layer.Vector({
   }),
 });
 
-console.log(vector.getSource().getFeatures());
 
 var map = new ol.Map({
   layers: [raster, vector],
