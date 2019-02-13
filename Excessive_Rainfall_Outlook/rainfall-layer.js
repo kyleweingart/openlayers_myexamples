@@ -54,6 +54,10 @@ function styleFunction(feature) {
     return rainStyles.mrgl;
   } else if (outlook === 'Slight (10-20%)') {
     return rainStyles.slgt;
+  } else if (outlook === 'MDT (20-50%)') {
+    return rainStyles.mdt;
+  } else if (outlook === 'High (50-100%)') {
+    return rainStyles.high;
   }
   // var style = new ol.style.Style({
   //   stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
