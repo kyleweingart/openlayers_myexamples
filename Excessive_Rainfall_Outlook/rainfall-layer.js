@@ -22,29 +22,36 @@ var raster = new ol.layer.Tile({
 
 var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: 'http://127.0.0.1:8082/ExcessiveRain_Day1_latest.kml',
+    url: 'http://127.0.0.1:8082/ExcessiveRain_Day2_latest.kml',
     crossOrigin: 'anonymous',
     format: new ol.format.KML({
       extractStyles: false,
       extractAttributes: true
     }),
-    projection: 'EPSG:3857'  
+    projection: 'EPSG:3857'
   }),
   style: styleFunction
 });
 
 var rainStyles = {
+  default: new ol.style.Style({
+    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
+  }),
   mrgl: new ol.style.Style({
-    fill: new ol.style.Fill({color: [128,230,128]})
+    fill: new ol.style.Fill({ color: [128, 230, 128] }),
+    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
   slgt: new ol.style.Style({
-    fill: new ol.style.Fill({color: [247,247,128]})
+    fill: new ol.style.Fill({ color: [247, 247, 128] }),
+    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
   mdt: new ol.style.Style({
-    fill: new ol.style.Fill({color: [255,128,128]})
+    fill: new ol.style.Fill({ color: [255, 128, 128] }),
+    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
   high: new ol.style.Style({
-    fill: new ol.style.Fill({color: [255,128,255]})
+    fill: new ol.style.Fill({ color: [255, 128, 255] }),
+    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
 }
 
@@ -54,15 +61,17 @@ function styleFunction(feature) {
     return rainStyles.mrgl;
   } else if (outlook === 'Slight (10-20%)') {
     return rainStyles.slgt;
-  } else if (outlook === 'MDT (20-50%)') {
+  } else if (outlook === 'Moderate (20-50%)') {
     return rainStyles.mdt;
-  } else if (outlook === 'High (50-100%)') {
+  } else if (outlook === 'High (>50%)') {
     return rainStyles.high;
+  } else {
+    return rainStyles.default;
   }
   // var style = new ol.style.Style({
   //   stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
   // });
-  return style;
+
 }
 
 
