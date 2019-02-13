@@ -25,13 +25,41 @@ var vector = new ol.layer.Vector({
     url: 'http://127.0.0.1:8082/ExcessiveRain_Day1_latest.kml',
     crossOrigin: 'anonymous',
     format: new ol.format.KML({
-      extractStyles: true,
+      extractStyles: false,
       extractAttributes: true
     }),
-    projection: 'EPSG:3857',
-    
+    projection: 'EPSG:3857'  
   }),
+  style: styleFunction
 });
+
+var rainStyles = {
+  mrgl: new ol.style.Style({
+    fill: new ol.style.Fill({color: [128,230,128]})
+  }),
+  slgt: new ol.style.Style({
+    fill: new ol.style.Fill({color: [247,247,128]})
+  }),
+  mdt: new ol.style.Style({
+    fill: new ol.style.Fill({color: [255,128,128]})
+  }),
+  high: new ol.style.Style({
+    fill: new ol.style.Fill({color: [255,128,255]})
+  }),
+}
+
+function styleFunction(feature) {
+  var outlook = feature.get('OUTLOOK');
+  if (outlook === 'Marginal (5-10%)') {
+    return rainStyles.mrgl;
+  } else if (outlook === 'Slight (10-20%)') {
+    return rainStyles.slgt;
+  }
+  // var style = new ol.style.Style({
+  //   stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
+  // });
+  return style;
+}
 
 
 var map = new ol.Map({
