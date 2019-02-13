@@ -38,19 +38,19 @@ var rainStyles = {
     stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
   mrgl: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [128, 230, 128] }),
+    fill: new ol.style.Fill({ color: [128, 230, 128, .9] }),
     stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
   slgt: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [247, 247, 128] }),
+    fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
     stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
   mdt: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [255, 128, 128] }),
+    fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
     stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
   high: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [255, 128, 255] }),
+    fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
     stroke: new ol.style.Stroke({ color: 'black', width: 2 })
   }),
 }
@@ -68,10 +68,6 @@ function styleFunction(feature) {
   } else {
     return rainStyles.default;
   }
-  // var style = new ol.style.Style({
-  //   stroke: new ol.style.Stroke({ color: 'black', width: 2 }),
-  // });
-
 }
 
 
