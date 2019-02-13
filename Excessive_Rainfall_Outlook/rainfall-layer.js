@@ -39,19 +39,19 @@ var rainStyles = {
   }),
   mrgl: new ol.style.Style({
     fill: new ol.style.Fill({ color: [128, 230, 128, .9] }),
-    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
+    stroke: new ol.style.Stroke({ color: [0, 139, 0, .9], width: 2 })
   }),
   slgt: new ol.style.Style({
     fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
-    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
+    stroke: new ol.style.Stroke({ color: [255, 130, 71, .9], width: 2 })
   }),
   mdt: new ol.style.Style({
     fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
-    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
+    stroke: new ol.style.Stroke({ color: [205, 0, 0, .9], width: 2 })
   }),
   high: new ol.style.Style({
     fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
-    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
+    stroke: new ol.style.Stroke({ color: [255, 0, 255, .9], width: 2 })
   }),
 }
 
