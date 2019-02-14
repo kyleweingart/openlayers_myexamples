@@ -22,7 +22,7 @@ var raster = new ol.layer.Tile({
 
 var vector = new ol.layer.Vector({
   source: new ol.source.Vector({
-    url: 'http://127.0.0.1:8082/ExcessiveRain_Day2_latest.kml',
+    url: 'https://data.hurrevac.com/excessive/Day_1_Excessive_Rainfall_Outlook_LATEST.kml',
     crossOrigin: 'anonymous',
     format: new ol.format.KML({
       extractStyles: false,
