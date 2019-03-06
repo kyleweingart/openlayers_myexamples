@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Grib Layers | Wind Probs</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="js-map" class="map"></div>
+    <div class="pane">
+        <h1>Wind Prob layers</h1>
+        <p>Select the layer you wish to view:</p>
+        <!-- <select id="js-layers" class="layers">
+            <option value="-10527519,3160212,4">Temperature (USA)</option>
+            <option value="-408479,7213209,6">Bedrock (UK)</option>
+        </select> -->
+        <form id="js-layers" class="layers">
+            <input class="layer" type="radio" name="T" value="-10527519,3160212,4">Tropical<br>
+            <input class="layer" type="radio" name="STS" value="-10527519,3160212,4">Strong Tropical<br>
+            <input class="layer" type="radio" name="H" value="-10527519,3160212,4">Hurricane<br>
+        </form>
+        
+    </div>
+    <!-- <script src="../../assets/js/ol-debug.js"></script> -->
+    <script src="https://openlayers.org/en/v3.20.1/build/ol.js" type="text/javascript"></script>
+    <script src="grib-layers.js"></script>
+</body>
+</html>
