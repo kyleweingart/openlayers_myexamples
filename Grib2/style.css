@@ -36,17 +36,6 @@ p {
     position: relative;
 }
 
-/* .layers::before {
-    content: '';
-    display: block;
-    position: absolute;
-    top: 0;
-    height: 30px;
-    /* width: 100%; */
-    /* border: 4px solid lightsteelblue; */
-    /* z-index: 0; */
-/* } */ 
-
 .layers li {
     z-index: 1;
     position: relative;
