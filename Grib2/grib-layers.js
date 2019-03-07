@@ -121,94 +121,93 @@ var createWPLayer = (strength) => {
 }
 
 
+// update colors
+var windStyles = {
+    default: new ol.style.Style({
+        fill: new ol.style.Fill({ color: 'black' })
+    }),
+    Zero: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [128, 230, 128, .9] }),
+    }),
+    Five: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
+    }),
+    Ten: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
+    }),
+    Twenty: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
+    }),
+    Thirty: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [128, 230, 128, .9] }),
+
+    }),
+    Forty: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
+    }),
+    Fifty: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
+
+    }),
+    Sixty: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
+
+    }),
+    Seventy: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
+
+    }),
+    Eighty: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
+
+    }),
+    Ninety: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
+
+    })
+
+
+}
+
+
+
 function styleFunction(feature) {
-    var val = feature.get('prob');
-    console.log(val);
+    var prob = feature.get('prob');
 
-    var fillColor = new ol.style.Style({
-        fill: new ol.style.Fill({
-            color: 'red'
-        })
-    });
 
-    switch (val) {
-        case val < 5:
-            val = 0;
-            break;
-        case val < 10:
-            val = 5;
-            break;
-        default:
-            val = (Math.floor(val / 10)) * 10;
+    if (prob < 5) {
+        console.log('less than 5');
+        prob = 0;
+    } else if (prob < 10) {
+        console.log('less than 10');
+        prob = 5
+    } else {
+        prob = (Math.floor(prob / 10)) * 10;
     }
 
-    switch (val) {
-        case 0:
-            var fillColor = new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: (100, 100, 0, 0.0)
-                }),
-            })
-            console.log(val);
-            break;
-        case 5:
-            fillColor = new ol.style.Style({
-                fill: new ol.style.Fill({
-                    color: (1, 50, 32)
-                }),
-            })
-            break;
-        }
-    //     case 10:
-    //         fillColor = new ol.style.Fill({
-    //             color: (0, 255, 0)
-    //         })
-    //         break;
-    //     case 20:
-    //         fillColor = new ol.style.Fill({
-    //             color: (50, 205, 50)
-    //         })
-    //         break;
-    //     case 30:
-    //         fillColor = new ol.style.Fill({
-    //             color: (255, 255, 224)
-    //         })
-    //         break;
-    //     case 40:
-    //         fillColor = new ol.style.Fill({
-    //             color: (255, 255, 0)
-    //         })
-    //         break;
-    //     case 50:
-    //         fillColor = new ol.style.Fill({
-    //             color: (255, 140, 0)
-    //         })
-    //         break;
-    //     case 60:
-    //         fillColor = new ol.style.Fill({
-    //             color: (255, 165, 0)
-    //         })
-    //         break;
-    //     case 70:
-    //         fillColor = new ol.style.Fill({
-    //             color: (255, 0, 0)
-    //         });
-    //         break;
-    //     case 80:
-    //         fillColor = new ol.style.Fill({
-    //             color: (139, 0, 0)
-    //         });
-    //         break;
-    //     case 90:
-    //         fillColor = new ol.style.Fill({
-    //             color: (128, 0, 128)
-    //         });;
-    //         break;
-    // }
-
-
-    return fillColor;
-
+    if (prob === 0) {
+        return windStyles.Zero;
+    } else if ( prob === 10) {
+        return windStyles.Ten;
+    } else if (prob === 20) {
+        return windStyles.Twenty;
+    } else if (prob === 30) {
+        return windStyles.Thirty;
+    } else if (prob === 40) {
+        return windStyles.Forty;
+    } else if (prob === 50) {
+        return windStyles.Fifty;
+    } else if (prob === 60) {
+        return windStyles.Sixty;
+    } else if (prob === 70) {
+        return windStyles.Seventy;
+    } else if (prob === 80) {
+        return windStyles.Eighty;
+    } else if (prob === 90) {
+        return windStyles.Ninety;
+    } else {
+        return windStyles.default;
+    }
 }
 
 
