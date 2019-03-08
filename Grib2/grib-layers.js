@@ -44,8 +44,8 @@ var createWPWMSLayer = (strength) => {
                 'TILED': true,
                 'VERSION': '1.1.1',
                 'FORMAT': 'image/png8',
-                // 'VIEWPARAMS': 'spd:' + strength + ';fcsthr:90'
-                'VIEWPARAMS': 'date:1539075600; spd:" + strength + ";fcsthr:120'
+                // 'VIEWPARAMS': 'spd:' + strength,
+                'VIEWPARAMS': 'date:1539075600;fcsthr:120;' + 'spd:' + strength,
                 // 'spd': strength,
                 // 'date': 1539075600,
                 // 'fcsthr': '120'
