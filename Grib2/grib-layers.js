@@ -82,10 +82,8 @@ function styleFunction(feature) {
 
 
     if (prob < 5) {
-        console.log('less than 5');
         prob = 0;
     } else if (prob < 10) {
-        console.log('less than 10');
         prob = 5
     } else {
         prob = (Math.floor(prob / 10)) * 10;
@@ -93,7 +91,7 @@ function styleFunction(feature) {
 
     if (prob === 100) {
         return windStyles.Hundred;
-    } else if ( prob === 10) {
+    } else if (prob === 10) {
         return windStyles.Ten;
     } else if (prob === 20) {
         return windStyles.Twenty;
@@ -111,19 +109,18 @@ function styleFunction(feature) {
         return windStyles.Eighty;
     } else if (prob === 90) {
         return windStyles.Ninety;
-    } 
+    }
 }
 
 var radios = document.forms["windprobsForm"].elements["windprobs"];
 for (var i = 0; i < radios.length; i++) {
     radios[i].onclick = function () {
-        // map.removeLayer(layer);
         var strength = this.value;
         this.mapLayers = createWPLayer(strength);
-        map.getLayers().forEach(function(layer) {
-           if (layer.get('name') !== strength && layer.get('name') !== undefined) {
-               map.removeLayer(layer);
-           }
+        map.getLayers().forEach(function (layer) {
+            if (layer.get('name') !== strength && layer.get('name') !== undefined) {
+                map.removeLayer(layer);
+            }
         })
         map.addLayer(this.mapLayers);
     }
