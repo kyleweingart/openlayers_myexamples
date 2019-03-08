@@ -44,15 +44,11 @@ var createWPWMSLayer = (strength) => {
                 'TILED': true,
                 'VERSION': '1.1.1',
                 'FORMAT': 'image/png8',
-                // 'VIEWPARAMS': 'spd:' + strength,
+                // geoserver sql view params
                 'VIEWPARAMS': 'date:1539075600;fcsthr:120;' + 'spd:' + strength,
-                // 'spd': strength,
-                // 'date': 1539075600,
-                // 'fcsthr': '120'
             }
-            // projection: 'EPSG:3857'
-
         }),
+        name: "WMS " + strength,
         serverType: 'geoserver',
         crossOrigin: 'anonymous'
     });
@@ -138,27 +134,36 @@ function styleFunction(feature) {
     }
 }
 
-var radios = document.forms["windprobsForm"].elements["windprobs"];
-for (var i = 0; i < radios.length; i++) {
-    radios[i].onclick = function () {
+
+// need to figure out how to get checkboxes to show as checked or unchecked and add remove layers according to toggle
+// also need to limit checks to 1 layer across all groups at a time
+// i started writing this function as a onChange event in the css log accoring to this link: https://stackoverflow.com/questions/32438068/perform-an-action-on-checkbox-checked-or-unchecked-event-on-html-form
+function clickCheckBox(checkbox) {
+
+var checkboxes = document.forms["windprobsForm"].elements["windprobs"];
+for (var i = 0; i < checkboxes.length; i++) {
+    checkboxes[i].onclick = function () {
         var strength = this.value;
         mapLayer = createWPLayer(strength);
         map.getLayers().forEach(function (layer) {
-            if (layer.get('name') !== strength && layer.get('name') !== undefined) {
+            if (layer.get('name') !== undefined) {
                 map.removeLayer(layer);
             }
         })
         map.addLayer(mapLayer);
     }
+} 
+
 }
 
-var radiosWMS = document.forms["windprobsWMSForm"].elements["windprobsWMS"];
-for (var i = 0; i < radiosWMS.length; i++) {
-    radiosWMS[i].onclick = function () {
+
+var checkboxesWMS = document.forms["windprobsWMSForm"].elements["windprobsWMS"];
+for (var i = 0; i < checkboxesWMS.length; i++) {
+    checkboxesWMS[i].onclick = function () {
         var strength = this.value;
         mapLayer = createWPWMSLayer(strength);
         map.getLayers().forEach(function (layer) {
-            if (layer.get('name') !== strength && layer.get('name') !== undefined) {
+            if (layer.get('name') !== undefined) {
                 map.removeLayer(layer);
             }
         })
