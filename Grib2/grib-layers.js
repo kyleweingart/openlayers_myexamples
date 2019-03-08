@@ -123,50 +123,50 @@ var createWPLayer = (strength) => {
 
 // update colors
 var windStyles = {
-    default: new ol.style.Style({
-        fill: new ol.style.Fill({ color: 'black' })
-    }),
-    Zero: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [128, 230, 128, .9] }),
-    }),
+    // default: new ol.style.Style({
+    //     fill: new ol.style.Fill({ color: 'red' })
+    // }),
+    // Zero: new ol.style.Style({
+    //     fill: new ol.style.Fill({ color: [0, 0, 0, 0] }),
+    // }),
     Five: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
+        fill: new ol.style.Fill({ color: [1, 50, 32, .9] }),
     }),
     Ten: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
+        fill: new ol.style.Fill({ color: [0, 255, 0, .9] }),
     }),
     Twenty: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
+        fill: new ol.style.Fill({ color: [50, 205, 50, .9] }),
     }),
     Thirty: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [128, 230, 128, .9] }),
+        fill: new ol.style.Fill({ color: [255, 255, 224, .9] }),
 
     }),
     Forty: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
+        fill: new ol.style.Fill({ color: [255, 255, 0, .9] }),
     }),
     Fifty: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
+        fill: new ol.style.Fill({ color: [255, 140, 0, .9] }),
 
     }),
     Sixty: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
+        fill: new ol.style.Fill({ color: [255, 165, 0, .9] }),
 
     }),
     Seventy: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
+        fill: new ol.style.Fill({ color: [255, 0, 0, .9] }),
 
     }),
     Eighty: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
+        fill: new ol.style.Fill({ color: [139, 0, 0, .9] }),
 
     }),
     Ninety: new ol.style.Style({
-        fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
-
+        fill: new ol.style.Fill({ color: [128, 0, 128, .9] }),
+    }),
+    Hundred: new ol.style.Style({
+        fill: new ol.style.Fill({ color: [48, 25, 52, .9] }),
     })
-
-
 }
 
 
@@ -185,8 +185,8 @@ function styleFunction(feature) {
         prob = (Math.floor(prob / 10)) * 10;
     }
 
-    if (prob === 0) {
-        return windStyles.Zero;
+    if (prob === 100) {
+        return windStyles.Hundred;
     } else if ( prob === 10) {
         return windStyles.Ten;
     } else if (prob === 20) {
@@ -205,9 +205,7 @@ function styleFunction(feature) {
         return windStyles.Eighty;
     } else if (prob === 90) {
         return windStyles.Ninety;
-    } else {
-        return windStyles.default;
-    }
+    } 
 }
 
 
