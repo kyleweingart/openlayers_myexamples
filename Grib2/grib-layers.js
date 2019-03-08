@@ -116,12 +116,12 @@ var radios = document.forms["windprobsForm"].elements["windprobs"];
 for (var i = 0; i < radios.length; i++) {
     radios[i].onclick = function () {
         var strength = this.value;
-        this.mapLayers = createWPLayer(strength);
+        mapLayer = createWPLayer(strength);
         map.getLayers().forEach(function (layer) {
             if (layer.get('name') !== strength && layer.get('name') !== undefined) {
                 map.removeLayer(layer);
             }
         })
-        map.addLayer(this.mapLayers);
+        map.addLayer(mapLayer);
     }
 }
