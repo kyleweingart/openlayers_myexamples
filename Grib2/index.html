@@ -10,16 +10,20 @@
     <div id="js-map" class="map"></div>
     <div class="pane">
         <h4>Hurricane Michael Advisory 11- Wind Prob Layers</h4>
-        <p>Select the layer you wish to view:</p>
-        <!-- <select id="js-layers" class="layers">
-            <option value="-10527519,3160212,4">Temperature (USA)</option>
-            <option value="-408479,7213209,6">Bedrock (UK)</option>
-        </select> -->
+        <h5>WFS:</h5>
         <form id="js-layers" class="layers" name="windprobsForm">
             <input class="layer" type="radio" name="windprobs" value="TS">Tropical<br>
             <input class="layer" type="radio" name="windprobs" value="STS">Strong Tropical<br>
             <input class="layer" type="radio" name="windprobs" value="H">Hurricane<br>
         </form>
+        <h5>WMS:</h5>
+        <form id="js-layers-wms" class="wms-layers" name="windprobsWMSForm">
+            <input class="layer" type="radio" name="windprobsWMS" value="TS">Tropical<br>
+            <input class="layer" type="radio" name="windprobsWMS" value="STS">Strong Tropical<br>
+            <input class="layer" type="radio" name="windprobsWMS" value="H">Hurricane<br>
+        </form>
+
+        <h4>Wind Prob Report - Single Location</h4>
         
     </div>
     <!-- <script src="../../assets/js/ol-debug.js"></script> -->

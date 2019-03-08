@@ -13,7 +13,7 @@ var map = new ol.Map({
 });
 
 var createWPLayer = (strength) => {
-    var url = 'http://hvx-mapserver.hurrevac.com/geoserver/wfs?service=WFS&' +
+    var url = 'https://hvx-mapserver.hurrevac.com/geoserver/wfs?service=WFS&' +
         'version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json'
         + '&srsname=EPSG:3857&viewparams=date:1539075600;fcstHr:120;spd:' + strength;
 
@@ -29,6 +29,32 @@ var createWPLayer = (strength) => {
         style: styleFunction,
         visible: true,
         opacity: 0.9
+    });
+    return layer;
+}
+
+var createWPWMSLayer = (strength) => {
+    var url = 'https://hvx-mapserver.hurrevac.com/geoserver/wms' 
+
+    var layer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: url,
+            params: {
+                'LAYERS': 'nhp:windprobs_view',
+                'TILED': true,
+                'VERSION': '1.1.1',
+                'FORMAT': 'image/png8',
+                // 'VIEWPARAMS': 'spd:' + strength + ';fcsthr:90'
+                'VIEWPARAMS': 'date:1539075600; spd:" + strength + ";fcsthr:120'
+                // 'spd': strength,
+                // 'date': 1539075600,
+                // 'fcsthr': '120'
+            }
+            // projection: 'EPSG:3857'
+
+        }),
+        serverType: 'geoserver',
+        crossOrigin: 'anonymous'
     });
     return layer;
 }
@@ -125,3 +151,18 @@ for (var i = 0; i < radios.length; i++) {
         map.addLayer(mapLayer);
     }
 }
+
+var radiosWMS = document.forms["windprobsWMSForm"].elements["windprobsWMS"];
+for (var i = 0; i < radiosWMS.length; i++) {
+    radiosWMS[i].onclick = function () {
+        var strength = this.value;
+        mapLayer = createWPWMSLayer(strength);
+        map.getLayers().forEach(function (layer) {
+            if (layer.get('name') !== strength && layer.get('name') !== undefined) {
+                map.removeLayer(layer);
+            }
+        })
+        map.addLayer(mapLayer);
+    }
+}
+
