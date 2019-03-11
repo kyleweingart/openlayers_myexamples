@@ -154,14 +154,31 @@ for (var i = 0; i < checkboxes.length; i++) {
 }
 
 
-
-
 var checkboxesWMS = document.forms["windprobsWMSForm"].elements["windprobsWMS"];
 for (var i = 0; i < checkboxesWMS.length; i++) {
     checkboxesWMS[i].onclick = function () {
         var strength = this.value;
         if (this.checked === true) {
             mapLayer = createWPWMSLayer(strength);
+            map.addLayer(mapLayer);
+        } else {
+            map.getLayers().forEach(function (layer) {
+                console.log(layer.get('name'));
+                if (layer.get('name') === 'WMS ' + strength) {
+                    map.removeLayer(layer);
+                }
+            })
+
+        }
+    }
+}
+
+var checkboxesGrib2 = document.forms["windprobsGrib2Form"].elements["windprobsGrib2"];
+for (var i = 0; i < checkboxesGrib2.length; i++) {
+    checkboxesGrib2[i].onclick = function () {
+        var strength = this.value;
+        if (this.checked === true) {
+            mapLayer = createGrib2Layer(strength);
             map.addLayer(mapLayer);
         } else {
             map.getLayers().forEach(function (layer) {
