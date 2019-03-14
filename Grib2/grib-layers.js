@@ -78,8 +78,7 @@ var createGrib2Layer = (strength) => {
                 'TILED': true,
                 'VERSION': '1.1.1',
                 'FORMAT': 'image/png8',
-                // geoserver sql view params
-                // 'VIEWPARAMS': 'date:1539075600;fcsthr:120;' + 'spd:' + strength,
+                'TIME': '2018-10-09T12:00:00Z'
             }
         }),
         name: "Grib2 " + strength,
