@@ -55,6 +55,38 @@ var createWPWMSLayer = (strength) => {
     return layer;
 }
 
+var createGrib2Layer = (strength) => {
+
+    console.log('Grib2layer');
+    var url = 'http://localhost:8080/geoserver/wms'
+
+    if (strength = 'TS') {
+        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_17p491'
+    }   else if (strength = 'STS') {
+        layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_25p722'
+    }   else if (strength = 'H') {
+        layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_32p924'
+    }
+
+    var layer = new ol.layer.Tile({
+        source: new ol.source.TileWMS({
+            url: url,
+            params: {
+                'LAYERS': 'nhp:' + layers,
+                'TILED': true,
+                'VERSION': '1.1.1',
+                'FORMAT': 'image/png8',
+                // geoserver sql view params
+                // 'VIEWPARAMS': 'date:1539075600;fcsthr:120;' + 'spd:' + strength,
+            }
+        }),
+        name: "Grib2 " + strength,
+        serverType: 'geoserver',
+        crossOrigin: 'anonymous'
+    });
+    return layer;
+}
+
 
 var windStyles = {
     Five: new ol.style.Style({
@@ -143,7 +175,6 @@ for (var i = 0; i < checkboxes.length; i++) {
             map.addLayer(mapLayer);
         } else {
             map.getLayers().forEach(function (layer) {
-                console.log(layer.get('name'));
                 if (layer.get('name') === strength) {
                     map.removeLayer(layer);
                 }
@@ -163,7 +194,6 @@ for (var i = 0; i < checkboxesWMS.length; i++) {
             map.addLayer(mapLayer);
         } else {
             map.getLayers().forEach(function (layer) {
-                console.log(layer.get('name'));
                 if (layer.get('name') === 'WMS ' + strength) {
                     map.removeLayer(layer);
                 }
@@ -183,7 +213,7 @@ for (var i = 0; i < checkboxesGrib2.length; i++) {
         } else {
             map.getLayers().forEach(function (layer) {
                 console.log(layer.get('name'));
-                if (layer.get('name') === 'WMS ' + strength) {
+                if (layer.get('name') === 'Grib2 ' + strength) {
                     map.removeLayer(layer);
                 }
             })
