@@ -58,14 +58,16 @@ var createWPWMSLayer = (strength) => {
 var createGrib2Layer = (strength) => {
 
     console.log('Grib2layer');
-    var url = 'http://localhost:8080/geoserver/wms'
+    var url = 'http://localhost:8080/geoserver/wms';
 
-    if (strength = 'TS') {
+    if (strength === 'TS') {
+        console.log('strength works')
         var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_17p491'
-    }   else if (strength = 'STS') {
-        layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_25p722'
-    }   else if (strength = 'H') {
-        layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_32p924'
+    }   else if (strength === 'STS') {
+        console.log('STS works');
+        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_25p722'
+    }   else if (strength === 'H') {
+        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_32p924'
     }
 
     var layer = new ol.layer.Tile({
@@ -207,6 +209,7 @@ var checkboxesGrib2 = document.forms["windprobsGrib2Form"].elements["windprobsGr
 for (var i = 0; i < checkboxesGrib2.length; i++) {
     checkboxesGrib2[i].onclick = function () {
         var strength = this.value;
+        console.log(strength);
         if (this.checked === true) {
             mapLayer = createGrib2Layer(strength);
             map.addLayer(mapLayer);
