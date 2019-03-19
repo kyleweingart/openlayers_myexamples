@@ -47,7 +47,7 @@ function getMaxPixel(pixel) {
 
 console.log(surgeLayers);
 var surgeRaster = new ol.source.Raster({
-  sources: surgeLayers,
+  sources: [surgeLayers],
   /**
    * Run calculations on pixel data.
    * @param {Array} pixels List of pixels (one per source).
@@ -56,8 +56,9 @@ var surgeRaster = new ol.source.Raster({
    */
   operation: function(pixels, data) {
     console.log('here');
+    console.log(pixels);
     var value = getMaxPixel(pixels);
-    pixel = value
+    var pixel = value
     
     return pixel;
   },
@@ -68,9 +69,9 @@ var surgeRaster = new ol.source.Raster({
 
 
 
-// surge_raster.on('beforeoperations', function(event) {
-//   console.log('before');
-// });
+surgeRaster.on('beforeoperations', function(event) {
+  console.log('before');
+});
 
 var map = new ol.Map({
   layers: [basemap],
