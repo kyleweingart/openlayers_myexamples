@@ -54,8 +54,6 @@ var surgeRaster = new ol.source.Raster({
   }
 });
 
-
-
 // surgeRaster.on('beforeoperations', function(event) {
 //   console.log('before');
 // });
