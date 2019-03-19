@@ -35,7 +35,7 @@ function getMaxPixel(pixel) {
   });
   return max;
 }
-
+console.log(surgeLayers.length);
 var surgeRaster = new ol.source.Raster({
   sources: surgeLayers,
   /**
