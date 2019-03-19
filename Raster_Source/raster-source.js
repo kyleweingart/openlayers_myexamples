@@ -8,7 +8,7 @@ codes.push('e320i1');
 codes.push('ene320i1');
 codes.push('nne320i1');
 var surgeLayers = [];
-console.log(surgeLayers);
+
 
 for (var i = 0; i < codes.length; i++) {
   var imgSource = new ol.source.ImageWMS({
