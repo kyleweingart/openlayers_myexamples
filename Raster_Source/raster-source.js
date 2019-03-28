@@ -1,5 +1,5 @@
 
-var codes = [];
+ var codes = [];
 
 codes.push('w320i1');
 codes.push('nnw320i1');
@@ -9,17 +9,16 @@ codes.push('ene320i1');
 codes.push('nne320i1');
 var surgeLayers = [];
 
+ var surge_layers = [];
 
-for (var i = 0; i < codes.length; i++) {
-  var imgSource = new ol.source.ImageWMS({
-      url: 'http://localhost:8080/geoserver/wms',
-      crossOrigin: 'anonymous',
-      params: {'LAYERS': 'test:sf1', 'DIM_MAX_COLS': codes[i]},
-      ratio: 1,
-      serverType: 'geoserver'
-  });
-  surgeLayers.push(imgSource);
-}
+ for (var i = 0; i < codes.length; i++){
+   var imgLayer = new ol.source.ImageWMS({
+     crossOrigin: 'anonymous',
+     url: 'http://localhost:8080/geoserver/wms',
+     params: {'LAYERS': 'test:sf1', 'DIM_MAX_COLS': codes[i]},
+     ratio: 1,
+     serverType: 'geoserver'
+   });
 
 function getMaxPixel(pixel) {
   var max = pixel.reduce(function(final, current) {
