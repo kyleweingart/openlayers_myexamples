@@ -101,7 +101,7 @@
        * Create a raster source where pixels with VGI values above a threshold will
        * be colored green.
        */
-      console.log(bing);
+      
       var raster = new ol.source.Raster({
         sources: [bing],
         /**
@@ -111,7 +111,6 @@
          * @return {Array} The output pixel.
          */
         operation: function(pixels, data) {
-            // console.log(pixels);
           var pixel = pixels[0];
           var value = vgi(pixel);
           summarize(value, data.counts);

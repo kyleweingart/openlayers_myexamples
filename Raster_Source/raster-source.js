@@ -1,13 +1,14 @@
 
  var codes = [];
 
-codes.push('w320i1');
-codes.push('nnw320i1');
-codes.push('wnw320i1');
-codes.push('e320i1');
-codes.push('ene320i1');
-codes.push('nne320i1');
-var surgeLayers = [];
+  
+ // codes.push('nnw320i1');
+ // codes.push('wnw320i1');
+ 
+//  codes.push('e320i1');
+ codes.push('w320i1');
+//  codes.push('ene320i1');
+//  codes.push('nne320i1');
 
  var surge_layers = [];
 
@@ -100,10 +101,10 @@ var surgeRaster = new ol.source.Raster({
    view: view
  });
 
-//  raster.on('beforeoperations', function(event) {
-//    var data = event.data;
-//    console.log(data);
-//  });
+ raster.on('beforeoperations', function(event) {
+   var data = event.data;
+   console.log(data);
+ });
 
 var parser = new ol.format.WMSGetFeatureInfo();
 var viewResolution = map.getView().getResolution();
