@@ -1,12 +1,12 @@
 
  var codes = [];
  
- // codes.push('nnw320i1');
- // codes.push('wnw320i1');
-//  codes.push('w320i1');
+ codes.push('nnw320i1');
+ codes.push('wnw320i1');
+ codes.push('w320i1');
  codes.push('e320i1');
- // codes.push('ene320i1');
- // codes.push('nne320i1');
+ codes.push('ene320i1');
+ codes.push('nne320i1');
 
  var surge_layers = [];
 
@@ -71,6 +71,7 @@
    }
 
    var max = dataArray.reduce(function(final, current) {
+     console.log(final.length);
      for (var i = 0; i < final.length; i = i+4) {
        //Only compare if current isn't completely transparent
        if (current[i+3] > 0) {
@@ -97,7 +98,8 @@
      }
      return final;
    });
-
+   console.log(max);
+  //  work on solution to only return final max so artifacts do not get rendered
    return {data: max, width: width, height: height};
  }
 
