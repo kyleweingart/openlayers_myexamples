@@ -1,6 +1,13 @@
 
  var codes = [];
 
+codes.push('w320i1');
+codes.push('nnw320i1');
+codes.push('wnw320i1');
+codes.push('e320i1');
+codes.push('ene320i1');
+codes.push('nne320i1');
+var surgeLayers = [];
   
  // codes.push('nnw320i1');
  // codes.push('wnw320i1');
