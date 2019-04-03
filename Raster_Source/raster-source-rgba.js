@@ -4,9 +4,9 @@
  codes.push('nnw320i1');
  codes.push('wnw320i1');
  codes.push('w320i1');
- codes.push('e320i1');
- codes.push('ene320i1');
- codes.push('nne320i1');
+//  codes.push('e320i1');
+//  codes.push('ene320i1');
+//  codes.push('nne320i1');
 
  var surge_layers = [];
 
@@ -24,6 +24,8 @@
  
 
  function getMaxDepth(inputs, data) {
+   console.log(inputs);
+   console.log('running');
    var dataArray = [];
    var width = inputs[0].width;
    var height = inputs[0].height;
@@ -71,7 +73,9 @@
    }
 
    var max = dataArray.reduce(function(final, current) {
-     console.log(final.length);
+    //  console.log(dataArray[3]);
+    //  console.log(current);
+    //  console.log(dataArray.length);
      for (var i = 0; i < final.length; i = i+4) {
        //Only compare if current isn't completely transparent
        if (current[i+3] > 0) {
@@ -96,9 +100,11 @@
          }
        }
      }
+    //  if (current === dataArray[dataArray.length - 1]) {
+    //    console.log('yes sir');
+    //  }
      return final;
    });
-   console.log(max);
   //  work on solution to only return final max so artifacts do not get rendered
    return {data: max, width: width, height: height};
  }
@@ -131,9 +137,9 @@
    view: view
  });
 
- surgeImage.on('beforeoperations', function(event) {
-   var data = event.data;
- });
+//  surgeImage.on('beforeoperations', function(event) {
+//    var data = event.data;
+//  });
  
 
  
