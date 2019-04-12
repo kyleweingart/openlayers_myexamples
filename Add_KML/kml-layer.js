@@ -145,10 +145,11 @@ function styleFunction(feature, resolution) {
       placement: 'line',
       rotation: getTextAngle(feature),
       fill: new ol.style.Fill({
-        color: 'rgba(0, 0, 0, 0.6'
+        // color: 'rgba(0, 0, 0, 0.6'
+        color: '#ffffff'
       }),
       stroke: new ol.style.Stroke({
-        color: '#fff',
+        color: '#323232',
         width: 3
       })
     })
