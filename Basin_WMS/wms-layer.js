@@ -3,6 +3,21 @@ var raster = new ol.layer.Tile({
 })
 // create source from TileWMS source 
 
+var createdLayer = new ol.layer.Tile({
+  source: new ol.source.TileWMS(/** @type {olx.source.TileWMSOptions} */ ({
+    url: 'https://hvx-mapserver.hurrevac.com/geoserver/wms',
+    params: {
+      'LAYERS': 'nhp:Locations',
+      'TILED': true,
+      'VERSION': '1.1.0',
+      'FORMAT': 'image/png8',
+      'viewparams': 'typeid:' + locationtypeid + ';val:' + title + ';'
+    },
+    serverType: 'geoserver',
+    crossOrigin: 'anonymous'
+  })),
+});
+
 var wmsSource = new ol.source.TileWMS({
   url: 'https://ahocevar.com/geoserver/wms',
   params: { 'LAYERS': 'ne:ne' },
