@@ -3,7 +3,10 @@ var raster = new ol.layer.Tile({
 })
 // create source from TileWMS source 
 
-var createdLayer = new ol.layer.Tile({
+var locationtypeid = 1;
+var title = "Texas";
+
+var basinLayer = new ol.layer.Tile({
   source: new ol.source.TileWMS(/** @type {olx.source.TileWMSOptions} */ ({
     url: 'https://hvx-mapserver.hurrevac.com/geoserver/wms',
     params: {
@@ -18,21 +21,10 @@ var createdLayer = new ol.layer.Tile({
   })),
 });
 
-var wmsSource = new ol.source.TileWMS({
-  url: 'https://ahocevar.com/geoserver/wms',
-  params: { 'LAYERS': 'ne:ne' },
-  serverType: 'geoserver',
-  crossOrigin: 'anonymous'
-});
-
-// create vector layer to display features in vector source
-var wmsLayer = new ol.layer.Tile({
-  source: wmsSource,
-});
 
 // create map
 var map = new ol.Map({
-  layers: [raster],
+  layers: [raster, basinLayer],
   target: document.getElementById('map'),
   view: new ol.View({
     center: [0, 0],
