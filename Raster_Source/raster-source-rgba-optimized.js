@@ -35,7 +35,7 @@ var codes = [];
     '255,85,0': 9,      //#FFAA00 - Depth 9     
     '255,0,0': 10,      //#FF0000 - Depth 10
     '170,0,0': 11,};    //#AA0000 - Depth 11
-  var counter = 0;
+  // var counter = 0;
 
   function toDepth(rgb, colorMap) {
     function within(val, target, range) {
