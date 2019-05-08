@@ -22,15 +22,6 @@ for (var i = 0; i < codes.length; i++) {
   surgeLayers.push(imgSource);
 }
 
-// var testSource = new ol.source.ImageWMS({
-//   url: 'http://localhost:8080/geoserver/wms',
-//   crossOrigin: 'anonymous',
-//   params: {'LAYERS': 'test:sf1', 'DIM_MAX_COLS': 'w320i1'},
-//   ratio: 1,
-//   serverType: 'geoserver'
-// });
-
-
 function getMaxPixel(pixel) {
   var max = pixel.reduce(function(final, current) {
     for (var i = 0; i < final.length; ++i) {
@@ -46,8 +37,6 @@ function getMaxPixel(pixel) {
   return max;
 }
 
-console.log(surgeLayers);
-console.log(surgeLayers.length);
 
 var surgeRaster = new ol.source.Raster({
   sources: surgeLayers,
@@ -67,13 +56,6 @@ var surgeRaster = new ol.source.Raster({
   }
 });
 
-surgeRaster.on('beforeoperations', function(event) {
-  console.log('before');
-});
-surgeRaster.on('afteroperations', function(event) {
-  console.log('after');
-  
-});
 
 var map = new ol.Map({
   layers: [
@@ -90,6 +72,6 @@ var map = new ol.Map({
   target: 'map',
   view: new ol.View({
     center: ol.proj.fromLonLat([-81.97, 26.49]),
-    zoom:14
+    zoom:5
   }),
 });
