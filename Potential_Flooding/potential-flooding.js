@@ -3,7 +3,7 @@
   var imgSource = new ol.source.TileWMS({
       url: 'http://localhost:8080/geoserver/wms',
       params: {
-        'LAYERS': 'nhp:GORDON_2018_adv08_e10_ResultRaster',
+        'LAYERS': 'nhp:ALBERTO_2018_adv10_e10_ResultRaster',
       },
       ratio: 1,
       serverType: 'geoserver'
@@ -12,10 +12,20 @@
   var img2Source = new ol.source.TileWMS({
       url: 'http://localhost:8080/geoserver/wms',
       params: {
-        'LAYERS': 'nhp:HERMINE_2016_adv21_e10_ResultRaster',
+        'LAYERS': 'nhp:FLORENCE_2018_adv60_e10_ResultRaster',
       },
       ratio: 1,
       serverType: 'geoserver'
+  });
+
+  var imgSource3 = new ol.source.ImageWMS({
+    // crossOrigin: 'anonymous',
+    url: 'http://localhost:8080/geoserver/wms',
+    params: {
+      'LAYERS': 'nhp:Alberto_flood_mosaic', 
+      'DIM_FILE_NAME': 'adv10_'},
+    ratio: 1,
+    serverType: 'geoserver'
   });
 
 var map = new ol.Map({
@@ -23,11 +33,14 @@ var map = new ol.Map({
     new ol.layer.Tile({
       source: new ol.source.OSM()
     }),
-    new ol.layer.Tile({
-      source: imgSource
-    }),
-    new ol.layer.Tile({
-      source: img2Source
+    // new ol.layer.Tile({
+    //   source: imgSource
+    // }),
+    // new ol.layer.Tile({
+    //   source: img2Source
+    // }),
+    new ol.layer.Image({
+      source: imgSource3
     })
     // new ol.layer.Image({
     //   source: testSource

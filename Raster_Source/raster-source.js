@@ -150,6 +150,7 @@ map.on('singleclick', function (evt) {
   })
 }
 });
+
 //  map.on('singleclick', function(evt) {
 //   var depths = [];
 //   for (var i = 0; i < surge_layers.length; i++) {
@@ -169,5 +170,4 @@ map.on('singleclick', function (evt) {
 //   }
 //   console.log(depths);
 //    });
-
 
