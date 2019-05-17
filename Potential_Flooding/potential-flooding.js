@@ -23,7 +23,7 @@
     url: 'http://localhost:8080/geoserver/wms',
     params: {
       'LAYERS': 'nhp:Alberto_flood_mosaic', 
-      'DIM_FILE_NAME': 'adv10_'},
+      'DIM_FILE_NAME': 'adv60_'},
     ratio: 1,
     serverType: 'geoserver'
   });

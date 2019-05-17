@@ -14,7 +14,7 @@ var codes = [];
     var imgLayer = new ol.source.ImageWMS({
       crossOrigin: 'anonymous',
       url: 'http://localhost:8080/geoserver/wms',
-      params: {'LAYERS': 'test:sf1', 'DIM_MAX_COLS': codes[i]},
+      params: {'LAYERS': 'nhp:sf1', 'DIM_MAX_COLS': codes[i]},
       ratio: 1,
       serverType: 'geoserver'
     });
@@ -127,4 +127,42 @@ var codes = [];
     ],
     target: 'map',
     view: view
+  });
+
+  var parser = new ol.format.WMSGetFeatureInfo();
+  var viewResolution = map.getView().getResolution();
+  var viewProjection = map.getView().getProjection();
+  
+  map.on('singleclick', function (evt) {
+    console.log(evt.coordinate);
+    for (var i = 0; i < surge_layers.length; i++) {
+    var url = surge_layers[i].getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+      {
+        'INFO_FORMAT': 'application/vnd.ogc.gml',
+      });
+    $.ajax({
+      type: 'GET',
+      url: url
+    }).done(function (data) {
+      var features = parser.readFeatures(data);
+      if (features.length > 0) {
+        console.log(features[0].H.GRAY_INDEX);
+        // below works but has generalized data
+        // geom = features[0].H.geom;
+        // features[0].setGeometry(geom);
+        // features[0].getGeometry().transform('EPSG:4326', 'EPSG:3857')
+        // featureOverlay.getSource().clear();
+        // featureOverlay.getSource().addFeatures(features);
+        // overlay.setPosition(evt.coordinate);
+        // content.innerText = features[0].H.zone_name;
+        // container.style.display = 'block';
+        // console.log(overlay);
+      }
+      // } else {
+      //   featureOverlay.getSource().clear();
+      //   container.style.display = 'none';
+      // }
+  
+    })
+  }
   });

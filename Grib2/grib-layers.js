@@ -78,7 +78,7 @@ var createGrib2Layer = (strength) => {
                 'TILED': true,
                 'VERSION': '1.1.1',
                 'FORMAT': 'image/png8',
-                'TIME': '2018-10-09T12:00:00Z'
+                'TIME': '2018-10-10T00:00:00Z'
             }
         }),
         name: "Grib2 " + strength,
