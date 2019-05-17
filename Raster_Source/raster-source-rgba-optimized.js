@@ -1,14 +1,18 @@
 var codes = [];
+var flags = [];
+var flagsLayer = null;
 
 
-  // codes.push('nnw320i1');
-  // codes.push('wnw320i1');
+  codes.push('nnw320i1');
+  codes.push('wnw320i1');
   codes.push('w320i1');
 //   codes.push('e320i1');
   // codes.push('ene320i1');
   // codes.push('nne320i1');
 
   var surge_layers = [];
+  var depth = [];
+  var lightGrey = 'grey';
 
   for (var i = 0; i < codes.length; i++){
     var imgLayer = new ol.source.ImageWMS({
@@ -134,6 +138,7 @@ var codes = [];
   var viewProjection = map.getView().getProjection();
   
   map.on('singleclick', function (evt) {
+    depth = [];
     console.log(evt.coordinate);
     for (var i = 0; i < surge_layers.length; i++) {
     var url = surge_layers[i].getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
@@ -146,7 +151,19 @@ var codes = [];
     }).done(function (data) {
       var features = parser.readFeatures(data);
       if (features.length > 0) {
-        console.log(features[0].H.GRAY_INDEX);
+        var depthNum = parseInt(features[0].H.GRAY_INDEX);
+        if (depthNum === 255) {
+          depthNum = 0;
+        }
+        depth.push(depthNum);
+        console.log(depth);
+
+        var maxDepth = Math.max.apply(Math, depth);
+        console.log(maxDepth);
+        createFlags(evt.coordinate, maxDepth);
+
+
+
         // below works but has generalized data
         // geom = features[0].H.geom;
         // features[0].setGeometry(geom);
@@ -158,11 +175,111 @@ var codes = [];
         // container.style.display = 'block';
         // console.log(overlay);
       }
+
+      
       // } else {
       //   featureOverlay.getSource().clear();
       //   container.style.display = 'none';
       // }
   
     })
-  }
+    }
   });
+
+  function createFlags (coords, maxDepth) {
+    makeFlag(coords, maxDepth);
+    drawFlags();
+  }
+
+  function makeFlag(coords, datum) {
+    if (!coords || coords.length < 2) {
+      return false;
+    }
+    if (+datum <= 0 || !datum) {
+      datum = 'Dry';
+    }
+
+    // Make point geometry
+    var geom = new ol.geom.Point(coords);
+
+    // Make new flag feature
+    var flagFeature = new ol.Feature(geom);
+
+    flagFeature.setProperties({
+      surge: datum
+    }, true);
+
+    // Set flag style
+    flagFeature.setStyle(buildStyle(geom, datum));
+
+    // Add new feature to flag list
+    flags.push(flagFeature);
+
+    return flagFeature;
+  }
+
+  function buildStyle(geom, datum) {
+    if (!geom || !datum) {
+      return false;
+    }
+
+    // Define the text style
+    var text = datum.toString();
+    var textStyle = makeTextStyle(text);
+
+    // Define the flag's shape style
+    var shapeStyle = makeShapeStyle(lightGrey);
+
+    // Combine the styles and give it a location
+    return new ol.style.Style({
+      geometry: geom,
+      text: textStyle,
+      image: shapeStyle
+    });
+  }
+
+  function makeTextStyle(text) {
+    return new ol.style.Text({
+      text: text,
+      font: 'bold 12px sans-serif',
+      fill: new ol.style.Fill({
+        color: 'black'
+      }),
+      textBaseline: 'middle',
+      textAlign: 'center'
+    });
+  }
+
+  function makeShapeStyle(fillText, strokeText) {
+    fillText = fillText || 'red';
+    strokeText = strokeText || 'grey';
+    var fill = new ol.style.Fill({color: fillText});
+    var stroke = new ol.style.Stroke({color: strokeText, width: 0.5});
+
+    return new ol.style.RegularShape({
+      fill: fill,
+      stroke: stroke,
+      points: 4,
+      radius: 17,
+      angle: Math.PI / 4
+    });
+  }
+
+  function drawFlags() {
+    map.removeLayer(flagsLayer);
+    if (!flags || flags.length < 1) {
+      return false;
+    }
+
+    var source = new ol.source.Vector({
+      features: flags
+    });
+
+    flagsLayer = new ol.layer.Vector({
+      source: source,
+      style: buildStyle
+    });
+    map.addLayer(flagsLayer);
+
+    return flagsLayer;
+  }
