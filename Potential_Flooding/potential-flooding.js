@@ -3,7 +3,7 @@
   var imgSource = new ol.source.TileWMS({
       url: 'http://localhost:8080/geoserver/wms',
       params: {
-        'LAYERS': 'nhp:ALBERTO_2018_adv10_e10_ResultRaster',
+        'LAYERS': 'nhp:ALBERTO_2018_adv02_e10_ResultRaster',
       },
       ratio: 1,
       serverType: 'geoserver'
@@ -23,7 +23,7 @@
     url: 'http://localhost:8080/geoserver/wms',
     params: {
       'LAYERS': 'nhp:Alberto_flood_mosaic', 
-      'DIM_FILE_NAME': 'adv60_'},
+      'DIM_FILE_NAME': 'adv02_'},
     ratio: 1,
     serverType: 'geoserver'
   });
@@ -52,3 +52,42 @@ var map = new ol.Map({
     zoom:5
   }),
 });
+
+
+var parser = new ol.format.WMSGetFeatureInfo();
+var viewResolution = map.getView().getResolution();
+var viewProjection = map.getView().getProjection();
+
+map.on('singleclick', function (evt) {
+  console.log(evt.coordinate);
+  
+  var url = imgSource3.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    {
+      'INFO_FORMAT': 'application/vnd.ogc.gml',
+    });
+  $.ajax({
+    type: 'GET',
+    url: url
+  }).done(function (data) {
+    var features = parser.readFeatures(data);
+    console.log(features);
+    if (features.length > 0) {
+      console.log(features[0].H.GRAY_INDEX);
+    }
+  })
+
+  var url2 = imgSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    {
+      'INFO_FORMAT': 'application/vnd.ogc.gml',
+    });
+  $.ajax({
+    type: 'GET',
+    url: url2
+  }).done(function (data) {
+    var features = parser.readFeatures(data);
+    console.log(features);
+    if (features.length > 0) {
+      console.log(features[0].H.GRAY_INDEX);
+    }
+  })
+})
