@@ -3,8 +3,8 @@ var flags = [];
 var flagsLayer = null;
 
 
-  codes.push('nnw320i1');
-  codes.push('wnw320i1');
+  // codes.push('nnw320i1');
+  // codes.push('wnw320i1');
   codes.push('w320i1');
 //   codes.push('e320i1');
   // codes.push('ene320i1');
@@ -243,7 +243,7 @@ var flagsLayer = null;
       text: text,
       font: 'bold 12px sans-serif',
       fill: new ol.style.Fill({
-        color: 'black'
+        color: '#F5F5F5'
       }),
       textBaseline: 'middle',
       textAlign: 'center'
@@ -257,15 +257,30 @@ var flagsLayer = null;
     var stroke = new ol.style.Stroke({color: strokeText, width: 0.5});
 
 
+  // red flag option
+
+  // return new ol.style.Icon({
+  //   anchor: [0.55, 0.3],
+  //   // anchorXUnits: 'fraction',
+  //   // anchorYUnits: 'pixels',
+  //   src: 'flag1.png',
+  //   opacity: .75,
+  //   scale: .07
+  //   // size: [10, 20]
+  // })
+
+  // black flag option
+
   return new ol.style.Icon({
-    anchor: [0.55, 0.3],
+    anchor: [0.5, 0.375],
     // anchorXUnits: 'fraction',
     // anchorYUnits: 'pixels',
-    src: 'flag1.png',
-    opacity: .75,
-    scale: .07
+    src: 'flag.png',
+    opacity: .5,
+    scale: .1
     // size: [10, 20]
   })
+
     // return new ol.style.RegularShape({
     //   fill: fill,
     //   stroke: stroke,
