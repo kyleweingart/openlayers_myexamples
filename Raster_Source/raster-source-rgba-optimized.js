@@ -256,13 +256,23 @@ var flagsLayer = null;
     var fill = new ol.style.Fill({color: fillText});
     var stroke = new ol.style.Stroke({color: strokeText, width: 0.5});
 
-    return new ol.style.RegularShape({
-      fill: fill,
-      stroke: stroke,
-      points: 4,
-      radius: 17,
-      angle: Math.PI / 4
-    });
+
+  return new ol.style.Icon({
+    anchor: [0.55, 0.3],
+    // anchorXUnits: 'fraction',
+    // anchorYUnits: 'pixels',
+    src: 'flag1.png',
+    opacity: .75,
+    scale: .07
+    // size: [10, 20]
+  })
+    // return new ol.style.RegularShape({
+    //   fill: fill,
+    //   stroke: stroke,
+    //   points: 4,
+    //   radius: 17,
+    //   angle: Math.PI / 4
+    // });
   }
 
   function drawFlags() {
