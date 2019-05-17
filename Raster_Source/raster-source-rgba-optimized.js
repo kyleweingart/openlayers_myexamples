@@ -271,13 +271,35 @@ var flagsLayer = null;
 
   // black flag option
 
+  // return new ol.style.Icon({
+  //   anchor: [0.5, 0.375],
+  //   // anchorXUnits: 'fraction',
+  //   // anchorYUnits: 'pixels',
+  //   src: 'flag.png',
+  //   opacity: .5,
+  //   scale: .1
+  //   // size: [10, 20]
+  // })
+
+  // black pin option 1
+  // return new ol.style.Icon({
+  //   anchor: [0.5, 0.375],
+  //   // anchorXUnits: 'fraction',
+  //   // anchorYUnits: 'pixels',
+  //   src: 'pin.png',
+  //   opacity: .8,
+  //   scale: .15
+  //   // size: [10, 20]
+  // })
+
+  // black pin option 2
   return new ol.style.Icon({
     anchor: [0.5, 0.375],
     // anchorXUnits: 'fraction',
     // anchorYUnits: 'pixels',
-    src: 'flag.png',
-    opacity: .5,
-    scale: .1
+    src: 'pin2.png',
+    opacity: .9,
+    scale: .15
     // size: [10, 20]
   })
 
