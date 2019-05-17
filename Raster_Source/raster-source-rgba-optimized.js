@@ -244,9 +244,12 @@ var flagsLayer = null;
       font: 'bold 12px sans-serif',
       fill: new ol.style.Fill({
         color: '#F5F5F5'
+        // color: 'black'
       }),
       textBaseline: 'middle',
-      textAlign: 'center'
+      textAlign: 'center',
+      offsetY: -31
+
     });
   }
 
@@ -294,7 +297,7 @@ var flagsLayer = null;
 
   // black pin option 2
   return new ol.style.Icon({
-    anchor: [0.5, 0.375],
+    anchor: [0.5, 0.75],
     // anchorXUnits: 'fraction',
     // anchorYUnits: 'pixels',
     src: 'pin2.png',
@@ -302,6 +305,21 @@ var flagsLayer = null;
     scale: .15
     // size: [10, 20]
   })
+
+  // black pin option 3
+  // return new ol.style.Icon({
+  //   anchor: [0.5, 1],
+  //   // anchor: [0, 0],
+  //   // anchorXUnits: 'fraction',
+  //   // anchorYUnits: 'pixels',
+  //   src: 'pin3.png',
+  //   opacity: .9,
+  //   scale: .1
+  //   // size: [10, 20]
+  // })
+
+  
+  
 
     // return new ol.style.RegularShape({
     //   fill: fill,
