@@ -49,12 +49,12 @@ var map = new ol.Map({
     // new ol.layer.Tile({
     //   source: img2Source
     // }),
-    // new ol.layer.Image({
-    //   source: imgSource3
-    // }),
-    new ol.layer.Tile({
-      source: imgSource4
-    })
+    new ol.layer.Image({
+      source: imgSource3
+    }),
+    // new ol.layer.Tile({
+    //   source: imgSource4
+    // })
     // new ol.layer.Image({
     //   source: testSource
     // })

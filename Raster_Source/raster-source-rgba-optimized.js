@@ -124,9 +124,9 @@ var flagsLayer = null;
 
   var map = new ol.Map({
     layers: [
-      new ol.layer.Tile({
-        source: new ol.source.OSM()
-      }),
+      // new ol.layer.Tile({
+      //   source: new ol.source.OSM()
+      // }),
       surgeImage
     ],
     target: 'map',
@@ -243,12 +243,13 @@ var flagsLayer = null;
       text: text,
       font: 'bold 12px sans-serif',
       fill: new ol.style.Fill({
-        color: '#F5F5F5'
-        // color: 'black'
+        // color: '#F5F5F5'
+        color: 'black'
       }),
       textBaseline: 'middle',
       textAlign: 'center',
-      offsetY: -31
+      offsetX: 13,
+      offsetY: -25
 
     });
   }
@@ -267,10 +268,20 @@ var flagsLayer = null;
   //   // anchorXUnits: 'fraction',
   //   // anchorYUnits: 'pixels',
   //   src: 'flag1.png',
-  //   opacity: .75,
+  //   opacity: 1,
   //   scale: .07
   //   // size: [10, 20]
   // })
+
+  return new ol.style.Icon({
+    anchor: [.15, 1],
+    // anchorXUnits: 'fraction',
+    // anchorYUnits: 'pixels',
+    src: 'flag.svg',
+    opacity: .8,
+    scale: .07
+    // size: [100, 200]
+  })
 
   // black flag option
 
@@ -296,15 +307,15 @@ var flagsLayer = null;
   // })
 
   // black pin option 2
-  return new ol.style.Icon({
-    anchor: [0.5, 0.75],
-    // anchorXUnits: 'fraction',
-    // anchorYUnits: 'pixels',
-    src: 'pin2.png',
-    opacity: .9,
-    scale: .15
-    // size: [10, 20]
-  })
+  // return new ol.style.Icon({
+  //   anchor: [0.5, 0.75],
+  //   // anchorXUnits: 'fraction',
+  //   // anchorYUnits: 'pixels',
+  //   src: 'pin2.png',
+  //   opacity: .9,
+  //   scale: .15
+  //   // size: [10, 20]
+  // })
 
   // black pin option 3
   // return new ol.style.Icon({
