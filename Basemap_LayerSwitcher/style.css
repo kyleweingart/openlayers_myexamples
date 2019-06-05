@@ -11,6 +11,16 @@
   font-size: 1rem;
 }
 
+/* .ol-layerswitcher button:before {
+  background: #017eff;
+  -webkit-box-shadow: 0.1em 0.1em #fff;
+  box-shadow: 0.1em 0.1em #fff;
+}
+.ol-layerswitcher button:after {
+  background: #fff;
+  background-image: none;
+} */
+
 .ol-popup {
   position: absolute;
   background-color: white;

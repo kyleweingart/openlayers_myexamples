@@ -1,3 +1,7 @@
+// example built using http://viglino.github.io/ol-ext/examples/control/map.switcher.html
+
+
+
 var baselayers = new ol.layer.Group({
   title: 'Base Layers',
   openInLayerSwitcher: true, 
@@ -13,8 +17,81 @@ var baselayers = new ol.layer.Group({
     new ol.layer.Tile({
       title: "Bright",
       baselayer: true,
+      visible: false,
       source: new ol.source.XYZ({
-        url: 'https://api.maptiler.com/maps/basic/{z}/{x}/{y}.png?key=ObSsrALQoq76W5lDXT4v',
+        url: 'https://api.maptiler.com/maps/bright/{z}/{x}/{y}.png?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Dark Matter",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Satellite Hybrid",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Pastel",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/pastel/{z}/{x}/{y}.jpg?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Positron",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/positron/{z}/{x}/{y}.png?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Streets",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Topo",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/topo/{z}/{x}/{y}.png?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Topographique",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/topographique/{z}/{x}/{y}.jpg?key=ObSsrALQoq76W5lDXT4v',
+        crossOrigin: 'anonymous'
+      })
+    }), 
+    new ol.layer.Tile({
+      title: "Voyager",
+      baselayer: true,
+      visible: false,
+      source: new ol.source.XYZ({
+        url: 'https://api.maptiler.com/maps/voyager/{z}/{x}/{y}.png?key=ObSsrALQoq76W5lDXT4v',
         crossOrigin: 'anonymous'
       })
     }), 
@@ -44,7 +121,7 @@ var title = "Texas";
 
 // create map
 var map = new ol.Map({
-  layers: [raster, basinLayer],
+  layers: [baselayers],
   target: document.getElementById('map'),
   view: new ol.View({
     center: [0, 0],
