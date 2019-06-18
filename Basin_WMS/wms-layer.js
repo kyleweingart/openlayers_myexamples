@@ -5,7 +5,7 @@ var raster = new ol.layer.Tile({
 
 var locationtypeid = 1;
 var title = "Texas";
-var grid = 'ms8'
+var grid = 'tx3'
 
 var basinLayer = new ol.layer.Tile({
   source: new ol.source.TileWMS(/** @type {olx.source.TileWMSOptions} */ ({
@@ -30,7 +30,7 @@ var leveeLayer = new ol.layer.Tile({
       'TILED': true,
       'VERSION': '1.1.0',
       'FORMAT': 'image/png8',
-      'viewparams': 'grid:' + grid 
+      'viewparams': 'grid:' + grid +';'
     },
     serverType: 'geoserver',
     crossOrigin: 'anonymous'
