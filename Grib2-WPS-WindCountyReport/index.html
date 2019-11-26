@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Grib Layers | Wind Probs</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="js-map" class="map"></div>
+    <div class="pane">
+        <h4>Hurricane Michael Advisory 11- Wind Prob Layers</h4>
+        <h5>WFS:</h5>
+        <form id="js-layers" class="layers" name="windprobsForm">
+            <input class="layer" type="checkbox" name="windprobs" value="TS">Tropical<br>
+            <input class="layer" type="checkbox" name="windprobs" value="STS">Strong Tropical<br>
+            <input class="layer" type="checkbox" name="windprobs" value="H">Hurricane<br>
+        </form>
+        <h5>WMS:</h5>
+        <form id="js-layers-wms" class="wms-layers" name="windprobsWMSForm">
+            <input class="layer" type="checkbox" name="windprobsWMS" value="TS">Tropical<br>
+            <input class="layer" type="checkbox" name="windprobsWMS" value="STS">Strong Tropical<br>
+            <input class="layer" type="checkbox" name="windprobsWMS" value="H">Hurricane<br>
+        </form>
+        <h5>Grib2:</h5>
+        <form id="js-layers-grib2" class="grib2-layers" name="windprobsGrib2Form">
+            <input class="layer" type="checkbox" name="windprobsGrib2" value="TS">Tropical<br>
+            <input class="layer" type="checkbox" name="windprobsGrib2" value="STS">Strong Tropical<br>
+            <input class="layer" type="checkbox" name="windprobsGrib2" value="H">Hurricane<br>
+        </form>
+
+        <h4>Wind Prob Report - Single Location</h4>
+        
+    </div>
+    <!-- <script src="../../assets/js/ol-debug.js"></script> -->
+    <script src="https://openlayers.org/en/v3.20.1/build/ol.js" type="text/javascript"></script>
+    <script src="grib-layers.js"></script>
+</body>
+</html>
