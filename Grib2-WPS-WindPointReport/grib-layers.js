@@ -60,25 +60,28 @@ var createGrib2Layer = (strength) => {
     console.log('Grib2layer');
     var url = 'http://localhost:8080/geoserver/wms';
 
-    if (strength === 'TS') {
-        console.log('strength works')
-        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_17p491'
-    }   else if (strength === 'STS') {
-        console.log('STS works');
-        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_25p722'
-    }   else if (strength === 'H') {
-        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_32p924'
-    }
+    // if (strength === 'TS') {
+    //     console.log('strength works')
+    //     var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_17p491'
+    // }   else if (strength === 'STS') {
+    //     console.log('STS works');
+    //     var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_25p722'
+    // }   else if (strength === 'H') {
+    //     var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_32p924'
+    // }
+
+    var layers = 'out9_17p';
 
     var layer = new ol.layer.Tile({
         source: new ol.source.TileWMS({
             url: url,
             params: {
-                'LAYERS': 'nhp:' + layers,
+                // 'LAYERS': 'nhp:' + layers,
+                'LAYERS': 'ncdc:' + layers,
                 'TILED': true,
                 'VERSION': '1.1.1',
                 'FORMAT': 'image/png8',
-                'TIME': '2018-10-10T00:00:00Z'
+                // 'TIME': '2018-10-10T00:00:00Z'
             }
         }),
         name: "Grib2 " + strength,
