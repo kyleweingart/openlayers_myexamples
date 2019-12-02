@@ -12,6 +12,7 @@ var map = new ol.Map({
     ]
 });
 
+
 var createWPLayer = (strength) => {
     var url = 'https://hvx-mapserver.hurrevac.com/geoserver/wfs?service=WFS&' +
         'version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json'
@@ -226,4 +227,37 @@ for (var i = 0; i < checkboxesGrib2.length; i++) {
         }
     }
 }
+
+
+
+map.on('singleclick', function (evt) {
+    console.log(evt.coordinate);
+    // var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    //   {
+    //     'INFO_FORMAT': 'application/vnd.ogc.gml',
+    //   });
+    // $.ajax({
+    //   type: 'GET',
+    //   url: url
+    // }).done(function (data) {
+    //   var features = parser.readFeatures(data);
+    //   if (features.length > 0) {
+    //     console.log(features);
+    //     // below works but has generalized data
+    //     // geom = features[0].H.geom;
+    //     // features[0].setGeometry(geom);
+    //     features[0].getGeometry().transform('EPSG:4326', 'EPSG:3857')
+    //     featureOverlay.getSource().clear();
+    //     featureOverlay.getSource().addFeatures(features);
+    //     overlay.setPosition(evt.coordinate);
+    //     content.innerText = features[0].H.zone_name;
+    //     container.style.display = 'block';
+    //     console.log(overlay);
+    //   } else {
+    //     featureOverlay.getSource().clear();
+    //     container.style.display = 'none';
+    //   }
+  
+    // })
+  });
 
