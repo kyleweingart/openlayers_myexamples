@@ -104,11 +104,13 @@ map.on('singleclick', function (evt) {
       contentType: 'text/xml',
       dataType: 'text',
       data: postData,
-      crossDomain: true,
-      serverType: 'geoserver',
-      crossOrigin: 'anonymous'
-    }).done(function (data) {
-      console.log(data);
+    }).done(function(data) {
+      var obj = JSON.parse(data);
+      console.log(obj.features);
+      var percentage = obj.features[0].properties.above_17p;
+      var pointReport = document.getElementById('pointreport');
+      console.log(pointReport);
+      pointReport.innerText = obj.features[0].properties.above_17p;
     })
   });
 
