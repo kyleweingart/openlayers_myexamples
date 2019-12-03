@@ -107,6 +107,7 @@ map.on('singleclick', function (evt) {
       data: postData,
     }).done(function(data) {
       var obj = JSON.parse(data);
+      console.log(obj);
       var features = obj.features;
      
       features.sort(function(a,b) {
@@ -123,9 +124,9 @@ map.on('singleclick', function (evt) {
       var tabCell2 = tr.insertCell(-1);
       var tabCell3 = tr.insertCell(-1);
       tabCell.innerText = features[i].properties.band;
-      tabCell1.innerText = features[i].properties.above_17p;
-      tabCell2.innerText = features[i].properties.above_25p;
-      tabCell3.innerText = features[i].properties.above_32p;
+      tabCell1.innerText = features[i].properties.cum_above_17p;
+      tabCell2.innerText = features[i].properties.cum_above_25p;
+      tabCell3.innerText = features[i].properties.cum_above_32p;
       }
     })
   });
