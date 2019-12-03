@@ -50,13 +50,11 @@ var checkboxesGrib2 = document.forms["windprobsGrib2Form"].elements["windprobsGr
 for (var i = 0; i < checkboxesGrib2.length; i++) {
     checkboxesGrib2[i].onclick = function () {
         var strength = this.value;
-        console.log(strength);
         if (this.checked === true) {
             mapLayer = createGrib2Layer(strength);
             map.addLayer(mapLayer);
         } else {
             map.getLayers().forEach(function (layer) {
-                // console.log(layer.get('name'));
                 if (layer.get('name') === 'Grib2 ' + strength) {
                     map.removeLayer(layer);
                 }
@@ -67,6 +65,9 @@ for (var i = 0; i < checkboxesGrib2.length; i++) {
 }
 
 map.on('singleclick', function (evt) {
+    
+    $('#tb').empty();
+    
     var latLon = ol.proj.toLonLat(evt.coordinate, 'EPSG:3857');
     var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
     <ows:Identifier>gs:HvxValuesAtPointWpsReport</ows:Identifier>
@@ -107,23 +108,28 @@ map.on('singleclick', function (evt) {
     }).done(function(data) {
       var obj = JSON.parse(data);
       var features = obj.features;
-      console.log(features);
+     
       features.sort(function(a,b) {
-        // console.log(a.properties.band);
         a = a.properties.band;
-        // console.log(a);
         b = b.properties.band;
-        // console.log(b);
         return a>b ? 1 : a<b ? -1 : 0
       });
-      console.log(features);
-      var pointReport = document.getElementById('pointreport');
-      console.log(pointReport);
-      pointReport.innerText = obj.features[0].properties.above_17p;
+      
+      var tableBody = document.getElementById('tb');
+      for (var i =0; i < features.length; i++) {
+      var tr = tableBody.insertRow(-1);
+      var tabCell = tr.insertCell(-1);
+      var tabCell1 = tr.insertCell(-1);
+      var tabCell2 = tr.insertCell(-1);
+      var tabCell3 = tr.insertCell(-1);
+      tabCell.innerText = features[i].properties.band;
+      tabCell1.innerText = features[i].properties.above_17p;
+      tabCell2.innerText = features[i].properties.above_25p;
+      tabCell3.innerText = features[i].properties.above_32p;
+      }
     })
   });
 
   
-  // order objects by earliest time
 
 
