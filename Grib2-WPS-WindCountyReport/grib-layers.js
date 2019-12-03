@@ -19,40 +19,7 @@ var createGrib2Layer = (strength) => {
 
     if (strength === 'TS') {
         console.log('strength works')
-        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_17p491'
-    }   else if (strength === 'STS') {
-        console.log('STS works');
-        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_25p722'
-    }   else if (strength === 'H') {
-        var layers = 'Wind_speed_height_above_ground_Mixed_intervals_Accumulation_probability_above_32p924'
-    }
-
-    var layer = new ol.layer.Tile({
-        source: new ol.source.TileWMS({
-            url: url,
-            params: {
-                'LAYERS': 'nhp:' + layers,
-                'TILED': true,
-                'VERSION': '1.1.1',
-                'FORMAT': 'image/png8',
-                'TIME': '2018-10-10T00:00:00Z'
-            }
-        }),
-        name: "Grib2 " + strength,
-        serverType: 'geoserver',
-        crossOrigin: 'anonymous'
-    });
-    return layer;
-}
-
-var createGrib2Layer = (strength) => {
-
-    console.log('Grib2layer');
-    var url = 'http://localhost:8080/geoserver/wms';
-
-    if (strength === 'TS') {
-        console.log('strength works')
-        var layers = 'above_17'
+        var layers = 'above_17p'
     }   else if (strength === 'STS') {
         console.log('STS works');
         var layers = 'above_25p'
@@ -114,4 +81,84 @@ for (var i = 0; i < checkboxesGrib2.length; i++) {
         }
     }
 }
+
+function getSummaryReport() {
+    console.log('getReport');
+var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+  <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
+  <wps:DataInputs>
+    <wps:Input>
+      <ows:Identifier>featureCollection</ows:Identifier>
+      <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+        <wps:Body>
+          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
+            <wfs:Query typeName="topp:states"/>
+          </wfs:GetFeature>
+        </wps:Body>
+      </wps:Reference>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>featureAttribute</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>STATE_NAME</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>coverageNames</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>ncdc:above_17p</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>dimensionName</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>time</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+  </wps:DataInputs>
+  <wps:ResponseForm>
+    <wps:RawDataOutput mimeType="application/json">
+      <ows:Identifier>result</ows:Identifier>
+    </wps:RawDataOutput>
+  </wps:ResponseForm>
+</wps:Execute>`
+
+    
+//     $('#tb').empty();
+    
+
+    var url = 'http://localhost:8080/geoserver/wps';
+    $.ajax({
+      type: 'POST',
+      url: url,
+      contentType: 'text/xml',
+      dataType: 'text',
+      data: postData,
+    }).done(function(data) {
+      var obj = JSON.parse(data);
+      console.log(obj);
+    })
+}
+    //   var features = obj.features;
+     
+//       features.sort(function(a,b) {
+//         a = a.properties.band;
+//         b = b.properties.band;
+//         return a>b ? 1 : a<b ? -1 : 0
+//       });
+      
+//       var tableBody = document.getElementById('tb');
+//       for (var i =0; i < features.length; i++) {
+//       var tr = tableBody.insertRow(-1);
+//       var tabCell = tr.insertCell(-1);
+//       var tabCell1 = tr.insertCell(-1);
+//       var tabCell2 = tr.insertCell(-1);
+//       var tabCell3 = tr.insertCell(-1);
+//       tabCell.innerText = features[i].properties.band;
+//       tabCell1.innerText = features[i].properties.above_17p;
+//       tabCell2.innerText = features[i].properties.above_25p;
+//       tabCell3.innerText = features[i].properties.above_32p;
+//       }
+//     })
+//   });
 

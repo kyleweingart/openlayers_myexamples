@@ -44,3 +44,8 @@ p {
     height: 38px;
     padding: 0 10px;
 }
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }

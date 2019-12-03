@@ -19,11 +19,26 @@
             <input class="layer" type="checkbox" name="windprobsGrib2" value="S">States<br>
         </form>
 
+        <button onclick="getSummaryReport()">Create Report</button>
+
         <h4>Wind Prob Report - Summary</h4>
+        <div id="pointreport">
+                <table id="table-report" style="width:100%">
+                    <thead>
+                      <th align="left">Time</th>
+                      <th align="left">TS</th>
+                      <th align="left">STS</th> 
+                      <th align="left">H</th>
+                    </thead>
+                    <tbody id="tb">
+                    </tbody>
+                </table>
+            </div>
         
     </div>
     <!-- <script src="../../assets/js/ol-debug.js"></script> -->
     <script src="https://openlayers.org/en/v3.20.1/build/ol.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
     <script src="grib-layers.js"></script>
 </body>
 </html>
