@@ -19,12 +19,12 @@ var createGrib2Layer = (strength) => {
 
     if (strength === 'TS') {
         console.log('strength works')
-        var layers = 'above_17p'
+        var layers = 'cum_above_17p'
     }   else if (strength === 'STS') {
         console.log('STS works');
-        var layers = 'above_25p'
+        var layers = 'cum_above_25p'
     }   else if (strength === 'H') {
-        var layers = 'above_32p'
+        var layers = 'cum_above_32p'
     }   else if (strength === 'S') {
         var statesLayer = new ol.layer.Tile({
             source: new ol.source.TileWMS({
@@ -106,7 +106,7 @@ var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.
     <wps:Input>
       <ows:Identifier>coverageNames</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>ncdc:above_17p</wps:LiteralData>
+        <wps:LiteralData>ncdc:cum_above_17p,ncdc:cum_above_25p,ncdc:cum_above_32p</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     <wps:Input>
