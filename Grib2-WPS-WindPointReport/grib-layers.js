@@ -80,7 +80,7 @@ map.on('singleclick', function (evt) {
       <wps:Input>
         <ows:Identifier>coverageNames</ows:Identifier>
         <wps:Data>
-          <wps:LiteralData>ncdc:above_17p</wps:LiteralData>
+          <wps:LiteralData>ncdc:above_17p,ncdc:above_25p,ncdc:above_32p</wps:LiteralData>
         </wps:Data>
       </wps:Input>
       <wps:Input>
@@ -106,15 +106,24 @@ map.on('singleclick', function (evt) {
       data: postData,
     }).done(function(data) {
       var obj = JSON.parse(data);
-      console.log(obj.features);
-      var percentage = obj.features[0].properties.above_17p;
+      var features = obj.features;
+      console.log(features);
+      features.sort(function(a,b) {
+        // console.log(a.properties.band);
+        a = a.properties.band;
+        // console.log(a);
+        b = b.properties.band;
+        // console.log(b);
+        return a>b ? 1 : a<b ? -1 : 0
+      });
+      console.log(features);
       var pointReport = document.getElementById('pointreport');
       console.log(pointReport);
       pointReport.innerText = obj.features[0].properties.above_17p;
     })
   });
 
-  // grab the response and add it to the html section for wind reports- this can be dirty. 
+  
   // order objects by earliest time
 
 
