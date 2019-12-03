@@ -124,7 +124,7 @@ var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.
 </wps:Execute>`
 
     
-//     $('#tb').empty();
+    $('#tb').empty();
     
 
     var url = 'http://localhost:8080/geoserver/wps';
@@ -136,29 +136,30 @@ var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.
       data: postData,
     }).done(function(data) {
       var obj = JSON.parse(data);
-      console.log(obj);
-    })
+      var features = obj.features;
+      console.log(features);
+      features.sort(function(a,b) {
+          a = a.properties.feature;
+          b = b.properties.feature;
+          return a>b ? 1 : a<b ? -1 : 0
+      })
+      var tableBody = document.getElementById('tb');
+            for (var i =0; i < features.length; i++) {
+            var tr = tableBody.insertRow(-1);
+            var tabCell = tr.insertCell(-1);
+            var tabCell1 = tr.insertCell(-1);
+            var tabCell2 = tr.insertCell(-1);
+            var tabCell3 = tr.insertCell(-1);
+            var tabCell4 = tr.insertCell(-1);
+            var tabCell5 = tr.insertCell(-1);
+            var tabCell6 = tr.insertCell(-1);
+            var tabCell7 = tr.insertCell(-1);
+            tabCell.innerText = features[i].properties.feature + features[i].properties.coverage.substring(15);
+            var keys = Object.keys(features[i].properties);
+            console.log(keys);
+            // tabCell1.innerText = features[i].properties.above_17p;
+            // tabCell2.innerText = features[i].properties.above_25p;
+            // tabCell3.innerText = features[i].properties.above_32p;
+    };
+})
 }
-    //   var features = obj.features;
-     
-//       features.sort(function(a,b) {
-//         a = a.properties.band;
-//         b = b.properties.band;
-//         return a>b ? 1 : a<b ? -1 : 0
-//       });
-      
-//       var tableBody = document.getElementById('tb');
-//       for (var i =0; i < features.length; i++) {
-//       var tr = tableBody.insertRow(-1);
-//       var tabCell = tr.insertCell(-1);
-//       var tabCell1 = tr.insertCell(-1);
-//       var tabCell2 = tr.insertCell(-1);
-//       var tabCell3 = tr.insertCell(-1);
-//       tabCell.innerText = features[i].properties.band;
-//       tabCell1.innerText = features[i].properties.above_17p;
-//       tabCell2.innerText = features[i].properties.above_25p;
-//       tabCell3.innerText = features[i].properties.above_32p;
-//       }
-//     })
-//   });
-
