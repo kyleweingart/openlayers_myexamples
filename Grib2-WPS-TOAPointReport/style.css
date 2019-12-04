@@ -1,0 +1,51 @@
+.map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 20%;
+    font-family: Arial, sans-serif;
+}
+
+.pane {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 20%;
+    background: ghostwhite;
+    border-left: 5px solid lightsteelblue;
+    box-sizing: border-box;
+    padding: 0 20px;
+    font-family: Arial, sans-serif;
+}
+
+p {
+    font-size: 12px;
+}
+
+.layer {
+    margin: 10px;
+}
+
+.layers {
+    /* cursor: move; */
+    list-style: none;
+    /* margin: 25px; */
+    padding: 5px;
+    position: relative;
+}
+
+.layers li {
+    z-index: 1;
+    position: relative;
+    line-height: 38px;
+    display: block;
+    height: 38px;
+    padding: 0 10px;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
