@@ -83,7 +83,7 @@ for (var i = 0; i < checkboxesGrib2.length; i++) {
 }
 
 function getSummaryReport() {
-  console.log('getReport');
+  
   var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
   <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
   <wps:DataInputs>
@@ -134,10 +134,9 @@ function getSummaryReport() {
     contentType: 'text/xml',
     dataType: 'text',
     data: postData,
-  }).done(function (data) {
+  }).done(function(data) {
     var obj = JSON.parse(data);
     var features = obj.features;
-    console.log(features);
     features.sort(function (a, b) {
       a = a.properties.feature;
       b = b.properties.feature;
@@ -156,27 +155,37 @@ function getSummaryReport() {
       })
 
       var parentArray = [];
-      var arrayCol1 = keys.splice(0, 2);
 
-      parentArray.push(arrayCol1);
-      var arrayCol2 = keys.splice(0, 2);
+      while (keys.length > 14) {
+        parentArray.push(keys.splice(0,2))
+      };
 
-      parentArray.push(arrayCol2);
-      var arrayCol3 = keys.splice(0, 2);
+      while (keys.length <= 14 && keys.length > 2) {
+        parentArray.push(keys.splice(0,4))
+      }
 
-      parentArray.push(arrayCol3);
-      var arrayCol4 = keys.splice(0, 2);
+      // another way to create the arrays instead of while loops
+      
+      // var arrayCol1 = keys.splice(0, 2);
+      // parentArray.push(arrayCol1);
 
-      parentArray.push(arrayCol4);
-      var arrayCol5 = keys.splice(0, 4);
+      // var arrayCol2 = keys.splice(0, 2);
+      // parentArray.push(arrayCol2);
 
-      parentArray.push(arrayCol5);
-      var arrayCol6 = keys.splice(0, 4);
+      // var arrayCol3 = keys.splice(0, 2);
+      // parentArray.push(arrayCol3);
 
-      parentArray.push(arrayCol6);
-      var arrayCol7 = keys.splice(0, 4);
+      // var arrayCol4 = keys.splice(0, 2);
+      // parentArray.push(arrayCol4);
 
-      parentArray.push(arrayCol7);
+      // var arrayCol5 = keys.splice(0, 4);
+      // parentArray.push(arrayCol5);
+
+      // var arrayCol6 = keys.splice(0, 4);
+      // parentArray.push(arrayCol6);
+
+      // var arrayCol7 = keys.splice(0, 4);
+      // parentArray.push(arrayCol7);
       
       for(var j = 0; j < parentArray.length; j++) {
         var maxArray = [];
