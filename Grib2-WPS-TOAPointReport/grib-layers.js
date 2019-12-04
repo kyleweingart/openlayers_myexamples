@@ -18,14 +18,16 @@ var createGrib2Layer = (strength) => {
     console.log('Grib2layer');
     var url = 'http://localhost:8080/geoserver/wms';
 
-    if (strength === 'TS') {
-        console.log('strength works')
-        var layers = 'cum_above_17p';
-    }   else if (strength === 'STS') {
-        console.log('STS works');
-        var layers = 'cum_above_25p'
-    }   else if (strength === 'H') {
-        var layers = 'cum_above_32p'
+    if (strength === 'ERTOA') {
+        // console.log('strength works')
+        var layers = 'VAR0-2-227_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+    }   else if (strength === 'MLTOA') {
+        // console.log('STS works');
+        var layers = 'ncdc:VAR0-2-228_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+    }   else if (strength === 'MLTOD') {
+        var layers = 'ncdc:VAR0-2-229_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+    }   else if (strength === 'LRTOD') {
+        var layers = 'ncdc:VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
     }
 
     var layer = new ol.layer.Tile({
@@ -69,6 +71,7 @@ map.on('singleclick', function (evt) {
     $('#tb').empty();
     
     var latLon = ol.proj.toLonLat(evt.coordinate, 'EPSG:3857');
+    console.log(latLon);
     var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
     <ows:Identifier>gs:HvxValuesAtPointWpsReport</ows:Identifier>
     <wps:DataInputs>
@@ -81,7 +84,7 @@ map.on('singleclick', function (evt) {
       <wps:Input>
         <ows:Identifier>coverageNames</ows:Identifier>
         <wps:Data>
-          <wps:LiteralData>ncdc:cum_above_17p,ncdc:cum_above_25p,ncdc:cum_above_32p</wps:LiteralData>
+          <wps:LiteralData>ncdc:VAR0-2-227_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3</wps:LiteralData>
         </wps:Data>
       </wps:Input>
       <wps:Input>
@@ -106,7 +109,8 @@ map.on('singleclick', function (evt) {
       dataType: 'text',
       data: postData,
     }).done(function(data) {
-      var obj = JSON.parse(data);
+      console.log(data);
+      // var obj = JSON.parse(data);
       console.log(obj);
       var features = obj.features;
      
