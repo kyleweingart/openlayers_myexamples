@@ -147,16 +147,8 @@ function getSummaryReport() {
     for (var i = 0; i < features.length; i++) {
       var tr = tableBody.insertRow(-1);
       var tabCell = tr.insertCell(-1);
-      // var tabCell1 = tr.insertCell(-1);
-      // var tabCell2 = tr.insertCell(-1);
-      // var tabCell3 = tr.insertCell(-1);
-      // var tabCell4 = tr.insertCell(-1);
-      // var tabCell5 = tr.insertCell(-1);
-      // var tabCell6 = tr.insertCell(-1);
-      // var tabCell7 = tr.insertCell(-1);
       tabCell.innerText = features[i].properties.feature + features[i].properties.coverage.substring(15);
 
-      console.log(features[i].properties);
       var keys = Object.keys(features[i].properties);
 
       keys.sort(function (a, b) {
@@ -164,7 +156,6 @@ function getSummaryReport() {
       })
 
       var parentArray = [];
-      var maxArray = [];
       var arrayCol1 = keys.splice(0, 2);
 
       parentArray.push(arrayCol1);
@@ -186,24 +177,15 @@ function getSummaryReport() {
       var arrayCol7 = keys.splice(0, 4);
 
       parentArray.push(arrayCol7);
-      console.log(parentArray);
-      console.log(parentArray[0][0]);
-      console.log(parentArray[0][1]);
+      
       for(var j = 0; j < parentArray.length; j++) {
         var maxArray = [];
         for (a = 0; a < parentArray[j].length; a++) {
           maxArray.push(features[i].properties[parentArray[j][a]]);
         }
-        console.log(maxArray);
         var max = Math.max.apply(null, maxArray);
-        console.log(max);
+        tr.insertCell(-1).innerText = max.toFixed(2);
       }
-
-
-      console.log(features[i].properties[parentArray[0][1]]);
-      // tabCell1.innerText = features[i].properties.above_17p;
-      // tabCell2.innerText = features[i].properties.above_25p;
-      // tabCell3.innerText = features[i].properties.above_32p;
     };
   })
 }
