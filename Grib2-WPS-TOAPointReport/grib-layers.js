@@ -108,21 +108,29 @@ map.on('singleclick', function (evt) {
       type: 'POST',
       url: url,
       contentType: 'text/xml',
-      dataType: 'text',
+      dataType: 'json',
       data: postData,
     }).done(function(data) {
       console.log(data);
-      var obj = JSON.parse(data);
-      console.log(obj);
-      var features = obj.features;
+      // var obj = JSON.parse(data);
+      // console.log(obj);
+      var features = data.features;
       console.log(features);
       console.log(features[0].properties);
       var tableBody = document.getElementById('tb');
       var tr = tableBody.insertRow(-1);
       Object.keys(features[0].properties).forEach(function(key) {
         if (key !== 'band') {
-          console.log(key, features[0].properties[key]);
-          tr.insertCell(-1).innerText = features[0].properties[key];
+          if (isNaN(features[0].properties[key] === true)) {
+            console.log('nan');
+            return;
+          }
+          var epochTime = features[0].properties[key] * 1000;
+          console.log(epochTime);
+          var d = new Date(epochTime);
+          console.log(d);
+          // tr.insertCell(-1).innerText = features[0].properties[key];
+          tr.insertCell(-1).innerText = d;
         }
       });
       
