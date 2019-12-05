@@ -22,12 +22,12 @@ var createGrib2Layer = (strength) => {
         // console.log('strength works')
         var layers = 'VAR0-2-227_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
     }   else if (strength === 'MLTOA') {
-        // console.log('STS works');
-        var layers = 'ncdc:VAR0-2-228_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+        console.log('MLTOA works');
+        var layers = 'VAR0-2-228_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
     }   else if (strength === 'MLTOD') {
-        var layers = 'ncdc:VAR0-2-229_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+        var layers = 'VAR0-2-229_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
     }   else if (strength === 'LRTOD') {
-        var layers = 'ncdc:VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+        var layers = 'VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
     }
 
     var layer = new ol.layer.Tile({
@@ -71,6 +71,8 @@ map.on('singleclick', function (evt) {
     $('#tb').empty();
     
     var latLon = ol.proj.toLonLat(evt.coordinate, 'EPSG:3857');
+    var newLon = latLon[0] + 360;
+    console.log(newLon);
     console.log(latLon);
     var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
     <ows:Identifier>gs:HvxValuesAtPointWpsReport</ows:Identifier>
@@ -78,13 +80,13 @@ map.on('singleclick', function (evt) {
       <wps:Input>
         <ows:Identifier>point</ows:Identifier>
         <wps:Data>
-          <wps:ComplexData mimeType="application/wkt"><![CDATA[POINT (` + latLon[0] + ' ' + latLon[1] + `)]]></wps:ComplexData>
+          <wps:ComplexData mimeType="application/wkt"><![CDATA[POINT (` + newLon + ' ' + latLon[1] + `)]]></wps:ComplexData>
         </wps:Data>
       </wps:Input>
       <wps:Input>
         <ows:Identifier>coverageNames</ows:Identifier>
         <wps:Data>
-          <wps:LiteralData>ncdc:VAR0-2-227_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3</wps:LiteralData>
+          <wps:LiteralData>ncdc:VAR0-2-227_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3,ncdc:VAR0-2-228_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3,ncdc:VAR0-2-229_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3,ncdc:VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3</wps:LiteralData>
         </wps:Data>
       </wps:Input>
       <wps:Input>
@@ -110,28 +112,42 @@ map.on('singleclick', function (evt) {
       data: postData,
     }).done(function(data) {
       console.log(data);
-      // var obj = JSON.parse(data);
+      var obj = JSON.parse(data);
       console.log(obj);
       var features = obj.features;
-     
-      features.sort(function(a,b) {
-        a = a.properties.band;
-        b = b.properties.band;
-        return a>b ? 1 : a<b ? -1 : 0
+      console.log(features);
+      console.log(features[0].properties);
+      var tableBody = document.getElementById('tb');
+      var tr = tableBody.insertRow(-1);
+      Object.keys(features[0].properties).forEach(function(key) {
+        if (key !== 'band') {
+          console.log(key, features[0].properties[key]);
+          tr.insertCell(-1).innerText = features[0].properties[key];
+        }
       });
       
-      var tableBody = document.getElementById('tb');
-      for (var i =0; i < features.length; i++) {
-      var tr = tableBody.insertRow(-1);
-      var tabCell = tr.insertCell(-1);
-      var tabCell1 = tr.insertCell(-1);
-      var tabCell2 = tr.insertCell(-1);
-      var tabCell3 = tr.insertCell(-1);
-      tabCell.innerText = features[i].properties.band;
-      tabCell1.innerText = features[i].properties.cum_above_17p;
-      tabCell2.innerText = features[i].properties.cum_above_25p;
-      tabCell3.innerText = features[i].properties.cum_above_32p;
-      }
+      // var obj = JSON.parse(data);
+      // console.log(obj);
+      // var features = obj.features;
+     
+      // features.sort(function(a,b) {
+      //   a = a.properties.band;
+      //   b = b.properties.band;
+      //   return a>b ? 1 : a<b ? -1 : 0
+      // });
+      
+      // var tableBody = document.getElementById('tb');
+      // for (var i =0; i < features.length; i++) {
+      // var tr = tableBody.insertRow(-1);
+      // var tabCell = tr.insertCell(-1);
+      // var tabCell1 = tr.insertCell(-1);
+      // var tabCell2 = tr.insertCell(-1);
+      // var tabCell3 = tr.insertCell(-1);
+      // tabCell.innerText = features[i].properties.band;
+      // tabCell1.innerText = features[i].properties.cum_above_17p;
+      // tabCell2.innerText = features[i].properties.cum_above_25p;
+      // tabCell3.innerText = features[i].properties.cum_above_32p;
+      // }
     })
   });
 
