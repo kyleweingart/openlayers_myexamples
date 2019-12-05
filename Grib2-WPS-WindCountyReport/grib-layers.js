@@ -132,11 +132,10 @@ function getSummaryReport() {
     type: 'POST',
     url: url,
     contentType: 'text/xml',
-    dataType: 'text',
+    dataType: 'json',
     data: postData,
   }).done(function(data) {
-    var obj = JSON.parse(data);
-    var features = obj.features;
+    var features = data.features;
     features.sort(function (a, b) {
       a = a.properties.feature;
       b = b.properties.feature;
