@@ -56,6 +56,19 @@ var createGrib2Layer = (strength) => {
   return layer;
 }
 
+var gribTestSource = new ol.source.TileWMS({
+      url: 'http://localhost:8080/geoserver/wms',
+      params: {
+        // 'LAYERS': 'ncdc:' + layers,
+        'LAYERS': 'cite:test.25',
+        'TILED': true,
+        'VERSION': '1.1.1',
+        'FORMAT': 'image/png8',
+      },
+    serverType: 'geoserver',
+    crossOrigin: 'anonymous',
+  });
+
 var checkboxesGrib2 = document.forms["windprobsGrib2Form"].elements["windprobsGrib2"];
 for (var i = 0; i < checkboxesGrib2.length; i++) {
   checkboxesGrib2[i].onclick = function () {
@@ -80,6 +93,8 @@ map.on('singleclick', function (evt) {
 
   var latLon = ol.proj.toLonLat(evt.coordinate, 'EPSG:3857');
   console.log(latLon);
+  var testLon = -86.50;
+  var testLat = 32.5;
   var newLon = latLon[0] - .75
   var newLat = latLon[1] + .75;
   // var newLon = 275.57;
@@ -144,6 +159,24 @@ map.on('singleclick', function (evt) {
       tr.insertCell(-1).innerText = 'X';
     }
   })
+
+  console.log(map.getView().getResolution());
+
+  var parser = new ol.format.WMSGetFeatureInfo();
+    
+    var urlWMS = gribTestSource.getGetFeatureInfoUrl(evt.coordinate, map.getView().getResolution(), map.getView().getProjection(),
+      {
+        'INFO_FORMAT': 'application/vnd.ogc.gml',
+      });
+    $.ajax({
+      type: 'GET',
+      url: urlWMS
+    }).done(function (data) {
+      console.log(data);
+      var features = parser.readFeatures(data);
+      console.log(features);
+  
+    })
 });
 
 
