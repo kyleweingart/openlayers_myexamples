@@ -32,6 +32,7 @@ var createGrib2Layer = (strength) => {
     var layers = 'VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
   } else if (strength === 'test') {
     var layers = 'ncdc:AL052019_TOA_TOD_34kt_adv007_228'
+    // var layers = 'ncdc:AL632019_TOA_TOD_34kt_adv017_228'
   }
   
   var layer = new ol.layer.Tile({
@@ -70,7 +71,8 @@ var gribTestSource = new ol.source.TileWMS({
 var gribTestSource1 = new ol.source.TileWMS({
   url: 'http://localhost:8080/geoserver/wms',
   params: {
-    'LAYERS': 'ncdc:AL632019_TOA_TOD_34kt_adv017_228_test',
+    // 'LAYERS': 'ncdc:AL632019_TOA_TOD_34kt_adv017_228_test',
+    'LAYERS': 'ncdc:AL052019_TOA_TOD_34kt_adv007_228_test',
     'TILED': true,
     'VERSION': '1.1.1',
     'FORMAT': 'image/png8',
@@ -126,7 +128,7 @@ map.on('singleclick', function (evt) {
       <wps:Input>
         <ows:Identifier>coverageNames</ows:Identifier>
         <wps:Data>
-          <wps:LiteralData>ncdc:AL632019_TOA_TOD_34kt_adv017_228</wps:LiteralData>
+          <wps:LiteralData>ncdc:AL052019_TOA_TOD_34kt_adv007_228</wps:LiteralData>
         </wps:Data>
       </wps:Input>
       <wps:Input>
@@ -194,7 +196,7 @@ map.on('singleclick', function (evt) {
       <wps:Input>
         <ows:Identifier>coverageNames</ows:Identifier>
         <wps:Data>
-          <wps:LiteralData>ncdc:AL632019_TOA_TOD_34kt_adv017_228_test</wps:LiteralData>
+          <wps:LiteralData>ncdc:AL052019_TOA_TOD_34kt_adv007_228_test</wps:LiteralData>
         </wps:Data>
       </wps:Input>
       <wps:Input>
@@ -283,6 +285,7 @@ map.on('singleclick', function (evt) {
   }).done(function (data) {
     
     var features = parser.readFeatures(data);
+    
     console.log(features[0].H);
     Object.keys(features[0].H).forEach(function (key) {
       if (key !== 'band') {
