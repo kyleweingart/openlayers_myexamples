@@ -31,7 +31,7 @@ var createGrib2Layer = (strength) => {
   } else if (strength === 'LRTOD') {
     var layers = 'VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
   } else if (strength === 'test') {
-    var layers = 'ncdc:AL632019_TOA_TOD_34kt_adv017_228'
+    var layers = 'ncdc:AL052019_TOA_TOD_34kt_adv007_228'
   }
   
   var layer = new ol.layer.Tile({
