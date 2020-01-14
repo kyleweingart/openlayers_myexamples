@@ -32,7 +32,7 @@ var createGrib2Layer = (strength) => {
   } else if (strength === 'LRTOD') {
     var layers = 'VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
   } else if (strength === 'test') {
-    var layers = 'cite:test.25'
+    var layers = 'ncdc:AL632019_TOA_TOD_34kt_adv017_228'
   }
 
   var layer = new ol.layer.Tile({
@@ -60,7 +60,7 @@ var gribTestSource = new ol.source.TileWMS({
       url: 'http://localhost:8080/geoserver/wms',
       params: {
         // 'LAYERS': 'ncdc:' + layers,
-        'LAYERS': 'cite:test.25',
+        'LAYERS': 'ncdc:AL632019_TOA_TOD_34kt_adv017_227',
         'TILED': true,
         'VERSION': '1.1.1',
         'FORMAT': 'image/png8',
@@ -71,8 +71,7 @@ var gribTestSource = new ol.source.TileWMS({
 var gribTestSource1 = new ol.source.TileWMS({
       url: 'http://localhost:8080/geoserver/wms',
       params: {
-        // 'LAYERS': 'ncdc:' + layers,
-        'LAYERS': 'cite:test.25ml',
+        'LAYERS': 'ncdc:AL632019_TOA_TOD_34kt_adv017_228',
         'TILED': true,
         'VERSION': '1.1.1',
         'FORMAT': 'image/png8',
@@ -80,30 +79,7 @@ var gribTestSource1 = new ol.source.TileWMS({
     serverType: 'geoserver',
     crossOrigin: 'anonymous',
   });
-var gribTestSource2 = new ol.source.TileWMS({
-      url: 'http://localhost:8080/geoserver/wms',
-      params: {
-        // 'LAYERS': 'ncdc:' + layers,
-        'LAYERS': 'cite:test.25mltod',
-        'TILED': true,
-        'VERSION': '1.1.1',
-        'FORMAT': 'image/png8',
-      },
-    serverType: 'geoserver',
-    crossOrigin: 'anonymous',
-  });
-var gribTestSource3 = new ol.source.TileWMS({
-      url: 'http://localhost:8080/geoserver/wms',
-      params: {
-        // 'LAYERS': 'ncdc:' + layers,
-        'LAYERS': 'cite:test.25rtod',
-        'TILED': true,
-        'VERSION': '1.1.1',
-        'FORMAT': 'image/png8',
-      },
-    serverType: 'geoserver',
-    crossOrigin: 'anonymous',
-  });
+
 
 var checkboxesGrib2 = document.forms["windprobsGrib2Form"].elements["windprobsGrib2"];
 for (var i = 0; i < checkboxesGrib2.length; i++) {
@@ -217,7 +193,7 @@ map.on('singleclick', function (evt) {
       Object.keys(features[0].H).forEach(function (key) {
         if (key !== 'band') {
           var epochTime = features[0].H[key] * 1000;
-          console.log(epochTime);
+          console.log('227: ' + epochTime);
           var d = new Date(epochTime);
           console.log(d);
           // tr.insertCell(-1).innerText = d;
@@ -240,7 +216,7 @@ map.on('singleclick', function (evt) {
     Object.keys(features[0].H).forEach(function (key) {
       if (key !== 'band') {
         var epochTime = features[0].H[key] * 1000;
-        console.log(epochTime);
+        console.log('228: ' + epochTime);
         var d = new Date(epochTime);
         console.log(d);
         // tr.insertCell(-1).innerText = d;
@@ -248,51 +224,6 @@ map.on('singleclick', function (evt) {
     });
 
   })
-
-  var urlWMS = gribTestSource2.getGetFeatureInfoUrl(evt.coordinate, map.getView().getResolution(), map.getView().getProjection(),
-  {
-    'INFO_FORMAT': 'application/vnd.ogc.gml',
-  });
-$.ajax({
-  type: 'GET',
-  url: urlWMS
-}).done(function (data) {
-  
-  var features = parser.readFeatures(data);
-  console.log(features[0].H);
-  Object.keys(features[0].H).forEach(function (key) {
-    if (key !== 'band') {
-      var epochTime = features[0].H[key] * 1000;
-      console.log(epochTime);
-      var d = new Date(epochTime);
-      console.log(d);
-      // tr.insertCell(-1).innerText = d;
-    }
-  });
-
-})
-var urlWMS = gribTestSource3.getGetFeatureInfoUrl(evt.coordinate, map.getView().getResolution(), map.getView().getProjection(),
-{
-  'INFO_FORMAT': 'application/vnd.ogc.gml',
-});
-$.ajax({
-type: 'GET',
-url: urlWMS
-}).done(function (data) {
-
-var features = parser.readFeatures(data);
-console.log(features[0].H);
-Object.keys(features[0].H).forEach(function (key) {
-  if (key !== 'band') {
-    var epochTime = features[0].H[key] * 1000;
-    console.log(epochTime);
-    var d = new Date(epochTime);
-    console.log(d);
-    // tr.insertCell(-1).innerText = d;
-  }
-});
-
-})
 });
 
 
@@ -306,42 +237,42 @@ Object.keys(features[0].H).forEach(function (key) {
 
 
 
-Ext.Ajax.request({
-  method: 'GET',
-  url: mapServerHost,
-  binary: true,
-  useDefaultXhrHeader: false,
-  success: function(response) {
-    var bytes = response.responseBytes;
-    var depth = bytes[390];
-    if (depth === undefined || depth === 255) {
-      iteration++;
-    } else {
-      surgeDepthArray.push({
-        direction: dir, 
-        category: cat,  
-        tide: tide,
-        speed: speed, 
-        surge: depth, 
-        filtered: false,
-        column: finalCol    
-      });
-      iteration++;
-    }
-    if (iteration === finalCols.length) {
-      callback(abbr, surgeDepthArray);
-    }
-  },
-  failure: function(response) {
-    if (response) {
-      window.console.warn(response);
-    }
-    self.toggleEmptyMessage(true);
-    self.enableButtons(false);
-    self.makeGraph();
-    self.drawBars();
-    self.loadMask.hide();
-  }
-});
-});
-},
+// Ext.Ajax.request({
+//   method: 'GET',
+//   url: mapServerHost,
+//   binary: true,
+//   useDefaultXhrHeader: false,
+//   success: function(response) {
+//     var bytes = response.responseBytes;
+//     var depth = bytes[390];
+//     if (depth === undefined || depth === 255) {
+//       iteration++;
+//     } else {
+//       surgeDepthArray.push({
+//         direction: dir, 
+//         category: cat,  
+//         tide: tide,
+//         speed: speed, 
+//         surge: depth, 
+//         filtered: false,
+//         column: finalCol    
+//       });
+//       iteration++;
+//     }
+//     if (iteration === finalCols.length) {
+//       callback(abbr, surgeDepthArray);
+//     }
+//   },
+//   failure: function(response) {
+//     if (response) {
+//       window.console.warn(response);
+//     }
+//     self.toggleEmptyMessage(true);
+//     self.enableButtons(false);
+//     self.makeGraph();
+//     self.drawBars();
+//     self.loadMask.hide();
+//   }
+// });
+// });
+// },

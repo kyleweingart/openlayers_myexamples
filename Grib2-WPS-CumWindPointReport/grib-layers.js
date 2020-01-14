@@ -107,6 +107,7 @@ map.on('singleclick', function (evt) {
       data: postData,
     }).done(function(data) {
       var features = data.features;
+      console.log(features);
      
       features.sort(function(a,b) {
         a = a.properties.band;
