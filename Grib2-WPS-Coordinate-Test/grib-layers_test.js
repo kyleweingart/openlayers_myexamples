@@ -30,10 +30,7 @@ var createGrib2Layer = (strength) => {
     var layers = 'AL052019_TOA_TOD_34kt_adv007_229'
   } else if (strength === 'LRTOD') {
     var layers = 'AL052019_TOA_TOD_34kt_adv007_230'
-  } else if (strength === 'test') {
-    var layers = 'ncdc:AL632019_TOA_TOD_34kt_adv017_228'
-    // var layers = 'ncdc:AL632019_TOA_TOD_34kt_adv017_228'
-  }
+  } 
   
   var layer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
