@@ -27,7 +27,7 @@ var createGrib2Layer = (strength) => {
     console.log('MLTOA works');
     var layers = 'AL052019_TOA_TOD_34kt_adv007_228'
   } else if (strength === 'MLTOD') {
-    var layers = 'VAR0-2-229_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+    var layers = 'AL052019_TOA_TOD_34kt_adv007_229'
   } else if (strength === 'LRTOD') {
     var layers = 'VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
   } else if (strength === 'test') {
