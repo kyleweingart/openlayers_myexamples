@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Grib Layers | WPS WindProb Point Report</title>
+    <link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="js-map" class="map"></div>
+    <div class="pane">
+        <h4>Wind Prob Layers</h4>
+        <h5>Grib2:</h5>
+        <form id="js-layers-grib2" class="grib2-layers" name="windprobsGrib2Form">
+            <input class="layer" type="checkbox" name="windprobsGrib2" value="ERTOA">Earliest Reasonable ToA<br>
+            <input class="layer" type="checkbox" name="windprobsGrib2" value="MLTOA">Most Likely ToA<br>
+            <input class="layer" type="checkbox" name="windprobsGrib2" value="MLTOD">Most Likely ToD<br>
+            <input class="layer" type="checkbox" name="windprobsGrib2" value="LRTOD">Latest Reasonable ToD<br>
+        </form>
+
+        <h4>Arrival/Departure Report - Single Location</h4>
+        <div id="pointreport">
+            <table id="table-report" style="width:100%">
+                <thead>
+                  <th align="left">Earliest Reasonable ToA</th>
+                  <th align="left">Most Likely ToA</th>
+                  <th align="left">Most Likely ToD</th> 
+                  <th align="left">Latest Reasonable ToD</th>
+                </thead>
+                <tbody id="tb">
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+    <!-- <script src="../../assets/js/ol-debug.js"></script> -->
+    <script src="https://openlayers.org/en/v3.20.1/build/ol.js" type="text/javascript"></script>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script src="grib-layers_test.js"></script>
+</body>
+</html>

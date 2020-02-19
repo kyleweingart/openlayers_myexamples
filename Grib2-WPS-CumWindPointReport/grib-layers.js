@@ -81,7 +81,7 @@ map.on('singleclick', function (evt) {
       <wps:Input>
         <ows:Identifier>coverageNames</ows:Identifier>
         <wps:Data>
-          <wps:LiteralData>ncdc:cum_above_17p,ncdc:cum_above_25p,ncdc:cum_above_32p</wps:LiteralData>
+          <wps:LiteralData>nhc:cumulative.tpcprblty.2019083118-17p491</wps:LiteralData>
         </wps:Data>
       </wps:Input>
       <wps:Input>
@@ -98,7 +98,8 @@ map.on('singleclick', function (evt) {
     </wps:ResponseForm>
   </wps:Execute>`;
 
-    var url = 'http://localhost:8080/geoserver/wps';
+    // var url = 'http://localhost:8080/geoserver/wps';
+    var url = 'https://dev-hvx.hurrevac.com/geoserver/wps'
     $.ajax({
       type: 'POST',
       url: url,
