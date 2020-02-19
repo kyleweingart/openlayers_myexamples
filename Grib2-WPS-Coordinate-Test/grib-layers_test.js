@@ -1,3 +1,10 @@
+// this script is meant to test the TOA/TOD WPS requests - currently without transforming the coordinates a WMS request and a WPS request return different 
+// time data which is unexpected.  It is necessary to adjust the latLon (see line 98) in order to get the correct WFS request.  I'm not sure why exactly 
+// this is happening.  We did do some processing on the data to transform the grid from 100 to 360 to -180 to 180- but i do not believe this should have resulted 
+// in any errors between the WMS and WPS.  Not sure if there is some config data missing in the Grib published layer? where the coordinate system is not properly 
+// defined. In geoserver it says the data is published in 4326 which seems good.  Maybe it has something to do with how the WPS process was built by Boundless. 
+
+
 
 var map = new ol.Map({
   view: new ol.View({
@@ -16,8 +23,7 @@ var map = new ol.Map({
 
 
 var createGrib2Layer = (strength) => {
-  
-  console.log('Grib2layer');
+
   var url = 'https://dev-hvx.hurrevac.com/geoserver/wms';
   
   if (strength === 'ERTOA') {
@@ -40,14 +46,11 @@ var createGrib2Layer = (strength) => {
         'TILED': true,
         'VERSION': '1.1.1',
         'FORMAT': 'image/png8',
-        // 'projection': 'EPSG:4326'
-        // 'TIME': '2018-10-10T00:00:00Z'
       }
     }),
     name: "Grib2 " + strength,
     serverType: 'geoserver',
     crossOrigin: 'anonymous',
-    // projection: 'EPSG:4326'
   });
   return layer;
 }
@@ -92,17 +95,17 @@ map.on('singleclick', function (evt) {
   // this is the request for the -180 to 180 data in dev geoserver
 
   var latLon = ol.proj.toLonLat(evt.coordinate, 'EPSG:3857');
-  console.log(latLon);
+  // console.log(latLon);
  
   // with coordinate correction for WPS
-  // var newLon = latLon[0] - .75;
-  // var newLat = latLon[1] + .75;
+  var newLon = latLon[0] - .75;
+  var newLat = latLon[1] + .75;
 
   // without coordinate correction for WPS
-  var newLon = latLon[0]; 
-  var newLat = latLon[1];
+  // var newLon = latLon[0]; 
+  // var newLat = latLon[1];
  
-  console.log(newLon, newLat);
+  // console.log(newLon, newLat);
   var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
   <ows:Identifier>gs:HvxValuesAtPointWpsReport</ows:Identifier>
   <wps:DataInputs>
