@@ -36,16 +36,13 @@ var createGrib2Layer = (strength) => {
     var layers = 'nhc:AL052019_TOA_TOD_34kt_adv007_229'
   } else if (strength === 'LRTOD') {
     var layers = 'nhc:AL052019_TOA_TOD_34kt_adv007_230'
-  } else if (strength === 'Test') {
-    url = 'http://localhost:8080/geoserver/wms'
-    var layers = 'ncdc:TEST_227'
-  }
+  } 
   
   var layer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
       url: url,
       params: {
-        'LAYERS': 'nhc:' + layers,
+        'LAYERS': layers,
         'TILED': true,
         'VERSION': '1.1.1',
         'FORMAT': 'image/png8',
@@ -167,56 +164,6 @@ map.on('singleclick', function (evt) {
       tr.insertCell(-1).innerText = 'X';
     }
   })
-
-  var postTestData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
-  <ows:Identifier>gs:HvxValuesAtPointWpsReport</ows:Identifier>
-  <wps:DataInputs>
-      <wps:Input>
-        <ows:Identifier>point</ows:Identifier>
-        <wps:Data>
-          <wps:ComplexData mimeType="application/wkt"><![CDATA[POINT (` + newLon + ' ' + newLat + `)]]></wps:ComplexData>
-        </wps:Data>
-      </wps:Input>
-      <wps:Input>
-        <ows:Identifier>coverageNames</ows:Identifier>
-        <wps:Data>
-          <wps:LiteralData>ncdc:AL632019_TOA_TOD_34kt_adv007_227</wps:LiteralData>
-        </wps:Data>
-      </wps:Input>
-      <wps:Input>
-        <ows:Identifier>dimensionName</ows:Identifier>
-        <wps:Data>
-          <wps:LiteralData>time</wps:LiteralData>
-        </wps:Data>
-      </wps:Input>
-    </wps:DataInputs>
-    <wps:ResponseForm>
-      <wps:RawDataOutput mimeType="application/json">
-        <ows:Identifier>result</ows:Identifier>
-      </wps:RawDataOutput>
-    </wps:ResponseForm>
-  </wps:Execute>`;
-
-  url = 'https://localhost:8080/geoserver/wps';
-  $.ajax({
-    type: 'POST',
-    url: url,
-    contentType: 'text/xml',
-    dataType: 'json',
-    data: postTestData,
-  }).done(function (data) {
-    var features = data.features;
-    var tableBody = document.getElementById('tb');
-    var tr = tableBody.insertRow(-1);
-    Object.keys(features[0].properties).forEach(function (key) {
-      if (key !== 'band') {
-        var epochTime = features[0].properties[key] * 1000;
-        console.log('Local WPS: ' + epochTime);
-        var d = new Date(epochTime);
-        console.log(d);
-        // tr.insertCell(-1).innerText = d;
-      }
-    });
 
   var parser = new ol.format.WMSGetFeatureInfo();
 
