@@ -16,23 +16,29 @@ var map = new ol.Map({
   layers: [
     new ol.layer.Tile({
       source: new ol.source.OSM()
-    }), gridLayer
+    })
   ]
 });
 
-var gridLayer = new ol.layer.Tile({
-  source: new ol.source.TileWMS(/** @type {olx.source.TileWMSOptions} */ ({
-    url: 'http://localhost:8080/geoserver/wms',
-    params: {
-      'LAYERS': 'ncdc:Rectangle_TIME_Graticule_4326',
-      'TILED': true,
-      'VERSION': '1.1.0',
-      'FORMAT': 'image/png8',
-    },
-    serverType: 'geoserver',
-    crossOrigin: 'anonymous'
+
+
+var gridLayer = new ol.layer.Vector({
+  source: new ol.source.Vector(({
+    format: new ol.format.GeoJSON(),
+    url: 'http://localhost:8080/geoserver/wfs?service=WFS&' +
+    'version=2.0.0&request=GetFeature&outputFormat=application/json&' +
+    'srsname=EPSG:3857&typename=ncdc:Rectangle_TIME_Graticule_4326'
   })),
+  // this could be a style function based on resolution
+  style: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: [50, 50, 50, .8], 
+      width: .25
+    })
+  })
 });
+
+map.addLayer(gridLayer);
 
 
 
