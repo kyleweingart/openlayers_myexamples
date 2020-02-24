@@ -16,8 +16,22 @@ var map = new ol.Map({
   layers: [
     new ol.layer.Tile({
       source: new ol.source.OSM()
-    }), 
+    }), gridLayer
   ]
+});
+
+var gridLayer = new ol.layer.Tile({
+  source: new ol.source.TileWMS(/** @type {olx.source.TileWMSOptions} */ ({
+    url: 'http://localhost:8080/geoserver/wms',
+    params: {
+      'LAYERS': 'ncdc:Rectangle_TIME_Graticule_4326',
+      'TILED': true,
+      'VERSION': '1.1.0',
+      'FORMAT': 'image/png8',
+    },
+    serverType: 'geoserver',
+    crossOrigin: 'anonymous'
+  })),
 });
 
 
