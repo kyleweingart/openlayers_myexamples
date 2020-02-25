@@ -27,7 +27,7 @@ var gridLayer = new ol.layer.Vector({
     format: new ol.format.GeoJSON(),
     url: 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&' +
     'version=2.0.0&request=GetFeature&outputFormat=application/json&' +
-    'srsname=EPSG:3857&typename=nhp:timing_grid'
+    'srsname=EPSG:3857&typename=nhp:wind_timing_grid'
   })),
   // this could be a style function based on resolution
   // make 
@@ -59,7 +59,7 @@ var createGrib2Layer = (strength) => {
   } else if (strength === 'LRTOD') {
     var layers = 'nhc:AL052019_TOA_TOD_34kt_adv007_230'
   } else if (strength === 'GRID') {
-    var layers = 'nhp:timing_grid'
+    var layers = 'nhp:wind_timing_grid'
   }
   
   var layer = new ol.layer.Tile({
