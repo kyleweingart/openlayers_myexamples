@@ -25,16 +25,18 @@ var map = new ol.Map({
 var gridLayer = new ol.layer.Vector({
   source: new ol.source.Vector(({
     format: new ol.format.GeoJSON(),
-    url: 'http://localhost:8080/geoserver/wfs?service=WFS&' +
+    url: 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&' +
     'version=2.0.0&request=GetFeature&outputFormat=application/json&' +
-    'srsname=EPSG:3857&typename=ncdc:Rectangle_TIME_Graticule_4326'
+    'srsname=EPSG:3857&typename=nhp:timing_grid'
   })),
   // this could be a style function based on resolution
+  // make 
   style: new ol.style.Style({
     stroke: new ol.style.Stroke({
       color: [50, 50, 50, .8], 
       width: .25
-    })
+    }),
+  // wrapDateLine: false 
   })
 });
 
@@ -56,7 +58,9 @@ var createGrib2Layer = (strength) => {
     var layers = 'nhc:AL052019_TOA_TOD_34kt_adv007_229'
   } else if (strength === 'LRTOD') {
     var layers = 'nhc:AL052019_TOA_TOD_34kt_adv007_230'
-  } 
+  } else if (strength === 'GRID') {
+    var layers = 'nhp:timing_grid'
+  }
   
   var layer = new ol.layer.Tile({
     source: new ol.source.TileWMS({
