@@ -173,7 +173,7 @@ function getSummaryReport() {
       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
         <wps:Body>
           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
-            <wfs:Query typeName="topp:states"/>
+            <wfs:Query typeName="cite:county500k_4326"/>
           </wfs:GetFeature>
         </wps:Body>
       </wps:Reference>
@@ -181,7 +181,7 @@ function getSummaryReport() {
     <wps:Input>
       <ows:Identifier>featureAttribute</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>STATE_NAME</wps:LiteralData>
+        <wps:LiteralData>COUNTYNS</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     <wps:Input>
