@@ -165,44 +165,44 @@ function getSummaryReport() {
 //           </wps:ResponseForm>
 //           </wps:Execute>`;
 
-//   var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
-//   <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
-//   <wps:DataInputs>
-//     <wps:Input>
-//       <ows:Identifier>featureCollection</ows:Identifier>
-//       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
-//         <wps:Body>
-//           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
-//             <wfs:Query typeName="topp:states"/>
-//           </wfs:GetFeature>
-//         </wps:Body>
-//       </wps:Reference>
-//     </wps:Input>
-//     <wps:Input>
-//       <ows:Identifier>featureAttribute</ows:Identifier>
-//       <wps:Data>
-//         <wps:LiteralData>STATE_NAME</wps:LiteralData>
-//       </wps:Data>
-//     </wps:Input>
-//     <wps:Input>
-//       <ows:Identifier>coverageNames</ows:Identifier>
-//       <wps:Data>
-//         <wps:LiteralData>ncdc:cum_above_17p,ncdc:cum_above_25p,ncdc:cum_above_32p</wps:LiteralData>
-//       </wps:Data>
-//     </wps:Input>
-//     <wps:Input>
-//       <ows:Identifier>dimensionName</ows:Identifier>
-//       <wps:Data>
-//         <wps:LiteralData>time</wps:LiteralData>
-//       </wps:Data>
-//     </wps:Input>
-//   </wps:DataInputs>
-//   <wps:ResponseForm>
-//     <wps:RawDataOutput mimeType="application/json">
-//       <ows:Identifier>result</ows:Identifier>
-//     </wps:RawDataOutput>
-//   </wps:ResponseForm>
-// </wps:Execute>`
+  var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+  <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
+  <wps:DataInputs>
+    <wps:Input>
+      <ows:Identifier>featureCollection</ows:Identifier>
+      <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+        <wps:Body>
+          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
+            <wfs:Query typeName="topp:states"/>
+          </wfs:GetFeature>
+        </wps:Body>
+      </wps:Reference>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>featureAttribute</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>STATE_NAME</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>coverageNames</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>cite:Dorian_cumulative_prblty_adv35_17p,cite:Dorian_cumulative_prblty_adv35_25p,cite:Dorian_cumulative_prblty_adv35_32p</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>dimensionName</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>time</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+  </wps:DataInputs>
+  <wps:ResponseForm>
+    <wps:RawDataOutput mimeType="application/json">
+      <ows:Identifier>result</ows:Identifier>
+    </wps:RawDataOutput>
+  </wps:ResponseForm>
+</wps:Execute>`
 
 
   $('#tb').empty();
