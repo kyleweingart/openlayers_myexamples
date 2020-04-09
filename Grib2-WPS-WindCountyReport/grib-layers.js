@@ -187,7 +187,7 @@ function getSummaryReport() {
     <wps:Input>
       <ows:Identifier>coverageNames</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>cite:Dorian_cumulative_prblty_adv35_17p,cite:Dorian_cumulative_prblty_adv35_25p,cite:Dorian_cumulative_prblty_adv35_32p</wps:LiteralData>
+        <wps:LiteralData>cite:Dorian_cumulative_prblty_adv35_17p,cite:Dorian_cumulative_prblty_adv35_25p</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     <wps:Input>
