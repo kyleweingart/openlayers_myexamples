@@ -84,7 +84,8 @@ for (var i = 0; i < checkboxesGrib2.length; i++) {
 
 function getSummaryReport() {
   console.log('getReport');
-  // local
+  // local with old data 
+  // check geoserver for names
 //   var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
 //   <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
 //   <wps:DataInputs>
@@ -93,7 +94,7 @@ function getSummaryReport() {
 //       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
 //         <wps:Body>
 //           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
-//             <wfs:Query typeName="topp:states"/>
+//             <wfs:Query typeName="cite:county_5000k_4326"/>
 //           </wfs:GetFeature>
 //         </wps:Body>
 //       </wps:Reference>
@@ -101,7 +102,7 @@ function getSummaryReport() {
 //     <wps:Input>
 //       <ows:Identifier>featureAttribute</ows:Identifier>
 //       <wps:Data>
-//         <wps:LiteralData>STATE_NAME</wps:LiteralData>
+//         <wps:LiteralData>COUNTYNS</wps:LiteralData>
 //       </wps:Data>
 //     </wps:Input>
 //     <wps:Input>
@@ -173,7 +174,7 @@ function getSummaryReport() {
       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
         <wps:Body>
           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
-            <wfs:Query typeName="cite:county500k_4326"/>
+            <wfs:Query typeName="topp:states"/>
           </wfs:GetFeature>
         </wps:Body>
       </wps:Reference>
@@ -181,7 +182,7 @@ function getSummaryReport() {
     <wps:Input>
       <ows:Identifier>featureAttribute</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>COUNTYNS</wps:LiteralData>
+        <wps:LiteralData>STATE_NAME</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     <wps:Input>
@@ -233,9 +234,28 @@ function getSummaryReport() {
 
       var keys = Object.keys(features[i].properties);
 
+      // start method to get 120 cumulative value
+      var mapKey = keys.map(key => {
+        var keyInt = parseInt(key);
+        if (isNaN(keyInt)) {
+          return 0;
+        } else {
+          return keyInt;
+        }
+      });
+      maxKey = Math.max(...mapKey);
+      var cum120val = features[i].properties[maxKey];
+      
+      console.log(cum120val);
+      // end method to get value for max key (120 hrs);
+
       keys.sort(function (a, b) {
         return a > b ? 1 : a < b ? -1 : 0
       })
+
+      console.log(keys);
+
+      // return 120 hour value
 
       var parentArray = [];
 
@@ -269,13 +289,16 @@ function getSummaryReport() {
 
       // var arrayCol7 = keys.splice(0, 4);
       // parentArray.push(arrayCol7);
+      console.log(parentArray);
       
       for(var j = 0; j < parentArray.length; j++) {
         var maxArray = [];
         for (a = 0; a < parentArray[j].length; a++) {
           maxArray.push(features[i].properties[parentArray[j][a]]);
         }
+        console.log(maxArray);
         var max = Math.max.apply(null, maxArray);
+        console.log(max);
         tr.insertCell(-1).innerText = max.toFixed(2);
       }
     };
