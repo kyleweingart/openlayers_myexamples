@@ -125,7 +125,83 @@ function getSummaryReport() {
 //   </wps:ResponseForm>
 // </wps:Execute>`
 
+// dev Nathan
+
+
+
 //  dev
+
+var postData = `<?xml version="1.0" encoding="UTF-8"?>
+<wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+  <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
+  <wps:DataInputs>
+    <wps:Input>
+      <ows:Identifier>featureCollection</ows:Identifier>
+      <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+        <wps:Body>
+          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:cite="http://www.opengeospatial.net/cite">
+            <wfs:Query typeName="nhp:county500k_4326">
+              <ogc:Filter><ogc:Or><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>E Baton Rouge, LA</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Essex, MA</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Worcester, MD</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Brunswick, NC</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Currituck, NC</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Dare, NC</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Hyde, NC</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Onslow, NC</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>NYC Metro, NY</ogc:Literal>
+  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
+    <ogc:PropertyName>title</ogc:PropertyName>
+    <ogc:Literal>Accomack, VA</ogc:Literal>
+  </ogc:PropertyIsEqualTo></ogc:Or></ogc:Filter>
+            </wfs:Query>
+          </wfs:GetFeature>
+        </wps:Body>
+      </wps:Reference>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>featureAttribute</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>title</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>coverageNames</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>nhc:cumulative.tpcprblty.2019090118-17p491</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>dimensionName</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>time</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+  </wps:DataInputs>
+  <wps:ResponseForm>
+    <wps:RawDataOutput mimeType="application/json">
+      <ows:Identifier>result</ows:Identifier>
+    </wps:RawDataOutput>
+  </wps:ResponseForm>
+</wps:Execute>`
 
 // var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
 //           <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
@@ -166,52 +242,52 @@ function getSummaryReport() {
 //           </wps:ResponseForm>
 //           </wps:Execute>`;
 
-  var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
-  <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
-  <wps:DataInputs>
-    <wps:Input>
-      <ows:Identifier>featureCollection</ows:Identifier>
-      <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
-        <wps:Body>
-          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
-            <wfs:Query typeName="topp:states"/>
-          </wfs:GetFeature>
-        </wps:Body>
-      </wps:Reference>
-    </wps:Input>
-    <wps:Input>
-      <ows:Identifier>featureAttribute</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>STATE_NAME</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>
-    <wps:Input>
-      <ows:Identifier>coverageNames</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>cite:Dorian_cumulative_prblty_adv35_17p,cite:Dorian_cumulative_prblty_adv35_25p</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>
-    <wps:Input>
-      <ows:Identifier>dimensionName</ows:Identifier>
-      <wps:Data>
-        <wps:LiteralData>time</wps:LiteralData>
-      </wps:Data>
-    </wps:Input>
-  </wps:DataInputs>
-  <wps:ResponseForm>
-    <wps:RawDataOutput mimeType="application/json">
-      <ows:Identifier>result</ows:Identifier>
-    </wps:RawDataOutput>
-  </wps:ResponseForm>
-</wps:Execute>`
+//   var postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+//   <ows:Identifier>gs:HvxMaxValInFeatureCollectionWpsReport</ows:Identifier>
+//   <wps:DataInputs>
+//     <wps:Input>
+//       <ows:Identifier>featureCollection</ows:Identifier>
+//       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+//         <wps:Body>
+//           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
+//             <wfs:Query typeName="topp:states"/>
+//           </wfs:GetFeature>
+//         </wps:Body>
+//       </wps:Reference>
+//     </wps:Input>
+//     <wps:Input>
+//       <ows:Identifier>featureAttribute</ows:Identifier>
+//       <wps:Data>
+//         <wps:LiteralData>STATE_NAME</wps:LiteralData>
+//       </wps:Data>
+//     </wps:Input>
+//     <wps:Input>
+//       <ows:Identifier>coverageNames</ows:Identifier>
+//       <wps:Data>
+//         <wps:LiteralData>cite:Dorian_cumulative_prblty_adv35_17p,cite:Dorian_cumulative_prblty_adv35_25p</wps:LiteralData>
+//       </wps:Data>
+//     </wps:Input>
+//     <wps:Input>
+//       <ows:Identifier>dimensionName</ows:Identifier>
+//       <wps:Data>
+//         <wps:LiteralData>time</wps:LiteralData>
+//       </wps:Data>
+//     </wps:Input>
+//   </wps:DataInputs>
+//   <wps:ResponseForm>
+//     <wps:RawDataOutput mimeType="application/json">
+//       <ows:Identifier>result</ows:Identifier>
+//     </wps:RawDataOutput>
+//   </wps:ResponseForm>
+// </wps:Execute>`
 
 
   $('#tb').empty();
 
   // local
-  var url = 'http://localhost:8080/geoserver/wps';
+  // var url = 'http://localhost:8080/geoserver/wps';
   // dev
-  // var url = 'https://dev-hvx.hurrevac.com/geoserver/wps';
+  var url = 'https://dev-hvx.hurrevac.com/geoserver/wps';
   $.ajax({
     type: 'POST',
     url: url,
