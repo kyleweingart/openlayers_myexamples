@@ -142,35 +142,14 @@ var postData = `<?xml version="1.0" encoding="UTF-8"?>
           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:cite="http://www.opengeospatial.net/cite">
             <wfs:Query typeName="nhp:county500k_4326">
               <ogc:Filter><ogc:Or><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>E Baton Rouge, LA</ogc:Literal>
+              
+    <ogc:PropertyName>st_abbr</ogc:PropertyName>
+    <ogc:Literal>VA</ogc:Literal>
+  
   </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Essex, MA</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Worcester, MD</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Brunswick, NC</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Currituck, NC</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Dare, NC</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Hyde, NC</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Onslow, NC</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>NYC Metro, NY</ogc:Literal>
-  </ogc:PropertyIsEqualTo><ogc:PropertyIsEqualTo>
-    <ogc:PropertyName>title</ogc:PropertyName>
-    <ogc:Literal>Accomack, VA</ogc:Literal>
+    <ogc:PropertyName>st_abbr</ogc:PropertyName>
+    <ogc:Literal>NC</ogc:Literal>
+  
   </ogc:PropertyIsEqualTo></ogc:Or></ogc:Filter>
             </wfs:Query>
           </wfs:GetFeature>
@@ -186,7 +165,7 @@ var postData = `<?xml version="1.0" encoding="UTF-8"?>
     <wps:Input>
       <ows:Identifier>coverageNames</ows:Identifier>
       <wps:Data>
-        <wps:LiteralData>nhc:cumulative.tpcprblty.2019090118-17p491</wps:LiteralData>
+        <wps:LiteralData>nhc:cumulative.tpcprblty.2019090118-17p491,nhc:cumulative.tpcprblty.2019090118-25p722</wps:LiteralData>
       </wps:Data>
     </wps:Input>
     <wps:Input>
