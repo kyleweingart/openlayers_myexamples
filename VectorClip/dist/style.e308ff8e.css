@@ -1,0 +1,14 @@
+.map {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    font-family: Arial, sans-serif;
+}
+
+.ol-attribution>ul {
+    font-size: 1rem;
+}
+
+/*# sourceMappingURL=/style.e308ff8e.css.map */

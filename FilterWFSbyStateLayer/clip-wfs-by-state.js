@@ -1,6 +1,8 @@
 // there are many example layers to choose from including WMS & WFS calls and different loading 
 // strategies - add layers you want to display to the map variable. 
 
+// import {getVectorContext} from 'ol/render';
+
 // basemap grayscale
 var basemap = new ol.layer.Tile({
     source: new ol.source.XYZ({
@@ -19,13 +21,20 @@ var wfsState = new ol.layer.Vector({
         format: new ol.format.GeoJSON(),
         strategy: ol.loadingstrategy.all
     }),
-    style: new ol.style.Style({
-        stroke: new ol.style.Stroke({
-            color: 'rgba(4, 26, 0, 1.0)',
-            width: 3
-        })
-    })
+    style: null
+    // style: new ol.style.Style({
+    //     stroke: new ol.style.Stroke({
+    //         color: 'rgba(4, 26, 0, 1.0)',
+    //         width: 3
+    //     })
+    // })
 });
+
+var style = new ol.style.Style({
+    fill: new ol.style.Fill({
+        color: 'black'
+    })
+})
 
 
 // state WFS SI dev geoserver
@@ -90,7 +99,15 @@ var wpLayer = new ol.layer.Vector({
 
 wpLayer.on('postrender', function(e) {
     console.log(e);
-});
+    e.context.globalCompositeOperation = 'destination-in';
+    var vectorContext = ol.render.getVectorContext(e);
+    console.log(vectorContext);
+    wfsState.getSource().forEachFeature(function(feature) {
+        console.log(feature);
+      vectorContext.drawFeature(feature, style);
+    });
+    e.context.globalCompositeOperation = 'source-over';
+  });
 
 
 var map = new ol.Map({

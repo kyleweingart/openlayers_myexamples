@@ -9,3 +9,7 @@ Potential_Flooding/geotiffs/GORDON_2018_adv08_e10_ResultRaster\.tif\.aux\.xml
 Potential_Flooding/geotiffs/GORDON_2018_adv08_e10_ResultRaster\.tif\.xml
 
 Potential_Flooding/geotiffs/GORDON_2018_adv08_e10_ResultRaster\.tif\.vat\.dbf
+
+
+.DS_Store
+node_modules/
