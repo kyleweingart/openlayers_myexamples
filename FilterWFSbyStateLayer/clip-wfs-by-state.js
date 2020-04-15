@@ -14,7 +14,8 @@ var basemap = new ol.layer.Tile({
 // state WFS USGS
 var wfsState = new ol.layer.Vector({
     source: new ol.source.Vector({
-        url: 'https://www.sciencebase.gov/catalogMaps/mapping/ows/4f4e4783e4b07f02db4837ce?service=WFS&request=GetFeature&version=1.0.0&typename=sb:US_States&outputFormat=application/json',
+        // url: 'https://www.sciencebase.gov/catalogMaps/mapping/ows/4f4e4783e4b07f02db4837ce?service=WFS&request=GetFeature&version=1.0.0&typename=sb:US_States&outputFormat=application/json',
+        url: 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
         format: new ol.format.GeoJSON(),
         strategy: ol.loadingstrategy.all
     }),
@@ -85,6 +86,10 @@ var wpLayer = new ol.layer.Vector({
           })];
     },
     visible: true,
+});
+
+wpLayer.on('postrender', function(e) {
+    console.log(e);
 });
 
 
