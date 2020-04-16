@@ -60111,16 +60111,17 @@ var base = new _layer.Tile({
   source: new _OSM.default()
 });
 var clipLayer = new _layer.Vector({
-  //   style: null,
-  style: new _style.Style({
-    stroke: new _style.Stroke({
-      color: 'rgba(4, 26, 0, 1.0)',
-      width: 3
-    })
-  }),
+  style: null,
+  // style: new Style({
+  //       stroke: new Stroke({
+  //           color: 'rgba(4, 26, 0, 1.0)',
+  //           width: 3
+  //       })
+  //   }),
   source: new _Vector.default({
     url: 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
-    // 'https://openlayers.org/en/latest/examples/data/geojson/switzerland.geojson',
+    // url: 'https://openlayers.org/en/latest/examples/data/geojson/switzerland.geojson',
+    // url: '/data/gz_2010_us_outline_500k.json',
     format: new _GeoJSON.default()
   })
 }); // var wfsState = new ol.layer.Vector({
@@ -60138,22 +60139,95 @@ var clipLayer = new _layer.Vector({
 //     //     })
 //     // })
 // });
-// var style = new Style({
-//   fill: new Fill({
-//     color: 'black'
-//   })
-// });
-// base.on('postrender', function(e) {
-//   e.context.globalCompositeOperation = 'destination-in';
-//   var vectorContext = getVectorContext(e);
-//   clipLayer.getSource().forEachFeature(function(feature) {
-//     vectorContext.drawFeature(feature, style);
-//   });
-//   e.context.globalCompositeOperation = 'source-over';
-// });
 
+var url = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS';
+var wpLayer = new _layer.Vector({
+  source: new _Vector.default({
+    format: new _GeoJSON.default(),
+    url: url,
+    // strategy: ol.loadingstrategy.all,
+    projection: 'EPSG:3857'
+  }),
+  style: function style(feature) {
+    console.log(feature);
+    var val = feature.get('prob');
+    console.log(val);
+    var fillColor = [0, 0, 0, 0];
+    val = val >= 10 ? Math.floor(val / 10) * 10 : val >= 5 ? 5 : 0;
+
+    switch (val) {
+      case 5:
+        fillColor = [255, 247, 236, .8];
+        break;
+
+      case 10:
+        fillColor = [254, 232, 200, .8];
+        break;
+
+      case 20:
+        fillColor = [253, 212, 158, .8];
+        break;
+
+      case 30:
+        fillColor = [253, 187, 132, .8];
+        break;
+
+      case 40:
+        fillColor = [252, 141, 89, .8];
+        break;
+
+      case 50:
+        fillColor = [239, 101, 72, .8];
+        break;
+
+      case 60:
+        fillColor = [215, 48, 31, .8];
+        break;
+
+      case 70:
+        fillColor = [179, 0, 0, .8];
+        break;
+
+      case 80:
+        fillColor = [127, 0, 0, .8];
+        break;
+
+      case 90:
+        fillColor = [100, 0, 0, .8];
+        break;
+    }
+
+    return [new _style.Style({
+      fill: new _style.Fill({
+        color: fillColor
+      })
+    })];
+  },
+  visible: true
+});
+var style = new _style.Style({
+  fill: new _style.Fill({
+    color: 'black'
+  })
+});
+wpLayer.on('postrender', function (e) {
+  console.log(e);
+  e.context.globalCompositeOperation = 'destination-in';
+  var vectorContext = (0, _render.getVectorContext)(e);
+  console.log(vectorContext);
+  clipLayer.getSource().forEachFeature(function (feature) {
+    console.log(feature);
+    console.log(feature.values_.name);
+
+    if (feature.values_.name === 'Florida') {
+      console.log('Florida');
+      vectorContext.drawFeature(feature, style);
+    }
+  });
+  e.context.globalCompositeOperation = 'source-over';
+});
 var map = new _Map.default({
-  layers: [base, clipLayer],
+  layers: [base, wpLayer, clipLayer],
   target: 'map',
   view: new _View.default({
     // center: fromLonLat([8.23, 46.86]),
@@ -60189,7 +60263,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51348" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59354" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
