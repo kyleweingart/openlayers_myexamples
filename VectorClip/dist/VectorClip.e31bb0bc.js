@@ -60552,8 +60552,24 @@ wpLayer.on('postrender', function (e) {
     // }
   });
   e.context.globalCompositeOperation = 'source-over';
-});
-rainfall.on('postrender', function (e) {
+}); // rainfall.on('postrender', function(e) {
+//   console.log(e);
+//   e.context.globalCompositeOperation = 'destination-in';
+//   var vectorContext = getVectorContext(e);
+//   console.log(vectorContext);
+//   clipLayer.getSource().forEachFeature(function(feature) {
+//     // console.log(feature);
+//     // console.log(feature.values_.name);
+//       vectorContext.drawFeature(feature, style);
+//     // if (feature.values_.name === 'Florida'){
+//     //     console.log('Florida');
+//     //     vectorContext.drawFeature(feature, style);
+//     // }
+//   });
+//   e.context.globalCompositeOperation = 'source-over';
+// });
+
+base.on('postrender', function (e) {
   console.log(e);
   e.context.globalCompositeOperation = 'destination-in';
   var vectorContext = (0, _render.getVectorContext)(e);
@@ -60569,7 +60585,7 @@ rainfall.on('postrender', function (e) {
   e.context.globalCompositeOperation = 'source-over';
 });
 var map = new _Map.default({
-  layers: [base, clipLayer, wpLayer, rainfall],
+  layers: [base, clipLayer, wpLayer],
   target: 'map',
   view: new _View.default({
     // center: fromLonLat([8.23, 46.86]),
