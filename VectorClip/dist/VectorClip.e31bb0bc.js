@@ -60082,7 +60082,324 @@ function (_super) {
 
 var _default = OSM;
 exports.default = _default;
-},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"index.js":[function(require,module,exports) {
+},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"node_modules/ol/uri.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.appendParams = appendParams;
+
+/**
+ * @module ol/uri
+ */
+
+/**
+ * Appends query parameters to a URI.
+ *
+ * @param {string} uri The original URI, which may already have query data.
+ * @param {!Object} params An object where keys are URI-encoded parameter keys,
+ *     and the values are arbitrary types or arrays.
+ * @return {string} The new URI.
+ */
+function appendParams(uri, params) {
+  var keyParams = []; // Skip any null or undefined parameter values
+
+  Object.keys(params).forEach(function (k) {
+    if (params[k] !== null && params[k] !== undefined) {
+      keyParams.push(k + '=' + encodeURIComponent(params[k]));
+    }
+  });
+  var qs = keyParams.join('&'); // remove any trailing ? or &
+
+  uri = uri.replace(/[?&]$/, ''); // append ? or & depending on whether uri has existing parameters
+
+  uri = uri.indexOf('?') === -1 ? uri + '?' : uri + '&';
+  return uri + qs;
+}
+},{}],"node_modules/ol/source/TileArcGISRest.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _extent = require("../extent.js");
+
+var _math = require("../math.js");
+
+var _obj = require("../obj.js");
+
+var _size = require("../size.js");
+
+var _TileImage = _interopRequireDefault(require("./TileImage.js"));
+
+var _tilecoord = require("../tilecoord.js");
+
+var _uri = require("../uri.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+/**
+ * @module ol/source/TileArcGISRest
+ */
+var __extends = void 0 && (void 0).__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+
+/**
+ * @typedef {Object} Options
+ * @property {import("./Source.js").AttributionLike} [attributions] Attributions.
+ * @property {number} [cacheSize] Tile cache size. The default depends on the screen size. Will be ignored if too small.
+ * @property {null|string} [crossOrigin] The `crossOrigin` attribute for loaded images.  Note that
+ * you must provide a `crossOrigin` value if you want to access pixel data with the Canvas renderer.
+ * See https://developer.mozilla.org/en-US/docs/Web/HTML/CORS_enabled_image for more detail.
+ * @property {Object<string,*>} [params] ArcGIS Rest parameters. This field is optional. Service defaults will be
+ * used for any fields not specified. `FORMAT` is `PNG32` by default. `F` is `IMAGE` by
+ * default. `TRANSPARENT` is `true` by default.  `BBOX`, `SIZE`, `BBOXSR`,
+ * and `IMAGESR` will be set dynamically. Set `LAYERS` to
+ * override the default service layer visibility. See
+ * http://resources.arcgis.com/en/help/arcgis-rest-api/index.html#/Export_Map/02r3000000v7000000/
+ * for further reference.
+ * @property {boolean} [hidpi=true] Use the `ol/Map#pixelRatio` value when requesting
+ * the image from the remote server.
+ * @property {import("../tilegrid/TileGrid.js").default} [tileGrid] Tile grid. Base this on the resolutions,
+ * tilesize and extent supported by the server.
+ * If this is not defined, a default grid will be used: if there is a projection
+ * extent, the grid will be based on that; if not, a grid based on a global
+ * extent with origin at 0,0 will be used.
+ * @property {import("../proj.js").ProjectionLike} [projection] Projection. Default is the view projection.
+ * @property {number} [reprojectionErrorThreshold=0.5] Maximum allowed reprojection error (in pixels).
+ * Higher values can increase reprojection performance, but decrease precision.
+ * @property {import("../Tile.js").LoadFunction} [tileLoadFunction] Optional function to load a tile given a URL.
+ * The default is
+ * ```js
+ * function(imageTile, src) {
+ *   imageTile.getImage().src = src;
+ * };
+ * ```
+ * @property {string} [url] ArcGIS Rest service URL for a Map Service or Image Service. The
+ * url should include /MapServer or /ImageServer.
+ * @property {boolean} [wrapX=true] Whether to wrap the world horizontally.
+ * @property {number} [transition] Duration of the opacity transition for rendering.  To disable the opacity
+ * transition, pass `transition: 0`.
+ * @property {Array<string>} [urls] ArcGIS Rest service urls. Use this instead of `url` when the ArcGIS
+ * Service supports multiple urls for export requests.
+ */
+
+/**
+ * @classdesc
+ * Layer source for tile data from ArcGIS Rest services. Map and Image
+ * Services are supported.
+ *
+ * For cached ArcGIS services, better performance is available using the
+ * {@link module:ol/source/XYZ~XYZ} data source.
+ * @api
+ */
+var TileArcGISRest =
+/** @class */
+function (_super) {
+  __extends(TileArcGISRest, _super);
+  /**
+   * @param {Options=} opt_options Tile ArcGIS Rest options.
+   */
+
+
+  function TileArcGISRest(opt_options) {
+    var _this = this;
+
+    var options = opt_options ? opt_options : {};
+    _this = _super.call(this, {
+      attributions: options.attributions,
+      cacheSize: options.cacheSize,
+      crossOrigin: options.crossOrigin,
+      projection: options.projection,
+      reprojectionErrorThreshold: options.reprojectionErrorThreshold,
+      tileGrid: options.tileGrid,
+      tileLoadFunction: options.tileLoadFunction,
+      tileUrlFunction: tileUrlFunction,
+      url: options.url,
+      urls: options.urls,
+      wrapX: options.wrapX !== undefined ? options.wrapX : true,
+      transition: options.transition
+    }) || this;
+    /**
+     * @private
+     * @type {!Object}
+     */
+
+    _this.params_ = options.params || {};
+    /**
+     * @private
+     * @type {boolean}
+     */
+
+    _this.hidpi_ = options.hidpi !== undefined ? options.hidpi : true;
+    /**
+     * @private
+     * @type {import("../extent.js").Extent}
+     */
+
+    _this.tmpExtent_ = (0, _extent.createEmpty)();
+
+    _this.setKey(_this.getKeyForParams_());
+
+    return _this;
+  }
+  /**
+   * @private
+   * @return {string} The key for the current params.
+   */
+
+
+  TileArcGISRest.prototype.getKeyForParams_ = function () {
+    var i = 0;
+    var res = [];
+
+    for (var key in this.params_) {
+      res[i++] = key + '-' + this.params_[key];
+    }
+
+    return res.join('/');
+  };
+  /**
+   * Get the user-provided params, i.e. those passed to the constructor through
+   * the "params" option, and possibly updated using the updateParams method.
+   * @return {Object} Params.
+   * @api
+   */
+
+
+  TileArcGISRest.prototype.getParams = function () {
+    return this.params_;
+  };
+  /**
+   * @param {import("../tilecoord.js").TileCoord} tileCoord Tile coordinate.
+   * @param {import("../size.js").Size} tileSize Tile size.
+   * @param {import("../extent.js").Extent} tileExtent Tile extent.
+   * @param {number} pixelRatio Pixel ratio.
+   * @param {import("../proj/Projection.js").default} projection Projection.
+   * @param {Object} params Params.
+   * @return {string|undefined} Request URL.
+   * @private
+   */
+
+
+  TileArcGISRest.prototype.getRequestUrl_ = function (tileCoord, tileSize, tileExtent, pixelRatio, projection, params) {
+    var urls = this.urls;
+
+    if (!urls) {
+      return undefined;
+    } // ArcGIS Server only wants the numeric portion of the projection ID.
+
+
+    var srid = projection.getCode().split(':').pop();
+    params['SIZE'] = tileSize[0] + ',' + tileSize[1];
+    params['BBOX'] = tileExtent.join(',');
+    params['BBOXSR'] = srid;
+    params['IMAGESR'] = srid;
+    params['DPI'] = Math.round(params['DPI'] ? params['DPI'] * pixelRatio : 90 * pixelRatio);
+    var url;
+
+    if (urls.length == 1) {
+      url = urls[0];
+    } else {
+      var index = (0, _math.modulo)((0, _tilecoord.hash)(tileCoord), urls.length);
+      url = urls[index];
+    }
+
+    var modifiedUrl = url.replace(/MapServer\/?$/, 'MapServer/export').replace(/ImageServer\/?$/, 'ImageServer/exportImage');
+    return (0, _uri.appendParams)(modifiedUrl, params);
+  };
+  /**
+   * @inheritDoc
+   */
+
+
+  TileArcGISRest.prototype.getTilePixelRatio = function (pixelRatio) {
+    return this.hidpi_ ?
+    /** @type {number} */
+    pixelRatio : 1;
+  };
+  /**
+   * Update the user-provided params.
+   * @param {Object} params Params.
+   * @api
+   */
+
+
+  TileArcGISRest.prototype.updateParams = function (params) {
+    (0, _obj.assign)(this.params_, params);
+    this.setKey(this.getKeyForParams_());
+  };
+
+  return TileArcGISRest;
+}(_TileImage.default);
+/**
+ * @param {import("../tilecoord.js").TileCoord} tileCoord The tile coordinate
+ * @param {number} pixelRatio The pixel ratio
+ * @param {import("../proj/Projection.js").default} projection The projection
+ * @return {string|undefined} The tile URL
+ * @this {TileArcGISRest}
+ */
+
+
+function tileUrlFunction(tileCoord, pixelRatio, projection) {
+  var tileGrid = this.getTileGrid();
+
+  if (!tileGrid) {
+    tileGrid = this.getTileGridForProjection(projection);
+  }
+
+  if (tileGrid.getResolutions().length <= tileCoord[0]) {
+    return undefined;
+  }
+
+  if (pixelRatio != 1 && !this.hidpi_) {
+    pixelRatio = 1;
+  }
+
+  var tileExtent = tileGrid.getTileCoordExtent(tileCoord, this.tmpExtent_);
+  var tileSize = (0, _size.toSize)(tileGrid.getTileSize(tileCoord[0]), this.tmpSize);
+
+  if (pixelRatio != 1) {
+    tileSize = (0, _size.scale)(tileSize, pixelRatio, this.tmpSize);
+  } // Apply default params and override with user specified values.
+
+
+  var baseParams = {
+    'F': 'image',
+    'FORMAT': 'PNG32',
+    'TRANSPARENT': true
+  };
+  (0, _obj.assign)(baseParams, this.params_);
+  return this.getRequestUrl_(tileCoord, tileSize, tileExtent, pixelRatio, projection, baseParams);
+}
+
+var _default = TileArcGISRest;
+exports.default = _default;
+},{"../extent.js":"node_modules/ol/extent.js","../math.js":"node_modules/ol/math.js","../obj.js":"node_modules/ol/obj.js","../size.js":"node_modules/ol/size.js","./TileImage.js":"node_modules/ol/source/TileImage.js","../tilecoord.js":"node_modules/ol/tilecoord.js","../uri.js":"node_modules/ol/uri.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 require("ol/ol.css");
@@ -60105,8 +60422,13 @@ var _render = require("ol/render");
 
 var _proj = require("ol/proj");
 
+var _TileArcGISRest = _interopRequireDefault(require("ol/source/TileArcGISRest"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+//  this is a prototype for using open layers to clip a layer based on another layer
+//  issues if there are multiple features in the layer - for example states only worked if 
+//  selected one state
 var base = new _layer.Tile({
   source: new _OSM.default()
 });
@@ -60119,27 +60441,33 @@ var clipLayer = new _layer.Vector({
   //       })
   //   }),
   source: new _Vector.default({
-    url: 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
+    // url:'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
+    url: 'http://localhost:8080/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=cite:USA_outline_20m&outputFormat=application/json&srsname=EPSG:3857',
     // url: 'https://openlayers.org/en/latest/examples/data/geojson/switzerland.geojson',
-    // url: '/data/gz_2010_us_outline_500k.json',
     format: new _GeoJSON.default()
   })
-}); // var wfsState = new ol.layer.Vector({
-//     source: new ol.source.Vector({
-//         // url: 'https://www.sciencebase.gov/catalogMaps/mapping/ows/4f4e4783e4b07f02db4837ce?service=WFS&request=GetFeature&version=1.0.0&typename=sb:US_States&outputFormat=application/json',
-//         url: 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
-//         format: new ol.format.GeoJSON(),
-//         strategy: ol.loadingstrategy.all
-//     }),
-//     style: null
-//     // style: new ol.style.Style({
-//     //     stroke: new ol.style.Stroke({
-//     //         color: 'rgba(4, 26, 0, 1.0)',
-//     //         width: 3
-//     //     })
-//     // })
-// });
+});
+var rainfall = new _layer.Tile({
+  name: 'Cumulative QPF Days 1-3',
+  metadata: {
+    type: 'query',
+    attribute: 'idp_issueddate'
+  },
+  legend: {
+    name: 'conditions-liquid-precip',
+    url: 'images/Legend-LiquidPrecipitationQPF.png'
+  },
+  source: new _TileArcGISRest.default({
+    url: 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer',
+    params: {
+      layers: 'show:9',
+      time: ',' // unbounded time range to retrieve everything
 
+    },
+    crossOrigin: 'anonymous'
+  }),
+  visible: true
+});
 var url = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS';
 var wpLayer = new _layer.Vector({
   source: new _Vector.default({
@@ -60216,18 +60544,32 @@ wpLayer.on('postrender', function (e) {
   var vectorContext = (0, _render.getVectorContext)(e);
   console.log(vectorContext);
   clipLayer.getSource().forEachFeature(function (feature) {
-    console.log(feature);
-    console.log(feature.values_.name);
-
-    if (feature.values_.name === 'Florida') {
-      console.log('Florida');
-      vectorContext.drawFeature(feature, style);
-    }
+    // console.log(feature);
+    // console.log(feature.values_.name);
+    vectorContext.drawFeature(feature, style); // if (feature.values_.name === 'Florida'){
+    //     console.log('Florida');
+    //     vectorContext.drawFeature(feature, style);
+    // }
+  });
+  e.context.globalCompositeOperation = 'source-over';
+});
+rainfall.on('postrender', function (e) {
+  console.log(e);
+  e.context.globalCompositeOperation = 'destination-in';
+  var vectorContext = (0, _render.getVectorContext)(e);
+  console.log(vectorContext);
+  clipLayer.getSource().forEachFeature(function (feature) {
+    // console.log(feature);
+    // console.log(feature.values_.name);
+    vectorContext.drawFeature(feature, style); // if (feature.values_.name === 'Florida'){
+    //     console.log('Florida');
+    //     vectorContext.drawFeature(feature, style);
+    // }
   });
   e.context.globalCompositeOperation = 'source-over';
 });
 var map = new _Map.default({
-  layers: [base, wpLayer, clipLayer],
+  layers: [base, clipLayer, wpLayer, rainfall],
   target: 'map',
   view: new _View.default({
     // center: fromLonLat([8.23, 46.86]),
@@ -60235,7 +60577,7 @@ var map = new _Map.default({
     zoom: 4
   })
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol/Map":"node_modules/ol/Map.js","ol/View":"node_modules/ol/View.js","ol/layer":"node_modules/ol/layer.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/format/GeoJSON":"node_modules/ol/format/GeoJSON.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","ol/render":"node_modules/ol/render.js","ol/proj":"node_modules/ol/proj.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"ol/ol.css":"node_modules/ol/ol.css","ol/Map":"node_modules/ol/Map.js","ol/View":"node_modules/ol/View.js","ol/layer":"node_modules/ol/layer.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/format/GeoJSON":"node_modules/ol/format/GeoJSON.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","ol/render":"node_modules/ol/render.js","ol/proj":"node_modules/ol/proj.js","ol/source/TileArcGISRest":"node_modules/ol/source/TileArcGISRest.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;

@@ -1,3 +1,8 @@
+
+//  this is a prototype for using open layers to clip a layer based on another layer
+//  issues if there are multiple features in the layer - for example states only worked if 
+//  selected one state
+
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
@@ -8,6 +13,7 @@ import OSM from 'ol/source/OSM';
 import {Fill, Stroke, Style} from 'ol/style';
 import {getVectorContext} from 'ol/render';
 import {fromLonLat} from 'ol/proj';
+import TileArcGISRest from 'ol/source/TileArcGISRest';
 
 var base = new TileLayer({
   source: new OSM()
@@ -22,28 +28,36 @@ var clipLayer = new VectorLayer({
   //       })
   //   }),
   source: new VectorSource({
-    url:'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
+    // url:'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
+    url:'http://localhost:8080/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=cite:USA_outline_20m&outputFormat=application/json&srsname=EPSG:3857',
     // url: 'https://openlayers.org/en/latest/examples/data/geojson/switzerland.geojson',
-    // url: '/data/gz_2010_us_outline_500k.json',
     format: new GeoJSON()
   })
 });
 
-// var wfsState = new ol.layer.Vector({
-//     source: new ol.source.Vector({
-//         // url: 'https://www.sciencebase.gov/catalogMaps/mapping/ows/4f4e4783e4b07f02db4837ce?service=WFS&request=GetFeature&version=1.0.0&typename=sb:US_States&outputFormat=application/json',
-//         url: 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
-//         format: new ol.format.GeoJSON(),
-//         strategy: ol.loadingstrategy.all
-//     }),
-//     style: null
-//     // style: new ol.style.Style({
-//     //     stroke: new ol.style.Stroke({
-//     //         color: 'rgba(4, 26, 0, 1.0)',
-//     //         width: 3
-//     //     })
-//     // })
-// });
+
+var rainfall = new TileLayer({
+  name: 'Cumulative QPF Days 1-3',
+  metadata: {
+    type: 'query',
+    attribute: 'idp_issueddate'
+  },
+  legend: {
+    name: 'conditions-liquid-precip',
+    url: 'images/Legend-LiquidPrecipitationQPF.png'
+  },
+  source: new TileArcGISRest({
+    url: 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer',
+    params: {
+      layers: 'show:9',
+      time: ',' // unbounded time range to retrieve everything
+    },
+    crossOrigin: 'anonymous'
+  }),
+  visible: true
+});
+
+
 
 var url = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS'
 
@@ -115,18 +129,36 @@ wpLayer.on('postrender', function(e) {
   var vectorContext = getVectorContext(e);
   console.log(vectorContext);
   clipLayer.getSource().forEachFeature(function(feature) {
-    console.log(feature);
-    console.log(feature.values_.name);
-    if (feature.values_.name === 'Florida') {
-      console.log('Florida');
+    // console.log(feature);
+    // console.log(feature.values_.name);
       vectorContext.drawFeature(feature, style);
-    }
+    // if (feature.values_.name === 'Florida'){
+    //     console.log('Florida');
+    //     vectorContext.drawFeature(feature, style);
+    // }
+  });
+  e.context.globalCompositeOperation = 'source-over';
+});
+
+rainfall.on('postrender', function(e) {
+  console.log(e);
+  e.context.globalCompositeOperation = 'destination-in';
+  var vectorContext = getVectorContext(e);
+  console.log(vectorContext);
+  clipLayer.getSource().forEachFeature(function(feature) {
+    // console.log(feature);
+    // console.log(feature.values_.name);
+      vectorContext.drawFeature(feature, style);
+    // if (feature.values_.name === 'Florida'){
+    //     console.log('Florida');
+    //     vectorContext.drawFeature(feature, style);
+    // }
   });
   e.context.globalCompositeOperation = 'source-over';
 });
 
 var map = new Map({
-  layers: [base, wpLayer, clipLayer],
+  layers: [base, clipLayer, wpLayer, rainfall],
   target: 'map',
   view: new View({
     // center: fromLonLat([8.23, 46.86]),
