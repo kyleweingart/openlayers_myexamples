@@ -165,7 +165,7 @@ var style = new Style({
 // });
 
 base.on('postrender', function(e) {
-  // console.log(e);
+  console.log(e);
   e.context.globalCompositeOperation = 'destination-in';
   var vectorContext = getVectorContext(e);
   // console.log(vectorContext);
@@ -191,7 +191,27 @@ var map = new Map({
   })
 });
 
-document.getElementById("btn").addEventListener("click", function(){
+document.getElementById("btn").addEventListener("click", function(e){
+  console.log(e);
+  map.removeLayer(wpLayer);
+  map.addLayer(wpLayer);
+
+  wpLayer.on('postrender', function(e) {
+  // console.log(e);
+  e.context.globalCompositeOperation = 'destination-in';
+  var vectorContext = getVectorContext(e);
+  // console.log(vectorContext);
+  clipLayer.getSource().forEachFeature(function(feature) {
+    // console.log(feature);
+    // console.log(feature.values_.name);
+      vectorContext.drawFeature(feature, style);
+    // if (feature.values_.name === 'Florida'){
+    //     console.log('Florida');
+    //     vectorContext.drawFeature(feature, style);
+    // }
+  });
+  e.context.globalCompositeOperation = 'source-over';
+});
   console.log("Hello World");
     var features = wpLayer.getSource().getFeatures();
     var wpFeaturesColl = wpLayer.getSource().getFeaturesCollection();

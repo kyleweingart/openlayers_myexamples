@@ -60577,7 +60577,7 @@ var style = new _style.Style({
 // });
 
 base.on('postrender', function (e) {
-  // console.log(e);
+  console.log(e);
   e.context.globalCompositeOperation = 'destination-in';
   var vectorContext = (0, _render.getVectorContext)(e); // console.log(vectorContext);
 
@@ -60600,7 +60600,25 @@ var map = new _Map.default({
     zoom: 4
   })
 });
-document.getElementById("btn").addEventListener("click", function () {
+document.getElementById("btn").addEventListener("click", function (e) {
+  console.log(e);
+  map.removeLayer(wpLayer);
+  map.addLayer(wpLayer);
+  wpLayer.on('postrender', function (e) {
+    // console.log(e);
+    e.context.globalCompositeOperation = 'destination-in';
+    var vectorContext = (0, _render.getVectorContext)(e); // console.log(vectorContext);
+
+    clipLayer.getSource().forEachFeature(function (feature) {
+      // console.log(feature);
+      // console.log(feature.values_.name);
+      vectorContext.drawFeature(feature, style); // if (feature.values_.name === 'Florida'){
+      //     console.log('Florida');
+      //     vectorContext.drawFeature(feature, style);
+      // }
+    });
+    e.context.globalCompositeOperation = 'source-over';
+  });
   console.log("Hello World");
   var features = wpLayer.getSource().getFeatures();
   var wpFeaturesColl = wpLayer.getSource().getFeaturesCollection();
@@ -60639,7 +60657,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54338" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59457" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
