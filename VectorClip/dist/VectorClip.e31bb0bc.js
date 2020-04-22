@@ -60424,11 +60424,16 @@ var _proj = require("ol/proj");
 
 var _TileArcGISRest = _interopRequireDefault(require("ol/source/TileArcGISRest"));
 
+var _GeometryCollection = _interopRequireDefault(require("ol/geom/GeometryCollection"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //  this is a prototype for using open layers to clip a layer based on another layer
 //  issues if there are multiple features in the layer - for example states only worked if 
 //  selected one state
+// function test() {
+//   console.log('test');
+// };
 var base = new _layer.Tile({
   source: new _OSM.default()
 });
@@ -60474,12 +60479,13 @@ var wpLayer = new _layer.Vector({
     format: new _GeoJSON.default(),
     url: url,
     // strategy: ol.loadingstrategy.all,
-    projection: 'EPSG:3857'
+    projection: 'EPSG:3857',
+    useSpatialIndex: false
   }),
   style: function style(feature) {
-    console.log(feature);
-    var val = feature.get('prob');
-    console.log(val);
+    // console.log(feature);
+    var val = feature.get('prob'); // console.log(val);
+
     var fillColor = [0, 0, 0, 0];
     val = val >= 10 ? Math.floor(val / 10) * 10 : val >= 5 ? 5 : 0;
 
@@ -60537,22 +60543,23 @@ var style = new _style.Style({
   fill: new _style.Fill({
     color: 'black'
   })
-});
-wpLayer.on('postrender', function (e) {
-  console.log(e);
-  e.context.globalCompositeOperation = 'destination-in';
-  var vectorContext = (0, _render.getVectorContext)(e);
-  console.log(vectorContext);
-  clipLayer.getSource().forEachFeature(function (feature) {
-    // console.log(feature);
-    // console.log(feature.values_.name);
-    vectorContext.drawFeature(feature, style); // if (feature.values_.name === 'Florida'){
-    //     console.log('Florida');
-    //     vectorContext.drawFeature(feature, style);
-    // }
-  });
-  e.context.globalCompositeOperation = 'source-over';
-}); // rainfall.on('postrender', function(e) {
+}); // wpLayer.on('postrender', function(e) {
+//   // console.log(e);
+//   e.context.globalCompositeOperation = 'destination-in';
+//   var vectorContext = getVectorContext(e);
+//   // console.log(vectorContext);
+//   clipLayer.getSource().forEachFeature(function(feature) {
+//     // console.log(feature);
+//     // console.log(feature.values_.name);
+//       vectorContext.drawFeature(feature, style);
+//     // if (feature.values_.name === 'Florida'){
+//     //     console.log('Florida');
+//     //     vectorContext.drawFeature(feature, style);
+//     // }
+//   });
+//   e.context.globalCompositeOperation = 'source-over';
+// });
+// rainfall.on('postrender', function(e) {
 //   console.log(e);
 //   e.context.globalCompositeOperation = 'destination-in';
 //   var vectorContext = getVectorContext(e);
@@ -60570,10 +60577,10 @@ wpLayer.on('postrender', function (e) {
 // });
 
 base.on('postrender', function (e) {
-  console.log(e);
+  // console.log(e);
   e.context.globalCompositeOperation = 'destination-in';
-  var vectorContext = (0, _render.getVectorContext)(e);
-  console.log(vectorContext);
+  var vectorContext = (0, _render.getVectorContext)(e); // console.log(vectorContext);
+
   clipLayer.getSource().forEachFeature(function (feature) {
     // console.log(feature);
     // console.log(feature.values_.name);
@@ -60593,7 +60600,18 @@ var map = new _Map.default({
     zoom: 4
   })
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol/Map":"node_modules/ol/Map.js","ol/View":"node_modules/ol/View.js","ol/layer":"node_modules/ol/layer.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/format/GeoJSON":"node_modules/ol/format/GeoJSON.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","ol/render":"node_modules/ol/render.js","ol/proj":"node_modules/ol/proj.js","ol/source/TileArcGISRest":"node_modules/ol/source/TileArcGISRest.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+document.getElementById("btn").addEventListener("click", function () {
+  console.log("Hello World");
+  var features = wpLayer.getSource().getFeatures();
+  var wpFeaturesColl = wpLayer.getSource().getFeaturesCollection();
+  console.log(features);
+  console.log(wpFeaturesColl);
+}); // function getGeometryFeatures() {
+//   console.log('here');
+// };
+
+test();
+},{"ol/ol.css":"node_modules/ol/ol.css","ol/Map":"node_modules/ol/Map.js","ol/View":"node_modules/ol/View.js","ol/layer":"node_modules/ol/layer.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/format/GeoJSON":"node_modules/ol/format/GeoJSON.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","ol/render":"node_modules/ol/render.js","ol/proj":"node_modules/ol/proj.js","ol/source/TileArcGISRest":"node_modules/ol/source/TileArcGISRest.js","ol/geom/GeometryCollection":"node_modules/ol/geom/GeometryCollection.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -60621,7 +60639,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59354" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54338" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

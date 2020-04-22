@@ -89,54 +89,44 @@
             serverType: 'geoserver'
           })
     });
+
+    var wms4 = new ol.layer.Image({
+          //extent: [-13884991, 2870341, -7455066, 6338219],
+          source: new ol.source.ImageWMS({
+            url: host + '/wms',
+            params: {'LAYERS': 'tiger:giant_polygon'},
+            ratio: 1,
+            serverType: 'geoserver'
+          })
+    });
+
     var map = new ol.Map({
         target: "map",
-        layers: [osm, wms],
+        layers: [osm],
         view: view
     });
     
     
     function submit() {
 
-      // working clip
 
       postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
-  <ows:Identifier>gs:Clip</ows:Identifier>
+  <ows:Identifier>gs:CollectGeometries</ows:Identifier>
   <wps:DataInputs>
     <wps:Input>
       <ows:Identifier>features</ows:Identifier>
       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
         <wps:Body>
-          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:tiger="http://www.census.gov">
-            <wfs:Query typeName="tiger:giant_polygon"/>
+          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:cite="http://www.opengeospatial.net/cite">
+            <wfs:Query typeName="cite:county500k_4326">
+            <ogc:Filter>
+                                               <ogc:PropertyIsEqualTo>
+                                                  <ogc:PropertyName>NAME</ogc:PropertyName>
+                                                  <ogc:Literal>New York</ogc:Literal>
+                                               </ogc:PropertyIsEqualTo>
+                                            </ogc:Filter>
+                                            </wfs:Query>
           </wfs:GetFeature>
-        </wps:Body>
-      </wps:Reference>
-    </wps:Input>
-    <wps:Input>
-      <ows:Identifier>clip</ows:Identifier>
-      <wps:Reference mimeType="application/json" xlink:href="http://geoserver/wps" method="POST">
-        <wps:Body>
-          <wps:Execute version="1.0.0" service="WPS">
-            <ows:Identifier>gs:CollectGeometries</ows:Identifier>
-            <wps:DataInputs>
-            <wps:Input>
-              <ows:Identifier>features</ows:Identifier>
-              <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
-                <wps:Body>
-                    <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:cite="http://www.opengeospatial.net/cite">
-                      <wfs:Query typeName="cite:county500k_4326"/>
-                    </wfs:GetFeature>
-        </wps:Body>
-      </wps:Reference>
-    </wps:Input>
-  </wps:DataInputs>
-            <wps:ResponseForm>
-              <wps:RawDataOutput mimeType="text/xml; subtype=gml/3.1.1">
-      <ows:Identifier>result</ows:Identifier>
-    </wps:RawDataOutput>
-  </wps:ResponseForm>
-          </wps:Execute>
         </wps:Body>
       </wps:Reference>
     </wps:Input>
@@ -148,7 +138,116 @@
   </wps:ResponseForm>
 </wps:Execute>`
 
+     // non working clip -filter by name
+
 //       postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+//   <ows:Identifier>gs:Clip</ows:Identifier>
+//   <wps:DataInputs>
+//     <wps:Input>
+//       <ows:Identifier>features</ows:Identifier>
+//       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+//         <wps:Body>
+//           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:tiger="http://www.census.gov">
+//             <wfs:Query typeName="tiger:giant_polygon"/>
+//           </wfs:GetFeature>
+//         </wps:Body>
+//       </wps:Reference>
+//     </wps:Input>
+//     <wps:Input>
+//       <ows:Identifier>clip</ows:Identifier>
+//       <wps:Reference mimeType="application/json" xlink:href="http://geoserver/wps" method="POST">
+//         <wps:Body>
+//           <wps:Execute version="1.0.0" service="WPS">
+//             <ows:Identifier>gs:CollectGeometries</ows:Identifier>
+//             <wps:DataInputs>
+//              <wps:Input>
+//               <ows:Identifier>features</ows:Identifier>
+//               <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+//                 <wps:Body>
+//                     <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:cite="http://www.opengeospatial.net/cite">
+//             <wfs:Query typeName="cite:county500k_4326">
+//             <ogc:Filter>
+//                                                <ogc:PropertyIsEqualTo>
+//                                                   <ogc:PropertyName>NAME</ogc:PropertyName>
+//                                                   <ogc:Literal>Kings</ogc:Literal>
+//                                                </ogc:PropertyIsEqualTo>
+//                                             </ogc:Filter>
+//                                             </wfs:Query>
+//           </wfs:GetFeature>
+//         </wps:Body>
+//       </wps:Reference>
+//     </wps:Input>
+//   </wps:DataInputs>
+//             <wps:ResponseForm>
+//               <wps:RawDataOutput mimeType="application/json">
+//       <ows:Identifier>result</ows:Identifier>
+//     </wps:RawDataOutput>
+//   </wps:ResponseForm>
+//           </wps:Execute>
+//         </wps:Body>
+//       </wps:Reference>
+//     </wps:Input>
+//   </wps:DataInputs>
+//   <wps:ResponseForm>
+//     <wps:RawDataOutput mimeType="application/json">
+//       <ows:Identifier>result</ows:Identifier>
+//     </wps:RawDataOutput>
+//   </wps:ResponseForm>
+// </wps:Execute>`
+
+      // working clip
+
+//       postData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+//   <ows:Identifier>gs:Clip</ows:Identifier>
+//   <wps:DataInputs>
+//     <wps:Input>
+//       <ows:Identifier>features</ows:Identifier>
+//       <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+//         <wps:Body>
+//           <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:tiger="http://www.census.gov">
+//             <wfs:Query typeName="tiger:giant_polygon"/>
+//           </wfs:GetFeature>
+//         </wps:Body>
+//       </wps:Reference>
+//     </wps:Input>
+//     <wps:Input>
+//       <ows:Identifier>clip</ows:Identifier>
+//       <wps:Reference mimeType="application/json" xlink:href="http://geoserver/wps" method="POST">
+//         <wps:Body>
+//           <wps:Execute version="1.0.0" service="WPS">
+//             <ows:Identifier>gs:CollectGeometries</ows:Identifier>
+//             <wps:DataInputs>
+//             <wps:Input>
+//               <ows:Identifier>features</ows:Identifier>
+//               <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+//                 <wps:Body>
+//                     <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:cite="http://www.opengeospatial.net/cite">
+//                       <wfs:Query typeName="cite:county500k_4326"/>
+//                     </wfs:GetFeature>
+//         </wps:Body>
+//       </wps:Reference>
+//     </wps:Input>
+//   </wps:DataInputs>
+//             <wps:ResponseForm>
+//               <wps:RawDataOutput mimeType="application/json">
+//       <ows:Identifier>result</ows:Identifier>
+//     </wps:RawDataOutput>
+//   </wps:ResponseForm>
+//           </wps:Execute>
+//         </wps:Body>
+//       </wps:Reference>
+//     </wps:Input>
+//   </wps:DataInputs>
+//   <wps:ResponseForm>
+//     <wps:RawDataOutput mimeType="application/json">
+//       <ows:Identifier>result</ows:Identifier>
+//     </wps:RawDataOutput>
+//   </wps:ResponseForm>
+// </wps:Execute>`
+
+
+//  working clip - no chain
+//      var clipData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
 //   <ows:Identifier>gs:Clip</ows:Identifier>
 //   <wps:DataInputs>
 //     <wps:Input>
