@@ -3,7 +3,7 @@
 //  issues if there are multiple features in the layer - for example states only worked if 
 //  selected one state
 
-import 'ol/ol.css';
+import './node_modules/ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
@@ -195,7 +195,6 @@ document.getElementById("btn").addEventListener("click", function(e){
   console.log(e);
   map.removeLayer(wpLayer);
   map.addLayer(wpLayer);
-  
 
   wpLayer.on('postrender', function(e) {
   // console.log(e);
