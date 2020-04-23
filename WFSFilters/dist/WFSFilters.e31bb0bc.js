@@ -78945,8 +78945,19 @@ var _filter = require("ol/format/filter");
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 //  this is a prototype for using open layers and or WFS filters
+// var geometry;
 var vectorSource = new _Vector.default();
 var clipVectorSource = new _Vector.default();
+var wpVectorSource = new _Vector.default();
+var wpVector = new _layer.Vector({
+  source: wpVectorSource // style: new Style({
+  //   stroke: new Stroke({
+  //     color: 'rgba(4, 26, 0, 1.0)',
+  //     width: 2
+  //   })
+  // })
+
+});
 var clipVector = new _layer.Vector({
   source: clipVectorSource,
   style: new _style.Style({
@@ -78987,13 +78998,17 @@ var clipFeatureRequest = new _format.WFS().writeGetFeature({
   featureNS: 'http://www.openplans.org/topp',
   featurePrefix: 'topp',
   featureTypes: ['states'],
+  // propertyNames: ['the_geom'],
   outputFormat: 'application/json',
-  filter: (0, _filter.like)('STATE_NAME', 'Florida') // filter: andFilter(
+  filter: (0, _filter.like)('STATE_NAME', 'Virginia') // filter: andFilter(
   //   likeFilter('name', 'Mississippi*'),
   //   equalToFilter('waterway', 'riverbank')
   // )
 
 });
+console.log(clipFeatureRequest);
+var stringRequest = new XMLSerializer().serializeToString(clipFeatureRequest);
+console.log(stringRequest);
 fetch('http://localhost:8080/geoserver/wfs', {
   method: 'POST',
   body: new XMLSerializer().serializeToString(clipFeatureRequest)
@@ -79001,6 +79016,8 @@ fetch('http://localhost:8080/geoserver/wfs', {
   return response.json();
 }).then(function (json) {
   var features = new _format.GeoJSON().readFeatures(json);
+  console.log(features);
+  console.log(features[0].getGeometryName());
   clipVectorSource.addFeatures(features); // map.getView().fit(vectorSource.getExtent());
 });
 var featureRequest = new _format.WFS().writeGetFeature({
@@ -79057,7 +79074,10 @@ fetch('https://ahocevar.com/geoserver/wfs', {
 //   visible: true
 // });
 
-var url = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS';
+var rvaCoords = (0, _proj.fromLonLat)([-77.43, 37.54]);
+console.log(rvaCoords);
+var url = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS'; // var xUrl = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS&filter=DWithin(GEOMETRY,POINT([-8619468.172123173,4514645.503284722]),50000,m)'
+
 var wpLayer = new _layer.Vector({
   source: new _Vector.default({
     format: new _format.GeoJSON(),
@@ -79122,7 +79142,8 @@ var wpLayer = new _layer.Vector({
     })];
   },
   visible: true
-});
+}); // map 
+
 var map = new _Map.default({
   layers: [base, wpLayer, clipVector],
   target: 'map',
@@ -79136,27 +79157,71 @@ var style = new _style.Style({
   fill: new _style.Fill({
     color: 'black'
   })
-});
-document.getElementById("btn").addEventListener("click", function (e) {
-  console.log('clicked');
-  console.log(e);
-  map.removeLayer(wpLayer);
-  map.addLayer(wpLayer);
-  wpLayer.on('postrender', function (e) {
-    // console.log(e);
-    e.context.globalCompositeOperation = 'destination-in';
-    var vectorContext = (0, _render.getVectorContext)(e); // console.log(vectorContext);
+}); // click event listener
 
-    clipVector.getSource().forEachFeature(function (feature) {
-      // console.log(feature);
-      // console.log(feature.values_.name);
-      vectorContext.drawFeature(feature, style); // if (feature.values_.name === 'Florida'){
-      //     console.log('Florida');
-      //     vectorContext.drawFeature(feature, style);
-      // }
-    });
-    e.context.globalCompositeOperation = 'source-over';
-  });
+document.getElementById("btn").addEventListener("click", function (e) {
+  var features = clipVectorSource.getFeatures();
+  var geometry = features[0].getGeometry();
+  var extent = geometry.getExtent(); // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // open layer filters
+  // working within filter
+  // var wpFeatureRequest = new WFS(
+  //   ).writeGetFeature({
+  //     srsName: 'EPSG:3857',
+  //     featureNS: 'nhp.ll.mit.edu',
+  //     featurePrefix: 'nhp',
+  //     featureTypes: ['va_vahes_evac_zones_vdem_chesapeake'],
+  //     outputFormat: 'application/json',
+  //     filter: withinFilter('geom', geometry, 'EPSG:3857')
+  //   });
+  // working filters 
+  // var wpFeatureRequest = new WFS(
+  //   ).writeGetFeature({
+  //     srsName: 'EPSG:3857',
+  //     featureNS: 'nhp.ll.mit.edu',
+  //     featurePrefix: 'nhp',
+  //     featureTypes: ['usace_districts'],
+  //     outputFormat: 'application/json',
+  //     // working bbox filter 
+  //     // filter: bboxFilter('geom', extent, 'EPSG:3857')
+  //     // working intersects filter
+  //     // filter: intersectsFilter('geom', geometry, 'EPSG:3857')
+  //     // )
+  //   });
+
+  fetch('https://dev-hvx.hurrevac.com/geoserver/wfs', {
+    method: 'POST',
+    body: new XMLSerializer().serializeToString(wpFeatureRequest)
+  }).then(function (response) {
+    return response.json();
+  }).then(function (json) {
+    var features = new _format.GeoJSON().readFeatures(json);
+    console.log(features);
+    console.log(features[0].getGeometryName());
+    wpVectorSource.addFeatures(features);
+    map.addLayer(wpVector);
+  }); // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  // working clip in open layers
+  //   console.log(e);
+  //   map.removeLayer(wpLayer);
+  //   map.addLayer(wpLayer);
+  //   wpLayer.on('postrender', function(e) {
+  //   // console.log(e);
+  //   e.context.globalCompositeOperation = 'destination-in';
+  //   var vectorContext = getVectorContext(e);
+  //   // console.log(vectorContext);
+  //   clipVector.getSource().forEachFeature(function(feature) {
+  //     // console.log(feature);
+  //     // console.log(feature.values_.name);
+  //       vectorContext.drawFeature(feature, style);
+  //     // if (feature.values_.name === 'Florida'){
+  //     //     console.log('Florida');
+  //     //     vectorContext.drawFeature(feature, style);
+  //     // }
+  //   });
+  //   e.context.globalCompositeOperation = 'source-over';
+  // });
+  // clip in progress using WFS/WPS
 });
 },{"ol/ol.css":"node_modules/ol/ol.css","ol/Map":"node_modules/ol/Map.js","ol/View":"node_modules/ol/View.js","ol/layer":"node_modules/ol/layer.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/format":"node_modules/ol/format.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","ol/render":"node_modules/ol/render.js","ol/proj":"node_modules/ol/proj.js","ol/source/TileArcGISRest":"node_modules/ol/source/TileArcGISRest.js","ol/format/filter":"node_modules/ol/format/filter.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
