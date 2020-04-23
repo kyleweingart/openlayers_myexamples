@@ -9,6 +9,7 @@ import VectorSource from 'ol/source/Vector';
 import {WFS, GeoJSON} from 'ol/format';
 import OSM from 'ol/source/OSM';
 import {Fill, Stroke, Style} from 'ol/style';
+import {getVectorContext} from 'ol/render';
 import {fromLonLat} from 'ol/proj';
 import TileArcGISRest from 'ol/source/TileArcGISRest';
 import {
@@ -45,18 +46,34 @@ var base = new TileLayer({
   source: new OSM()
 });
 
+//  counties 
+// var clipFeatureRequest = new WFS().writeGetFeature({
+//   srsName: 'EPSG:3857',
+//   featureNS: 'http://www.opengeospatial.net/cite',
+//   featurePrefix: 'cite',
+//   featureTypes: ['county500k_3857'],
+//   outputFormat: 'application/json',
+//   filter: likeFilter('STATEFP', '37*')
+//   // filter: andFilter(
+//   //   likeFilter('name', 'Mississippi*'),
+//   //   equalToFilter('waterway', 'riverbank')
+//   // )
+// });
+
+//  states 
 var clipFeatureRequest = new WFS().writeGetFeature({
   srsName: 'EPSG:3857',
-  featureNS: 'http://www.opengeospatial.net/cite',
-  featurePrefix: 'cite',
-  featureTypes: ['county500k_3857'],
+  featureNS: 'http://www.openplans.org/topp',
+  featurePrefix: 'topp',
+  featureTypes: ['states'],
   outputFormat: 'application/json',
-  filter: likeFilter('NAME', 'Kings*')
+  filter: likeFilter('STATE_NAME', 'Florida')
   // filter: andFilter(
   //   likeFilter('name', 'Mississippi*'),
   //   equalToFilter('waterway', 'riverbank')
   // )
 });
+
 
 fetch('http://localhost:8080/geoserver/wfs', {
   method: 'POST',
@@ -137,68 +154,68 @@ fetch('https://ahocevar.com/geoserver/wfs', {
 
 
 
-// var url = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS'
+var url = 'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:windprobs_view&outputFormat=application/json&srsname=EPSG:3857&viewparams=date:1567393200;fcstHr:120;spd:TS'
 
-// var wpLayer = new VectorLayer({
-//     source: new VectorSource({
-//         format: new GeoJSON(),
-//         url: url,
-//         // strategy: ol.loadingstrategy.all,
-//         projection: 'EPSG:3857',
-//         useSpatialIndex: false
+var wpLayer = new VectorLayer({
+    source: new VectorSource({
+        format: new GeoJSON(),
+        url: url,
+        // strategy: ol.loadingstrategy.all,
+        projection: 'EPSG:3857',
+        useSpatialIndex: false
 
-//     }),
-//     style: function(feature) {
-//         // console.log(feature);
-//         var val = feature.get('prob');
-//         // console.log(val);
-//         var fillColor = [0, 0, 0, 0];
-//         val = (val >= 10) ? (Math.floor(val / 10) * 10) : (val >= 5) ? 5 : 0;
+    }),
+    style: function(feature) {
+        // console.log(feature);
+        var val = feature.get('prob');
+        // console.log(val);
+        var fillColor = [0, 0, 0, 0];
+        val = (val >= 10) ? (Math.floor(val / 10) * 10) : (val >= 5) ? 5 : 0;
 
-//         switch (val) {
-//             case 5:
-//                 fillColor = [255, 247, 236, .8];
-//                 break;
-//             case 10:
-//                 fillColor = [254, 232, 200, .8];
-//                 break;
-//             case 20:
-//                 fillColor = [253, 212, 158, .8];
-//                 break;
-//             case 30:
-//                 fillColor = [253, 187, 132, .8];
-//                 break;
-//             case 40:
-//                 fillColor = [252, 141, 89, .8];
-//                 break;
-//             case 50:
-//                 fillColor = [239, 101, 72, .8];
-//                 break;
-//             case 60:
-//                 fillColor = [215, 48, 31, .8];
-//                 break;
-//             case 70:
-//                 fillColor = [179, 0, 0, .8];
-//                 break;
-//             case 80:
-//                 fillColor = [127, 0, 0, .8];
-//                 break;
-//             case 90:
-//                 fillColor = [100, 0, 0, .8];
-//                 break;
-//         }
-//         return [new Style({
-//             fill: new Fill({
-//               color: fillColor
-//             })
-//           })];
-//     },
-//     visible: true,
-// });
+        switch (val) {
+            case 5:
+                fillColor = [255, 247, 236, .8];
+                break;
+            case 10:
+                fillColor = [254, 232, 200, .8];
+                break;
+            case 20:
+                fillColor = [253, 212, 158, .8];
+                break;
+            case 30:
+                fillColor = [253, 187, 132, .8];
+                break;
+            case 40:
+                fillColor = [252, 141, 89, .8];
+                break;
+            case 50:
+                fillColor = [239, 101, 72, .8];
+                break;
+            case 60:
+                fillColor = [215, 48, 31, .8];
+                break;
+            case 70:
+                fillColor = [179, 0, 0, .8];
+                break;
+            case 80:
+                fillColor = [127, 0, 0, .8];
+                break;
+            case 90:
+                fillColor = [100, 0, 0, .8];
+                break;
+        }
+        return [new Style({
+            fill: new Fill({
+              color: fillColor
+            })
+          })];
+    },
+    visible: true,
+});
 
 
 var map = new Map({
-  layers: [base, vector, clipVector],
+  layers: [base,  wpLayer, clipVector],
   target: 'map',
   view: new View({
     // center: fromLonLat([8.23, 46.86]),
@@ -207,9 +224,36 @@ var map = new Map({
   })
 });
 
+var style = new Style({
+  fill: new Fill({
+    color: 'black'
+  })
+});
+
 document.getElementById("btn").addEventListener("click", function(e){
   console.log('clicked');
+  console.log(e);
+  map.removeLayer(wpLayer);
+  map.addLayer(wpLayer);
+
+  wpLayer.on('postrender', function(e) {
+  // console.log(e);
+  e.context.globalCompositeOperation = 'destination-in';
+  var vectorContext = getVectorContext(e);
+  // console.log(vectorContext);
+  clipVector.getSource().forEachFeature(function(feature) {
+    // console.log(feature);
+    // console.log(feature.values_.name);
+      vectorContext.drawFeature(feature, style);
+    // if (feature.values_.name === 'Florida'){
+    //     console.log('Florida');
+    //     vectorContext.drawFeature(feature, style);
+    // }
+  });
+  e.context.globalCompositeOperation = 'source-over';
 });
+});
+
 
 
 
