@@ -226,6 +226,7 @@ document.getElementById("btn").addEventListener("click", function(e){
   
   var features = clipVectorSource.getFeatures();
   var geometry = features[0].getGeometry();
+  console.log(geometry);
   var extent = geometry.getExtent();
   
   
@@ -329,10 +330,10 @@ fetch('http://localhost:8080/geoserver/wps', {
 }).then(function(response) {
   return response.json();
 }).then(function(json) {
-  var features = new GeoJSON().readFeatures(json);
+  var features = new GeoJSON({'dataProjection': 'EPSG:4326', 'featureProjection': 'EPSG:3857'}).readFeatures(json);
   console.log(features);
   var wpsVectorSource = new VectorSource({
-    format: new GeoJSON({'dataProjection': 'EPSG:3857', 'featureProjection': 'EPSG:4326'})
+    // format: new GeoJSON({'dataProjection': 'EPSG:3857', 'featureProjection': 'EPSG:4326'})
   })
   wpsVectorSource.addFeatures(features);
   var wpsVector = new VectorLayer({

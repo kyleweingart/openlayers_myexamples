@@ -79133,6 +79133,7 @@ var style = new _style.Style({
 document.getElementById("btn").addEventListener("click", function (e) {
   var features = clipVectorSource.getFeatures();
   var geometry = features[0].getGeometry();
+  console.log(geometry);
   var extent = geometry.getExtent(); // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   // open layer spatial filters
   // working within filter
@@ -79199,13 +79200,12 @@ document.getElementById("btn").addEventListener("click", function (e) {
   }).then(function (response) {
     return response.json();
   }).then(function (json) {
-    var features = new _format.GeoJSON().readFeatures(json);
+    var features = new _format.GeoJSON({
+      'dataProjection': 'EPSG:4326',
+      'featureProjection': 'EPSG:3857'
+    }).readFeatures(json);
     console.log(features);
-    var wpsVectorSource = new _Vector.default({
-      format: new _format.GeoJSON({
-        'dataProjection': 'EPSG:3857',
-        'featureProjection': 'EPSG:4326'
-      })
+    var wpsVectorSource = new _Vector.default({// format: new GeoJSON({'dataProjection': 'EPSG:3857', 'featureProjection': 'EPSG:4326'})
     });
     wpsVectorSource.addFeatures(features);
     var wpsVector = new _layer.Vector({
@@ -79242,7 +79242,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54289" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60640" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
