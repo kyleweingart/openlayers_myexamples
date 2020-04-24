@@ -12,6 +12,7 @@ import {Fill, Stroke, Style} from 'ol/style';
 import {getVectorContext} from 'ol/render';
 import {fromLonLat} from 'ol/proj';
 import TileArcGISRest from 'ol/source/TileArcGISRest';
+import GeometryCollection from 'ol/geom/GeometryCollection'
 import {
   equalTo as equalToFilter,
   like as likeFilter,
@@ -225,8 +226,11 @@ var style = new Style({
 document.getElementById("btn").addEventListener("click", function(e){
   
   var features = clipVectorSource.getFeatures();
-  var geometry = features[0].getGeometry();
-  console.log(geometry);
+  // transform only necessary if clip features and features to clip by are not in same projection
+  var geometry = features[0].getGeometry().transform('EPSG:3857', 'EPSG:4326');
+  var coordinates = geometry.getCoordinates();
+  // stringify keeps the array structure in nested arrays
+  var stJSON = JSON.stringify(coordinates);
   var extent = geometry.getExtent();
   
   
@@ -321,19 +325,47 @@ document.getElementById("btn").addEventListener("click", function(e){
   </wps:ResponseForm>
 </wps:Execute>`
 
+     var testclipData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+  <ows:Identifier>gs:Clip</ows:Identifier>
+  <wps:DataInputs>
+    <wps:Input>
+      <ows:Identifier>features</ows:Identifier>
+      <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+        <wps:Body>
+          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:tiger="http://www.census.gov">
+            <wfs:Query typeName="tiger:giant_polygon"/>
+          </wfs:GetFeature>
+        </wps:Body>
+      </wps:Reference>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>clip</ows:Identifier>
+      <wps:Data>
+        <wps:ComplexData mimeType="application/json"><![CDATA[{"type":"MultiPolygon","coordinates":${stJSON}}]]></wps:ComplexData>
+      </wps:Data>
+    </wps:Input>
+  </wps:DataInputs>
+  <wps:ResponseForm>
+    <wps:RawDataOutput mimeType="application/json">
+      <ows:Identifier>result</ows:Identifier>
+    </wps:RawDataOutput>
+  </wps:ResponseForm>
+</wps:Execute>`
+
+console.log(testclipData);
+console.log(clipData);
+
 // need to get this to reproject 
 // currently on null island
 fetch('http://localhost:8080/geoserver/wps', {
   method: 'POST',
   // body: new XMLSerializer().serializeToString(wpFeatureRequest)
-  body: clipData
+  body: testclipData
 }).then(function(response) {
   return response.json();
 }).then(function(json) {
   var features = new GeoJSON({'dataProjection': 'EPSG:4326', 'featureProjection': 'EPSG:3857'}).readFeatures(json);
-  console.log(features);
   var wpsVectorSource = new VectorSource({
-    // format: new GeoJSON({'dataProjection': 'EPSG:3857', 'featureProjection': 'EPSG:4326'})
   })
   wpsVectorSource.addFeatures(features);
   var wpsVector = new VectorLayer({
