@@ -8,25 +8,31 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import VectorSource from 'ol/source/Vector';
-import GeoJSON from 'ol/format/GeoJSON';
+import {WFS, GeoJSON} from 'ol/format';
 import OSM from 'ol/source/OSM';
 import {Fill, Stroke, Style} from 'ol/style';
 import {getVectorContext} from 'ol/render';
 import {fromLonLat} from 'ol/proj';
 import TileArcGISRest from 'ol/source/TileArcGISRest';
-import GeometryCollection from 'ol/geom/GeometryCollection';
-
-
-// function test() {
-//   console.log('test');
-// };
+import {
+  equalTo as equalToFilter,
+  like as likeFilter,
+  and as andFilter,
+  within as withinFilter,
+  bbox as bboxFilter,
+  intersects as intersectsFilter
+} from 'ol/format/filter'
 
 var base = new TileLayer({
   source: new OSM()
 });
 
+var stName = '\'Virginia\'';
+// WFS request with cql filter
+var stateUrl = `http://localhost:8080/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typename=topp:states&outputFormat=application/json&srsname=EPSG:3857&CQL_FILTER=STATE_NAME=${stName}`;
+
 var clipLayer = new VectorLayer({
-  style: null,
+  // style: null,
   // style: new Style({
   //       stroke: new Stroke({
   //           color: 'rgba(4, 26, 0, 1.0)',
@@ -35,33 +41,36 @@ var clipLayer = new VectorLayer({
   //   }),
   source: new VectorSource({
     // url:'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
-    url:'http://localhost:8080/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=cite:USA_outline_20m&outputFormat=application/json&srsname=EPSG:3857',
-    // url: 'https://openlayers.org/en/latest/examples/data/geojson/switzerland.geojson',
+    // url:'http://localhost:8080/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=cite:USA_outline_20m&outputFormat=application/json&srsname=EPSG:3857',
+    url: stateUrl,
+
     format: new GeoJSON()
   })
 });
 
 
-var rainfall = new TileLayer({
-  name: 'Cumulative QPF Days 1-3',
-  metadata: {
-    type: 'query',
-    attribute: 'idp_issueddate'
-  },
-  legend: {
-    name: 'conditions-liquid-precip',
-    url: 'images/Legend-LiquidPrecipitationQPF.png'
-  },
-  source: new TileArcGISRest({
-    url: 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer',
-    params: {
-      layers: 'show:9',
-      time: ',' // unbounded time range to retrieve everything
-    },
-    crossOrigin: 'anonymous'
-  }),
-  visible: true
-});
+
+// create rainfall layer 
+// var rainfall = new TileLayer({
+//   name: 'Cumulative QPF Days 1-3',
+//   metadata: {
+//     type: 'query',
+//     attribute: 'idp_issueddate'
+//   },
+//   legend: {
+//     name: 'conditions-liquid-precip',
+//     url: 'images/Legend-LiquidPrecipitationQPF.png'
+//   },
+//   source: new TileArcGISRest({
+//     url: 'https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Forecasts_Guidance_Warnings/wpc_qpf/MapServer',
+//     params: {
+//       layers: 'show:9',
+//       time: ',' // unbounded time range to retrieve everything
+//     },
+//     crossOrigin: 'anonymous'
+//   }),
+//   visible: true
+// });
 
 
 
@@ -71,15 +80,12 @@ var wpLayer = new VectorLayer({
     source: new VectorSource({
         format: new GeoJSON(),
         url: url,
-        // strategy: ol.loadingstrategy.all,
         projection: 'EPSG:3857',
         useSpatialIndex: false
 
     }),
     style: function(feature) {
-        // console.log(feature);
         var val = feature.get('prob');
-        // console.log(val);
         var fillColor = [0, 0, 0, 0];
         val = (val >= 10) ? (Math.floor(val / 10) * 10) : (val >= 5) ? 5 : 0;
 
@@ -164,25 +170,25 @@ var style = new Style({
 //   e.context.globalCompositeOperation = 'source-over';
 // });
 
-base.on('postrender', function(e) {
-  console.log(e);
-  e.context.globalCompositeOperation = 'destination-in';
-  var vectorContext = getVectorContext(e);
-  // console.log(vectorContext);
-  clipLayer.getSource().forEachFeature(function(feature) {
-    // console.log(feature);
-    // console.log(feature.values_.name);
-      vectorContext.drawFeature(feature, style);
-    // if (feature.values_.name === 'Florida'){
-    //     console.log('Florida');
-    //     vectorContext.drawFeature(feature, style);
-    // }
-  });
-  e.context.globalCompositeOperation = 'source-over';
-});
+// base.on('postrender', function(e) {
+//   console.log(e);
+//   e.context.globalCompositeOperation = 'destination-in';
+//   var vectorContext = getVectorContext(e);
+//   // console.log(vectorContext);
+//   clipLayer.getSource().forEachFeature(function(feature) {
+//     // console.log(feature);
+//     // console.log(feature.values_.name);
+//       vectorContext.drawFeature(feature, style);
+//     // if (feature.values_.name === 'Florida'){
+//     //     console.log('Florida');
+//     //     vectorContext.drawFeature(feature, style);
+//     // }
+//   });
+//   e.context.globalCompositeOperation = 'source-over';
+// });
 
 var map = new Map({
-  layers: [base, clipLayer, wpLayer],
+  layers: [base, wpLayer, clipLayer],
   target: 'map',
   view: new View({
     // center: fromLonLat([8.23, 46.86]),
@@ -192,19 +198,13 @@ var map = new Map({
 });
 
 document.getElementById("btn").addEventListener("click", function(e){
-  console.log(e);
   map.removeLayer(wpLayer);
   map.addLayer(wpLayer);
   
-
   wpLayer.on('postrender', function(e) {
-  // console.log(e);
   e.context.globalCompositeOperation = 'destination-in';
   var vectorContext = getVectorContext(e);
-  // console.log(vectorContext);
   clipLayer.getSource().forEachFeature(function(feature) {
-    // console.log(feature);
-    // console.log(feature.values_.name);
       vectorContext.drawFeature(feature, style);
     // if (feature.values_.name === 'Florida'){
     //     console.log('Florida');
@@ -213,16 +213,5 @@ document.getElementById("btn").addEventListener("click", function(e){
   });
   e.context.globalCompositeOperation = 'source-over';
 });
-  console.log("Hello World");
-    var features = wpLayer.getSource().getFeatures();
-    var wpFeaturesColl = wpLayer.getSource().getFeaturesCollection();
-    console.log(features);
-    console.log(wpFeaturesColl);
 });
-
-// function getGeometryFeatures() {
-//   console.log('here');
-// };
-
-
 
