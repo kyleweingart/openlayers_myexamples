@@ -29,7 +29,8 @@ var base = new TileLayer({
 
 var stName = '\'Virginia\'';
 // WFS request with cql filter
-var stateUrl = `http://localhost:8080/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typename=topp:states&outputFormat=application/json&srsname=EPSG:3857&CQL_FILTER=STATE_NAME=${stName}`;
+// var stateUrl = `http://localhost:8080/geoserver/wfs?service=WFS&version=1.0.0&request=GetFeature&typename=topp:states&outputFormat=application/json&srsname=EPSG:3857&CQL_FILTER=STATE_NAME=${stName}`;
+var devstateUrl = `https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857&CQL_FILTER=name=${stName}`;
 
 var clipLayer = new VectorLayer({
   // style: null,
@@ -42,7 +43,7 @@ var clipLayer = new VectorLayer({
   source: new VectorSource({
     // url:'https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=nhp:states20m&outputFormat=application/json&srsname=EPSG:3857',
     // url:'http://localhost:8080/geoserver/wfs?service=WFS&version=2.0.0&request=GetFeature&typename=cite:USA_outline_20m&outputFormat=application/json&srsname=EPSG:3857',
-    url: stateUrl,
+    url: devstateUrl,
 
     format: new GeoJSON()
   })

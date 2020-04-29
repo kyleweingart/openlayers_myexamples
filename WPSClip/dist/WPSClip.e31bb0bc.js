@@ -78766,7 +78766,7 @@ document.getElementById("btn").addEventListener("click", function (e) {
 
   var stJSON = JSON.stringify(coordinates);
   console.log(stJSON);
-  var extent = geometry.getExtent(); // working WPS clip
+  var extent = geometry.getExtent(); // working WPS clip example
   //      var clipData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
   //   <ows:Identifier>gs:Clip</ows:Identifier>
   //   <wps:DataInputs>
@@ -78793,7 +78793,7 @@ document.getElementById("btn").addEventListener("click", function (e) {
   //     </wps:RawDataOutput>
   //   </wps:ResponseForm>
   // </wps:Execute>`
-  // working WPS clip with dynamic clip coordinates - currently virginia state
+  // working example of WPS clip with dynamic clip coordinates - currently virginia state
   //      var clipData = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
   //   <ows:Identifier>gs:Clip</ows:Identifier>
   //   <wps:DataInputs>
@@ -78838,7 +78838,28 @@ document.getElementById("btn").addEventListener("click", function (e) {
   // working clip with WFS request as input reference and dynamic clip features
   // potentially could use WFS request to get clip reference as well - need to try it
 
-  var gsClip = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><wps:Execute version=\"1.0.0\" service=\"WPS\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.opengis.net/wps/1.0.0\" xmlns:wfs=\"http://www.opengis.net/wfs\" xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:wcs=\"http://www.opengis.net/wcs/1.1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd\">\n  <ows:Identifier>gs:Clip</ows:Identifier>\n  <wps:DataInputs>\n    <wps:Input>\n      <ows:Identifier>features</ows:Identifier>\n      <wps:Reference mimeType=\"application/json\" xlink:href=\"https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&amp;version=2.0.0&amp;request=GetFeature&amp;typename=nhp:windprobs_view&amp;outputFormat=application/json&amp;srsname=EPSG:3857&amp;viewparams=date:1567393200;fcstHr:120;spd:TS\" method=\"GET\"/>\n    </wps:Input>\n    <wps:Input>\n      <ows:Identifier>clip</ows:Identifier>\n      <wps:Data>\n        <wps:ComplexData mimeType=\"application/json\"><![CDATA[{\"type\":\"MultiPolygon\",\"coordinates\":".concat(stJSON, "}]]></wps:ComplexData>\n      </wps:Data>\n      </wps:Input>\n      </wps:DataInputs>\n      <wps:ResponseForm>\n      <wps:RawDataOutput mimeType=\"application/json\">\n      <ows:Identifier>result</ows:Identifier>\n      </wps:RawDataOutput>\n      </wps:ResponseForm>\n      </wps:Execute>");
+  var gsClip = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><wps:Execute version=\"1.0.0\" service=\"WPS\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://www.opengis.net/wps/1.0.0\" xmlns:wfs=\"http://www.opengis.net/wfs\" xmlns:wps=\"http://www.opengis.net/wps/1.0.0\" xmlns:ows=\"http://www.opengis.net/ows/1.1\" xmlns:gml=\"http://www.opengis.net/gml\" xmlns:ogc=\"http://www.opengis.net/ogc\" xmlns:wcs=\"http://www.opengis.net/wcs/1.1.1\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xsi:schemaLocation=\"http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd\">\n  <ows:Identifier>gs:Clip</ows:Identifier>\n  <wps:DataInputs>\n    <wps:Input>\n      <ows:Identifier>features</ows:Identifier>\n      <wps:Reference mimeType=\"application/json\" xlink:href=\"https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&amp;version=2.0.0&amp;request=GetFeature&amp;typename=nhp:windprobs_view&amp;outputFormat=application/json&amp;srsname=EPSG:3857&amp;viewparams=date:1567393200;fcstHr:120;spd:TS\" method=\"GET\"/>\n    </wps:Input>\n    <wps:Input>\n      <ows:Identifier>clip</ows:Identifier>\n      <wps:Data>\n        <wps:ComplexData mimeType=\"application/json\"><![CDATA[{\"type\":\"MultiPolygon\",\"coordinates\":".concat(stJSON, "}]]></wps:ComplexData>\n      </wps:Data>\n      </wps:Input>\n      </wps:DataInputs>\n      <wps:ResponseForm>\n      <wps:RawDataOutput mimeType=\"application/json\">\n      <ows:Identifier>result</ows:Identifier>\n      </wps:RawDataOutput>\n      </wps:ResponseForm>\n      </wps:Execute>"); // in progress 
+  // get clip reference from WFS request
+  // cant get WFS request to work for clip featues - even though it works fine for creating a layer (see vectorClip examples)
+  // var gsRefClip = `<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+  //   <ows:Identifier>gs:Clip</ows:Identifier>
+  //   <wps:DataInputs>
+  //     <wps:Input>
+  //       <ows:Identifier>features</ows:Identifier>
+  //       <wps:Reference mimeType="application/json" xlink:href="https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&amp;version=2.0.0&amp;request=GetFeature&amp;typename=nhp:windprobs_view&amp;outputFormat=application/json&amp;srsname=EPSG:3857&amp;viewparams=date:1567393200;fcstHr:120;spd:TS" method="GET"/>
+  //     </wps:Input>
+  //     <wps:Input>
+  //       <ows:Identifier>clip</ows:Identifier>
+  //       <wps:Reference mimeType="application/json" xlink:href="https://dev-hvx.hurrevac.com/geoserver/wfs?service=WFS&amp;version=2.0.0&amp;request=GetFeature&amp;typename=nhp:states20m&amp;outputFormat=application/json&amp;srsname=EPSG:3857&amp;CQL_FILTER=name='Virginia'" method="GET"/>
+  //       </wps:Input>
+  //       </wps:DataInputs>
+  //       <wps:ResponseForm>
+  //       <wps:RawDataOutput mimeType="application/json">
+  //       <ows:Identifier>result</ows:Identifier>
+  //       </wps:RawDataOutput>
+  //       </wps:ResponseForm>
+  //       </wps:Execute>`
+
   fetch('http://localhost:8080/geoserver/wps', {
     method: 'POST',
     // body: new XMLSerializer().serializeToString(wpFeatureRequest)
@@ -78887,7 +78908,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53788" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58659" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
