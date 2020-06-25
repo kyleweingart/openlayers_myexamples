@@ -1,8 +1,4 @@
-
-// create bigger stroke to be used with feature mouseclick event
-var highlightImage = new ol.style.Style({
-  stroke: new ol.style.Stroke({ color: 'gray', width: 2 }),
-});
+// ********EXAMPLE of using a WMS GetInfo Request on Multiple Layers at Once****************
 
 // elements that make up the popup
 
@@ -32,8 +28,6 @@ var toaArrivalGraphic = new ol.layer.Vector({
     }),
     projection: 'EPSG:3857',
   }),
-  // maxResolution: 10000,
-  // style: styleFunction
 });
 
 // add basemap grayscale
@@ -60,6 +54,9 @@ var parser = new ol.format.WMSGetFeatureInfo();
 var viewResolution = map.getView().getResolution();
 var viewProjection = map.getView().getProjection();
 
+// hard coded TOA TOD data - Dorian Adv 32
+// click on map near East Coast of Florida to get results
+
 var toaTodSource = new ol.source.ImageWMS({
   url: 'https://dev-hvx.hurrevac.com/geoserver/wms',
   params: {
@@ -79,7 +76,7 @@ var toaTodSource = new ol.source.ImageWMS({
 });
 
 
-// add click handler to the map to render the popup.
+// add click handler to the map to render the popup with the returned WMS GETInfo multilayer request
 map.on('singleclick', function (evt) {
   console.log(evt.coordinate);
   var url = toaTodSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
@@ -97,7 +94,6 @@ map.on('singleclick', function (evt) {
       data.features.forEach(function(feature) {
         content.innerHTML += `<span>${feature.properties.GRAY_INDEX}</span><br>`;
       })
-      // content.innerText = data.features[0].properties.GRAY_INDEX;
       container.style.display = 'block';
     } else {
       container.style.display = 'none';
