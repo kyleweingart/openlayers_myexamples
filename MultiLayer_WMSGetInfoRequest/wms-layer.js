@@ -36,10 +36,6 @@ var toaArrivalGraphic = new ol.layer.Vector({
   // style: styleFunction
 });
 
-
-
-
-
 // add basemap grayscale
 var basemap = new ol.layer.Tile({
   source: new ol.source.XYZ({
@@ -49,105 +45,65 @@ var basemap = new ol.layer.Tile({
 });
 
 
-
-
-
-
-
 // create map
 var map = new ol.Map({
   layers: [basemap, toaArrivalGraphic],
   target: document.getElementById('map'),
   view: new ol.View({
     center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 7
+    zoom: 4
   }),
   overlays: [overlay]
-});
-
-// create overlay for mouse click highlight of feature
-var featureOverlay = new ol.layer.Vector({
-  source: new ol.source.Vector,
-  map: map,
-  style: highlightImage
 });
 
 var parser = new ol.format.WMSGetFeatureInfo();
 var viewResolution = map.getView().getResolution();
 var viewProjection = map.getView().getProjection();
 
-map.on('pointermove', function (e) {
-  if (e.dragging) {
-    return;
-  }
-  var pixel = map.getEventPixel(e.originalEvent);
-  var hit = map.forEachLayerAtPixel(pixel, function (layer) {
-    return layer;
-  }, null, function (layer) {
-    var layerName = layer.get('title');
-    return (layerName === 'evacZone');
-  });
-  map.getTarget().style.cursor = hit ? 'pointer' : '';
+var toaTodSource = new ol.source.ImageWMS({
+  url: 'https://dev-hvx.hurrevac.com/geoserver/wms',
+  params: {
+    'LAYERS': 'aux:TOA227,aux:TOA228,aux:TOD229,aux:TOD230,aux:TOA227,aux:TOA228,aux:TOD229,aux:TOD230',
+    'CQL_FILTER': `stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '34kt';
+    stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '34kt';
+    stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '34kt';
+    stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '34kt';
+    stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '50kt';
+    stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '50kt';
+    stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '50kt';
+    stormid = 'AL052019' AND adv = 'adv032' AND windspeed = '50kt'`,
+    'FEATURE_COUNT': 8,
+  },
+  serverType: 'geoserver',
+  crossOrigin: 'anonymous'
 });
 
 
-
 // add click handler to the map to render the popup.
-// this logic has been added to the below click event but I left this here to 
-// show additional methods/formats
-
-// map.on('singleclick', function (evt) {
-//   var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
-//     {
-//       'INFO_FORMAT': 'application/json',
-//       'propertyName': 'name'
-//     });
-//   $.ajax({
-//     type: 'GET',
-//     url: url
-//   }).done(function (data) {
-//     if (data.features.length > 0) {
-//       overlay.setPosition(evt.coordinate);
-//       content.innerText = data.features[0].properties.zone_name;
-//       container.style.display = 'block';
-//     } else {
-//       container.style.display = 'none';
-//     }
-//   });
-// });
-
-// add click handler to highlight the selected feature
-
 map.on('singleclick', function (evt) {
   console.log(evt.coordinate);
-  var url = evacZoneSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+  var url = toaTodSource.getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
     {
-      'INFO_FORMAT': 'application/vnd.ogc.gml',
+      'INFO_FORMAT': 'application/json',
+      // 'propertyName': 'GRAY_INDEX'
     });
   $.ajax({
     type: 'GET',
     url: url
   }).done(function (data) {
-    var features = parser.readFeatures(data);
-    if (features.length > 0) {
-      console.log(features);
-      // below works but has generalized data
-      // geom = features[0].H.geom;
-      // features[0].setGeometry(geom);
-      features[0].getGeometry().transform('EPSG:4326', 'EPSG:3857')
-      featureOverlay.getSource().clear();
-      featureOverlay.getSource().addFeatures(features);
+    console.log(data);
+    if (data.features.length > 0) {
       overlay.setPosition(evt.coordinate);
-      content.innerText = features[0].H.zone_name;
+      data.features.forEach(function(feature) {
+        content.innerHTML += `<span>${feature.properties.GRAY_INDEX}</span><br>`;
+      })
+      // content.innerText = data.features[0].properties.GRAY_INDEX;
       container.style.display = 'block';
-      console.log(overlay);
     } else {
-      featureOverlay.getSource().clear();
       container.style.display = 'none';
     }
-
-  })
+  });
 });
 
-// Try this same functionality out with WFS
+
 
