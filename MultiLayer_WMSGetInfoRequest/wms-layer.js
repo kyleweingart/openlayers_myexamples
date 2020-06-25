@@ -23,43 +23,22 @@ var overlay = new ol.Overlay({
   }
 });
 
-// create source from TileWMS source 
-
-// var evacZoneSource = new ol.source.TileWMS({
-//   url: 'https://hvx-mapserver.hurrevac.com/geoserver/gwc/service/wms',
-//   params: {
-//     'LAYERS': 'nhp:al_baldwinevaczones_baldwin',
-//     'TILED': true,
-//     'VERSION': '1.1.1',
-//     'FORMAT': 'image/png8'
-//   },
-//   serverType: 'geoserver',
-//   crossOrigin: 'anonymous'
-// });
-
-var evacZoneSource = new ol.source.TileWMS({
-  url: 'https://dev-hvx.hurrevac.com/geoserver/wms',
-  params: {
-    'LAYERS': 'nhp:nchurricaneevaczones_beaufort',
-    'TILED': true,
-    'VERSION': '1.1.1',
-    'FORMAT': 'image/png8'
-  },
-  serverType: 'geoserver',
-  crossOrigin: 'anonymous'
+var toaArrivalGraphic = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    url: 'http://127.0.0.1:8082/MultiLayer_WMSGetInfoRequest/AL682014_34_earliest_reasonable_toa_34.kml',
+    format: new ol.format.KML({
+      extractStyles: false,
+      extractAttributes: true
+    }),
+    projection: 'EPSG:3857',
+  }),
+  // maxResolution: 10000,
+  // style: styleFunction
 });
 
-var usaceDistricts = new ol.source.TileWMS({
-  url: 'https://hvx-mapserver.hurrevac.com/geoserver/gwc/service/wms',
-  params: {
-    'LAYERS': 'nhp:usace_districts',
-    'TILED': true,
-    'VERSION': '1.1.1',
-    'FORMAT': 'image/png8'
-  },
-  serverType: 'geoserver',
-  crossOrigin: 'anonymous'
-});
+
+
+
 
 // add basemap grayscale
 var basemap = new ol.layer.Tile({
@@ -69,22 +48,15 @@ var basemap = new ol.layer.Tile({
   })
 });
 
-// create vector layer to display features in vector source
-var wmsLayer = new ol.layer.Tile({
-  source: evacZoneSource,
-  title: 'evacZone'
-});
 
-var districtLayer = new ol.layer.Tile({
-  source: usaceDistricts,
-  title: 'usace-district'
-});
+
+
 
 
 
 // create map
 var map = new ol.Map({
-  layers: [basemap, wmsLayer],
+  layers: [basemap, toaArrivalGraphic],
   target: document.getElementById('map'),
   view: new ol.View({
     center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
