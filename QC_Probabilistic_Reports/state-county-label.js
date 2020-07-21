@@ -25,17 +25,6 @@ var basemap = new ol.layer.Tile({
     })
 });
 
-
-// Current Tiger with State, County, County Labels as Images - superior labeling/cartography
-var wmsCurrentTigerImage = new ol.layer.Image({
-    source: new ol.source.ImageArcGISRest({
-        params: {
-            'LAYERS':"show:84,86,87"
-        },
-        url: 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer'
-    })
-})
-
 var stateCounties = new ol.layer.Image({
                 source: new ol.source.ImageWMS(/** @type {olx.source.TileWMSOptions} */ ({
                   url: 'https://dev-hvx.hurrevac.com/geoserver/wms',
@@ -50,8 +39,8 @@ var stateCounties = new ol.layer.Image({
                 visible: true
               });
 
-const testLayer = new ol.layer.Image({
-    name: 'testLayer',
+const windprobLayer = new ol.layer.Image({
+    name: 'windprobLayer',
     source: new ol.source.ImageWMS({
       url: 'https://dev-hvx.hurrevac.com/geoserver/wms',
       params: {
@@ -64,8 +53,22 @@ const testLayer = new ol.layer.Image({
     }),
   });
 
+const testwindprobLayer = new ol.layer.Image({
+    name: 'windprobtestLayer',
+    source: new ol.source.ImageWMS({
+      url: 'http://localhost:8080/geoserver/wms',
+      params: {
+        'LAYERS': `nhc:cumulative_wsp_2019090100_120hr_3857`,
+        // 'CQL_FILTER': `ref_time = '2019-09-01 00:00:00' and offset = '120' and windspeed = '34kt'`
+      },
+      projection: 'EPSG:3857',
+      serverType: 'geoserver',
+      crossOrigin: 'anonymous',
+    }),
+  });
+
 var map = new ol.Map({
-    layers: [stateCounties, testLayer],
+    layers: [stateCounties, testwindprobLayer],
     target: document.getElementById('map'),
     view: new ol.View({
         center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
@@ -81,7 +84,7 @@ var viewProjection = map.getView().getProjection();
 
 map.on('singleclick', function (evt) {
     console.log(evt.coordinate);
-    var url = testLayer.getSource().getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    var url = testwindprobLayer.getSource().getGetFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
       {
         'INFO_FORMAT': 'application/vnd.ogc.gml',
       });
