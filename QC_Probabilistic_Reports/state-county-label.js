@@ -36,6 +36,20 @@ var wmsCurrentTigerImage = new ol.layer.Image({
     })
 })
 
+var stateCounties = new ol.layer.Image({
+                source: new ol.source.ImageWMS(/** @type {olx.source.TileWMSOptions} */ ({
+                  url: 'https://dev-hvx.hurrevac.com/geoserver/wms',
+                  params: {
+                    'LAYERS': 'nhp:states_counties',
+                    'VERSION': '1.1.1'
+                  },
+                  serverType: 'geoserver',
+                  crossOrigin: 'anonymous',
+                  hidpi: false
+                })),
+                visible: true
+              });
+
 const testLayer = new ol.layer.Image({
     name: 'testLayer',
     source: new ol.source.ImageWMS({
@@ -51,7 +65,7 @@ const testLayer = new ol.layer.Image({
   });
 
 var map = new ol.Map({
-    layers: [wmsCurrentTigerImage, testLayer],
+    layers: [stateCounties, testLayer],
     target: document.getElementById('map'),
     view: new ol.View({
         center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
