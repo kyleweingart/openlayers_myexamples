@@ -67,8 +67,22 @@ const testwindprobLayer = new ol.layer.Image({
     }),
   });
 
+const grid = new ol.layer.Image({
+    name: 'grid',
+    source: new ol.source.ImageWMS({
+      url: 'http://localhost:8080/geoserver/wms',
+      params: {
+        'LAYERS': `cite:grid`,
+        // 'CQL_FILTER': `ref_time = '2019-09-01 00:00:00' and offset = '120' and windspeed = '34kt'`
+      },
+      projection: 'EPSG:3857',
+      serverType: 'geoserver',
+      crossOrigin: 'anonymous',
+    }),
+  });
+
 var map = new ol.Map({
-    layers: [stateCounties, testwindprobLayer],
+    layers: [stateCounties, testwindprobLayer, windproblayer, grid],
     target: document.getElementById('map'),
     view: new ol.View({
         center: ol.proj.transform([-87.5, 31], 'EPSG:4326', 'EPSG:3857'),
