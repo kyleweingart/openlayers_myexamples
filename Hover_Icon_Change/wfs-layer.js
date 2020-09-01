@@ -13,6 +13,20 @@ var image = new ol.style.RegularShape({
   stroke: new ol.style.Stroke({ color: '#6d8383', width: 1 })
 });
 
+// create X shape
+var image = new ol.style.RegularShape({
+  points: 4,
+  radius1: 10,
+  radius2: 0,
+  angle: Math.PI / 4,
+  // fill: new ol.style.Fill({ color: '#2f4f4f' }),
+  stroke: new ol.style.Stroke({ color: '#6d8383', width: 1 })
+});
+
+
+
+  
+
 // apply shape to style
 var tideStyle = new ol.style.Style({
   image: image
