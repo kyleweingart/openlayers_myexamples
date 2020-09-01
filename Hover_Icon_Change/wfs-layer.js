@@ -14,7 +14,7 @@ var image = new ol.style.RegularShape({
 });
 
 // create X shape
-var image = new ol.style.RegularShape({
+var xImage = new ol.style.RegularShape({
   points: 4,
   radius1: 10,
   radius2: 0,
