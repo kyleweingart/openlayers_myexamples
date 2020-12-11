@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+<Document id="root_doc">
+<Schema name="94e1215" id="94e1215">
+	<SimpleField name="ID" type="int"></SimpleField>
+	<SimpleField name="PRODUCT" type="string"></SimpleField>
+	<SimpleField name="VALID_TIME" type="string"></SimpleField>
+	<SimpleField name="OUTLOOK" type="string"></SimpleField>
+	<SimpleField name="ISSUE_TIME" type="string"></SimpleField>
+	<SimpleField name="START_TIME" type="string"></SimpleField>
+	<SimpleField name="END_TIME" type="string"></SimpleField>
+</Schema>
+<Folder><name>94e1215</name>
+  <Placemark>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#94e1215">
+		<SimpleData name="ID">1</SimpleData>
+		<SimpleData name="PRODUCT">Day 1 Excessive Rainfall Potential Forecast</SimpleData>
+		<SimpleData name="VALID_TIME">15Z 02/12/19 - 12Z 02/13/19</SimpleData>
+		<SimpleData name="OUTLOOK">Marginal (5-10%)</SimpleData>
+		<SimpleData name="ISSUE_TIME">2019-02-12 14:23:00</SimpleData>
+		<SimpleData name="START_TIME">2019-02-12 15:00:00</SimpleData>
+		<SimpleData name="END_TIME">2019-02-13 12:00:00</SimpleData>
+	</SchemaData></ExtendedData>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>-76.0,40.74 -74.82,40.48 -74.51,40.3 -74.59,39.91 -75.59,39.23 -76.13,39.02 -76.32,39.27 -76.48,39.05 -76.33,38.91 -76.61,38.79 -77.43,38.4 -78.19,37.89 -78.86,37.37 -79.55,36.94 -81.02,35.99 -82.38,35.08 -83.14,34.56 -83.73,34.03 -84.32,33.48 -84.81,32.87 -85.34,32.36 -86.03,31.83 -86.76,31.31 -87.45,30.91 -87.85,30.86 -88.0,31.13 -87.96,31.66 -87.78,31.97 -87.25,32.74 -86.74,33.32 -85.68,34.56 -85.45,34.95 -85.11,35.24 -84.7,35.85 -83.57,37.12 -81.11,39.22 -80.3,39.73 -79.53,40.1 -79.06,40.24 -78.55,40.22 -77.48,40.49 -76.0,40.74</coordinates></LinearRing></outerBoundaryIs></Polygon>
+  </Placemark>
+  <Placemark>
+	<Style><LineStyle><color>ff0000ff</color></LineStyle><PolyStyle><fill>0</fill></PolyStyle></Style>
+	<ExtendedData><SchemaData schemaUrl="#94e1215">
+		<SimpleData name="ID">2</SimpleData>
+		<SimpleData name="PRODUCT">Day 1 Excessive Rainfall Potential Forecast</SimpleData>
+		<SimpleData name="VALID_TIME">15Z 02/12/19 - 12Z 02/13/19</SimpleData>
+		<SimpleData name="OUTLOOK">Slight (10-20%)</SimpleData>
+		<SimpleData name="ISSUE_TIME">2019-02-12 14:23:00</SimpleData>
+		<SimpleData name="START_TIME">2019-02-12 15:00:00</SimpleData>
+		<SimpleData name="END_TIME">2019-02-13 12:00:00</SimpleData>
+	</SchemaData></ExtendedData>
+      <Polygon><outerBoundaryIs><LinearRing><coordinates>-82.1,36.75 -81.68,36.72 -81.61,36.58 -81.83,36.19 -82.38,35.83 -82.87,35.59 -83.26,35.35 -83.79,34.98 -84.3,34.88 -84.27,35.15 -83.91,35.53 -83.53,35.91 -83.04,36.14 -82.65,36.39 -82.1,36.75 -82.1,36.75</coordinates></LinearRing></outerBoundaryIs></Polygon>
+  </Placemark>
+</Folder>
+</Document></kml>

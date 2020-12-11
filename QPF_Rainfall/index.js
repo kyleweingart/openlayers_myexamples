@@ -7,19 +7,22 @@ import OSM from 'ol/source/OSM';
 import {Fill, Stroke, Style} from 'ol/style';
 
 
+const kmlFile = require('./doc.kml');
+
+
   
   var vector = new VectorLayer({
     source: new VectorSource({
     //   url: 'https://data.hurrevac.com/excessive/Day_1_Excessive_Rainfall_Outlook_LATEST.kml',
-    url: 'http://127.0.0.1:1234/ExcessiveRain_Day1_latest.kml',
+    url: kmlFile,
       crossOrigin: 'anonymous',
       format: new KML({
-        extractStyles: false,
+        // extractStyles: false,
         extractAttributes: true
       }),
       projection: 'EPSG:3857'
     }),
-    style: styleFunction
+    // style: styleFunction
   });
   
   var rainStyles = {

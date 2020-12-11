@@ -90915,7 +90915,9 @@ function (_super) {
 
 var _default = OSM;
 exports.default = _default;
-},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"index.js":[function(require,module,exports) {
+},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"doc.kml":[function(require,module,exports) {
+module.exports = "/doc.aa2f61d5.kml";
+},{}],"index.js":[function(require,module,exports) {
 "use strict";
 
 require("ol/ol.css");
@@ -90934,18 +90936,20 @@ var _style = require("ol/style");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var kmlFile = require('./doc.kml');
+
 var vector = new _layer.Vector({
   source: new _Vector.default({
     //   url: 'https://data.hurrevac.com/excessive/Day_1_Excessive_Rainfall_Outlook_LATEST.kml',
-    url: 'http://127.0.0.1:1234/ExcessiveRain_Day1_latest.kml',
+    url: kmlFile,
     crossOrigin: 'anonymous',
     format: new _KML.default({
-      extractStyles: false,
+      // extractStyles: false,
       extractAttributes: true
     }),
     projection: 'EPSG:3857'
-  }),
-  style: styleFunction
+  }) // style: styleFunction
+
 });
 var rainStyles = {
   default: new _style.Style({
@@ -91026,7 +91030,7 @@ var map = new _ol2.Map({
     zoom: 0
   })
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","./doc.kml":"doc.kml"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -91054,7 +91058,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59472" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58206" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
