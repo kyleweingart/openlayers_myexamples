@@ -7,7 +7,7 @@ import OSM from 'ol/source/OSM';
 import {Fill, Stroke, Style} from 'ol/style';
 
 
-const hour_six = require('./6hr.kml');
+// const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
@@ -15,7 +15,9 @@ const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
 
 var createRainfallKMLLayer = (timePeriod) => {
-  const url = hour_six;
+  console.log(timePeriod);
+  const url = require('./6hr.kml');
+  // const url = hour_six;
 
   var layer = new VectorLayer({
     source: new VectorSource({

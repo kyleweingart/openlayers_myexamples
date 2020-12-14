@@ -90936,15 +90936,18 @@ var _style = require("ol/style");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var hour_six = require('./6hr.kml'); // const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
 // const hour_six = require('./6hr.kml');
-
-
+// const hour_six = require('./6hr.kml');
+// const hour_six = require('./6hr.kml');
 var createRainfallKMLLayer = function createRainfallKMLLayer(timePeriod) {
-  var url = hour_six;
+  console.log(timePeriod);
+
+  var url = require('./6hr.kml'); // const url = hour_six;
+
+
   var layer = new _layer.Vector({
     source: new _Vector.default({
       url: url,
