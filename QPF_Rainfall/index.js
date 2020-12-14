@@ -4,21 +4,23 @@ import {Map, View} from 'ol';
 import VectorSource from 'ol/source/Vector';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
 import OSM from 'ol/source/OSM';
-import {Fill, Stroke, Style} from 'ol/style';
+// import {Fill, Stroke, Style} from 'ol/style';
 
-
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
+const timeObject = {
+  hourSix: require('./hourSix.kml'),
+  dayOne: require('./dayOne.kml'),
+  dayTwo: require('./dayTwo.kml'),
+  dayThree: require('./dayThree.kml'),
+  dayFourFive: require('./dayFourFive.kml'),
+  daySixSeven: require('./daySixSeven.kml'),
+  cumDayOneTwo: require('./cumDayOneTwo.kml'),
+  cumDayOneTwoThree: require('./cumDayOneTwoThree.kml'),
+  cumDayOneTwoThreeFourFive: require('./cumDayOneTwoThreeFourFive.kml'),
+  cumDayOneTwoThreeFourFiveSixSeven: require('./cumDayOneTwoThreeFourFiveSixSeven.kml')
+}
 
 var createRainfallKMLLayer = (timePeriod) => {
-  console.log(timePeriod);
-  const url = require('./6hr.kml');
-  // const url = hour_six;
-
+  const url = timeObject[timePeriod];
   var layer = new VectorLayer({
     source: new VectorSource({
     url: url,
@@ -33,7 +35,6 @@ var createRainfallKMLLayer = (timePeriod) => {
   });
   return layer;
 }
-
 
 var checkboxesRainfallKML = document.forms["rainfallKMLForm"].elements["rainfallKML"];
 for (var i = 0; i < checkboxesRainfallKML.length; i++) {

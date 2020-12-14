@@ -90915,8 +90915,26 @@ function (_super) {
 
 var _default = OSM;
 exports.default = _default;
-},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"6hr.kml":[function(require,module,exports) {
-module.exports = "/6hr.e60844be.kml";
+},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"hourSix.kml":[function(require,module,exports) {
+module.exports = "/hourSix.409270c7.kml";
+},{}],"dayOne.kml":[function(require,module,exports) {
+module.exports = "/dayOne.954e8eed.kml";
+},{}],"dayTwo.kml":[function(require,module,exports) {
+module.exports = "/dayTwo.445ebc03.kml";
+},{}],"dayThree.kml":[function(require,module,exports) {
+module.exports = "/dayThree.319a56d7.kml";
+},{}],"dayFourFive.kml":[function(require,module,exports) {
+module.exports = "/dayFourFive.2af49527.kml";
+},{}],"daySixSeven.kml":[function(require,module,exports) {
+module.exports = "/daySixSeven.48f173d7.kml";
+},{}],"cumDayOneTwo.kml":[function(require,module,exports) {
+module.exports = "/cumDayOneTwo.414458f4.kml";
+},{}],"cumDayOneTwoThree.kml":[function(require,module,exports) {
+module.exports = "/cumDayOneTwoThree.bc4c9338.kml";
+},{}],"cumDayOneTwoThreeFourFive.kml":[function(require,module,exports) {
+module.exports = "/cumDayOneTwoThreeFourFive.70799a18.kml";
+},{}],"cumDayOneTwoThreeFourFiveSixSeven.kml":[function(require,module,exports) {
+module.exports = "/cumDayOneTwoThreeFourFiveSixSeven.5a363c88.kml";
 },{}],"index.js":[function(require,module,exports) {
 "use strict";
 
@@ -90932,22 +90950,24 @@ var _layer = require("ol/layer");
 
 var _OSM = _interopRequireDefault(require("ol/source/OSM"));
 
-var _style = require("ol/style");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
-// const hour_six = require('./6hr.kml');
+// import {Fill, Stroke, Style} from 'ol/style';
+var timeObject = {
+  hourSix: require('./hourSix.kml'),
+  dayOne: require('./dayOne.kml'),
+  dayTwo: require('./dayTwo.kml'),
+  dayThree: require('./dayThree.kml'),
+  dayFourFive: require('./dayFourFive.kml'),
+  daySixSeven: require('./daySixSeven.kml'),
+  cumDayOneTwo: require('./cumDayOneTwo.kml'),
+  cumDayOneTwoThree: require('./cumDayOneTwoThree.kml'),
+  cumDayOneTwoThreeFourFive: require('./cumDayOneTwoThreeFourFive.kml'),
+  cumDayOneTwoThreeFourFiveSixSeven: require('./cumDayOneTwoThreeFourFiveSixSeven.kml')
+};
+
 var createRainfallKMLLayer = function createRainfallKMLLayer(timePeriod) {
-  console.log(timePeriod);
-
-  var url = require('./6hr.kml'); // const url = hour_six;
-
-
+  var url = timeObject[timePeriod];
   var layer = new _layer.Vector({
     source: new _Vector.default({
       url: url,
@@ -90992,7 +91012,7 @@ var map = new _ol2.Map({
     zoom: 0
   })
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","./6hr.kml":"6hr.kml"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","./hourSix.kml":"hourSix.kml","./dayOne.kml":"dayOne.kml","./dayTwo.kml":"dayTwo.kml","./dayThree.kml":"dayThree.kml","./dayFourFive.kml":"dayFourFive.kml","./daySixSeven.kml":"daySixSeven.kml","./cumDayOneTwo.kml":"cumDayOneTwo.kml","./cumDayOneTwoThree.kml":"cumDayOneTwoThree.kml","./cumDayOneTwoThreeFourFive.kml":"cumDayOneTwoThreeFourFive.kml","./cumDayOneTwoThreeFourFiveSixSeven.kml":"cumDayOneTwoThreeFourFiveSixSeven.kml"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
