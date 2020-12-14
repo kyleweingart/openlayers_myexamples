@@ -90915,8 +90915,8 @@ function (_super) {
 
 var _default = OSM;
 exports.default = _default;
-},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"doc.kml":[function(require,module,exports) {
-module.exports = "/doc.aa2f61d5.kml";
+},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"6hr.kml":[function(require,module,exports) {
+module.exports = "/6hr.e60844be.kml";
 },{}],"index.js":[function(require,module,exports) {
 "use strict";
 
@@ -90936,101 +90936,143 @@ var _style = require("ol/style");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var kmlFile = require('./doc.kml');
+var hour_six = require('./6hr.kml'); // const hour_six = require('./6hr.kml');
+// const hour_six = require('./6hr.kml');
+// const hour_six = require('./6hr.kml');
+// const hour_six = require('./6hr.kml');
+// const hour_six = require('./6hr.kml');
 
-var vector = new _layer.Vector({
-  source: new _Vector.default({
-    //   url: 'https://data.hurrevac.com/excessive/Day_1_Excessive_Rainfall_Outlook_LATEST.kml',
-    url: kmlFile,
-    crossOrigin: 'anonymous',
-    format: new _KML.default({
-      // extractStyles: false,
-      extractAttributes: true
-    }),
-    projection: 'EPSG:3857'
-  }) // style: styleFunction
 
-});
-var rainStyles = {
-  default: new _style.Style({
-    stroke: new _style.Stroke({
-      color: 'black',
-      width: 2
-    })
-  }),
-  mrgl: new _style.Style({
-    fill: new _style.Fill({
-      color: [128, 230, 128, .9]
+var createRainfallKMLLayer = function createRainfallKMLLayer(timePeriod) {
+  // var url = 'http://localhost:8080/geoserver/wms';
+  // if (time === 'ERTOA') {
+  //   // console.log('strength works')
+  //   var layers = 'VAR0-2-227_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+  // } else if (strength === 'MLTOA') {
+  //   console.log('MLTOA works');
+  //   var layers = 'VAR0-2-228_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+  // } else if (strength === 'MLTOD') {
+  //   var layers = 'VAR0-2-229_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+  // } else if (strength === 'LRTOD') {
+  //   var layers = 'VAR0-2-230_FROM_7-10--1_height_above_ground_120_Hour_Accumulation_probability_between_10p0_and_3'
+  // } else if (strength === 'test') {
+  //   var layers = 'cite:test.25'
+  // }
+  var url = hour_six;
+  var layer = new _layer.Vector({
+    source: new _Vector.default({
+      //   url: 'https://data.hurrevac.com/excessive/Day_1_Excessive_Rainfall_Outlook_LATEST.kml',
+      // url: hour_six,
+      url: url,
+      crossOrigin: 'anonymous',
+      format: new _KML.default({
+        // extractStyles: false,
+        extractAttributes: true
+      }),
+      projection: 'EPSG:3857'
     }),
-    stroke: new _style.Stroke({
-      color: [0, 139, 0, .9],
-      width: 2
-    })
-  }),
-  slgt: new _style.Style({
-    fill: new _style.Fill({
-      color: [247, 247, 128, .9]
-    }),
-    stroke: new _style.Stroke({
-      color: [255, 130, 71, .9],
-      width: 2
-    })
-  }),
-  mdt: new _style.Style({
-    fill: new _style.Fill({
-      color: [255, 128, 128, .9]
-    }),
-    stroke: new _style.Stroke({
-      color: [205, 0, 0, .9],
-      width: 2
-    })
-  }),
-  high: new _style.Style({
-    fill: new _style.Fill({
-      color: [255, 128, 255, .9]
-    }),
-    stroke: new _style.Stroke({
-      color: [255, 0, 255, .9],
-      width: 2
-    })
-  })
+    name: 'rainfallKML' + timePeriod // style: styleFunction
+
+  }); // var layer = new ol.layer.Tile({
+  //   source: new ol.source.TileWMS({
+  //     url: url,
+  //     params: {
+  //       // 'LAYERS': 'ncdc:' + layers,
+  //       'LAYERS': layers,
+  //       'TILED': true,
+  //       'VERSION': '1.1.1',
+  //       'FORMAT': 'image/png8',
+  //       // 'projection': 'EPSG:4326'
+  //       // 'TIME': '2018-10-10T00:00:00Z'
+  //     }
+  //   }),
+  //   name: "Grib2 " + strength,
+  //   serverType: 'geoserver',
+  //   crossOrigin: 'anonymous',
+  //   // projection: 'EPSG:4326'
+  // });
+
+  return layer;
 };
 
-function styleFunction(feature) {
-  var outlook = feature.get('OUTLOOK');
+var checkboxesRainfallKML = document.forms["rainfallKMLForm"].elements["rainfallKML"];
 
-  if (outlook === 'Marginal (5-10%)') {
-    return rainStyles.mrgl;
-  } else if (outlook === 'Slight (10-20%)') {
-    return rainStyles.slgt;
-  } else if (outlook === 'Moderate (20-50%)') {
-    return rainStyles.mdt;
-  } else if (outlook === 'High (>50%)') {
-    return rainStyles.high;
-  } else {
-    return rainStyles.default;
-  }
-} //   var map = new ol.Map({
-//     layers: [raster, vector],
-//     target: document.getElementById('map'),
-//     view: new ol.View({
-//       center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
-//       zoom: 5,
+for (var i = 0; i < checkboxesRainfallKML.length; i++) {
+  checkboxesRainfallKML[i].onclick = function () {
+    var timePeriod = this.value;
+
+    if (this.checked === true) {
+      var mapLayer = createRainfallKMLLayer(timePeriod);
+      map.addLayer(mapLayer);
+    } else {
+      map.getLayers().forEach(function (layer) {
+        if (layer.get('name') === 'rainfallKML' + timePeriod) {
+          map.removeLayer(layer);
+        }
+      });
+    }
+  };
+} // var vector = new VectorLayer({
+//   source: new VectorSource({
+//   //   url: 'https://data.hurrevac.com/excessive/Day_1_Excessive_Rainfall_Outlook_LATEST.kml',
+//   url: hour_six,
+//     crossOrigin: 'anonymous',
+//     format: new KML({
+//       // extractStyles: false,
+//       extractAttributes: true
 //     }),
-//   });
+//     projection: 'EPSG:3857'
+//   }),
+//   // style: styleFunction
+// });
+// var rainStyles = {
+//   default: new Style({
+//     stroke: new Stroke({ color: 'black', width: 2 })
+//   }),
+//   mrgl: new Style({
+//     fill: new Fill({ color: [128, 230, 128, .9] }),
+//     stroke: new Stroke({ color: [0, 139, 0, .9], width: 2 })
+//   }),
+//   slgt: new Style({
+//     fill: new Fill({ color: [247, 247, 128, .9] }),
+//     stroke: new Stroke({ color: [255, 130, 71, .9], width: 2 })
+//   }),
+//   mdt: new Style({
+//     fill: new Fill({ color: [255, 128, 128, .9] }),
+//     stroke: new Stroke({ color: [205, 0, 0, .9], width: 2 })
+//   }),
+//   high: new Style({
+//     fill: new Fill({ color: [255, 128, 255, .9] }),
+//     stroke: new Stroke({ color: [255, 0, 255, .9], width: 2 })
+//   }),
+// }
+// function styleFunction(feature) {
+//   var outlook = feature.get('OUTLOOK');
+//   if (outlook === 'Marginal (5-10%)') {
+//     return rainStyles.mrgl;
+//   } else if (outlook === 'Slight (10-20%)') {
+//     return rainStyles.slgt;
+//   } else if (outlook === 'Moderate (20-50%)') {
+//     return rainStyles.mdt;
+//   } else if (outlook === 'High (>50%)') {
+//     return rainStyles.high;
+//   } else {
+//     return rainStyles.default;
+//   }
+// }
 
 
 var map = new _ol2.Map({
   target: 'map',
   layers: [new _layer.Tile({
     source: new _OSM.default()
-  }), vector],
+  })],
   view: new _ol2.View({
     center: [0, 0],
     zoom: 0
   })
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","./doc.kml":"doc.kml"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/style":"node_modules/ol/style.js","./6hr.kml":"6hr.kml"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -91058,7 +91100,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "58206" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "61133" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
