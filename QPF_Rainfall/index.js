@@ -105,6 +105,56 @@ for (var i = 0; i < checkboxesRainfallGrib.length; i++) {
   }
 }
 
+var createMosaicLayer = (time) => {
+  
+  console.log('Mosaiclayer');
+  var url = 'http://localhost:8080/geoserver/wms';
+  
+  if (time === '24') {
+    var layers = 'rainfall_mosaic'
+  }   else if (time === '48') {
+    var layers = 'rainfall_mosaic'
+  }   else if (time === '72') {
+    var layers = 'rainfall_mosaic'
+  }
+  
+  var layer = new TileLayer({
+    source: new TileWMS({
+      url: url,
+      params: {
+        'LAYERS': 'cite:' + layers,
+        'TILED': true,
+        'VERSION': '1.1.1',
+        'FORMAT': 'image/png8',
+        'projection': 'EPSG:3857'
+        //  ' TIME': '2018-10-10T00:00:00Z'
+      }
+    }),
+    name: "rainfallMosaic" + time,
+    serverType: 'geoserver',
+    crossOrigin: 'anonymous'
+  });
+  return layer;
+}
+
+var checkboxesRainfallMosaic = document.forms["rainfallMosaicForm"].elements["rainfallMosaic"];
+for (var i = 0; i < checkboxesRainfallGrib.length; i++) {
+  checkboxesRainfallMosaic[i].onclick = function () {
+    var timePeriod = this.value;
+    if (this.checked === true) {
+      const mapLayer = createMosaicLayer(timePeriod);
+      map.addLayer(mapLayer);
+    } else {
+      map.getLayers().forEach(function (layer) {
+        if (layer.get('name') === 'rainfallMosaic' + timePeriod) {
+          map.removeLayer(layer);
+        }
+      })
+
+    }
+  }
+}
+
 const map = new Map({
   target: 'map',
   layers: [
