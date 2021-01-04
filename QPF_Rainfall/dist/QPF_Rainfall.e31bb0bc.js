@@ -93568,7 +93568,1743 @@ function (_super) {
 
 var _default = OSM;
 exports.default = _default;
-},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"hourSix.kml":[function(require,module,exports) {
+},{"./XYZ.js":"node_modules/ol/source/XYZ.js"}],"node_modules/ol/format/GMLBase.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.GMLNS = void 0;
+
+var _Feature = _interopRequireDefault(require("../Feature.js"));
+
+var _GeometryLayout = _interopRequireDefault(require("../geom/GeometryLayout.js"));
+
+var _LineString = _interopRequireDefault(require("../geom/LineString.js"));
+
+var _LinearRing = _interopRequireDefault(require("../geom/LinearRing.js"));
+
+var _MultiLineString = _interopRequireDefault(require("../geom/MultiLineString.js"));
+
+var _MultiPoint = _interopRequireDefault(require("../geom/MultiPoint.js"));
+
+var _MultiPolygon = _interopRequireDefault(require("../geom/MultiPolygon.js"));
+
+var _Point = _interopRequireDefault(require("../geom/Point.js"));
+
+var _Polygon = _interopRequireDefault(require("../geom/Polygon.js"));
+
+var _XMLFeature = _interopRequireDefault(require("./XMLFeature.js"));
+
+var _obj = require("../obj.js");
+
+var _array = require("../array.js");
+
+var _xml = require("../xml.js");
+
+var _proj = require("../proj.js");
+
+var _Feature2 = require("./Feature.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var __extends = void 0 && (void 0).__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+/**
+ * @module ol/format/GMLBase
+ */
+// FIXME Envelopes should not be treated as geometries! readEnvelope_ is part
+// of GEOMETRY_PARSERS_ and methods using GEOMETRY_PARSERS_ do not expect
+// envelopes/extents, only geometries!
+
+
+/**
+ * @const
+ * @type {string}
+ */
+var GMLNS = 'http://www.opengis.net/gml';
+/**
+ * A regular expression that matches if a string only contains whitespace
+ * characters. It will e.g. match `''`, `' '`, `'\n'` etc. The non-breaking
+ * space (0xa0) is explicitly included as IE doesn't include it in its
+ * definition of `\s`.
+ *
+ * Information from `goog.string.isEmptyOrWhitespace`: https://github.com/google/closure-library/blob/e877b1e/closure/goog/string/string.js#L156-L160
+ *
+ * @const
+ * @type {RegExp}
+ */
+
+exports.GMLNS = GMLNS;
+var ONLY_WHITESPACE_RE = /^[\s\xa0]*$/;
+/**
+ * @typedef {Object} Options
+ * @property {Object<string, string>|string} [featureNS] Feature
+ * namespace. If not defined will be derived from GML. If multiple
+ * feature types have been configured which come from different feature
+ * namespaces, this will be an object with the keys being the prefixes used
+ * in the entries of featureType array. The values of the object will be the
+ * feature namespaces themselves. So for instance there might be a featureType
+ * item `topp:states` in the `featureType` array and then there will be a key
+ * `topp` in the featureNS object with value `http://www.openplans.org/topp`.
+ * @property {Array<string>|string} [featureType] Feature type(s) to parse.
+ * If multiple feature types need to be configured
+ * which come from different feature namespaces, `featureNS` will be an object
+ * with the keys being the prefixes used in the entries of featureType array.
+ * The values of the object will be the feature namespaces themselves.
+ * So for instance there might be a featureType item `topp:states` and then
+ * there will be a key named `topp` in the featureNS object with value
+ * `http://www.openplans.org/topp`.
+ * @property {string} srsName srsName to use when writing geometries.
+ * @property {boolean} [surface=false] Write gml:Surface instead of gml:Polygon
+ * elements. This also affects the elements in multi-part geometries.
+ * @property {boolean} [curve=false] Write gml:Curve instead of gml:LineString
+ * elements. This also affects the elements in multi-part geometries.
+ * @property {boolean} [multiCurve=true] Write gml:MultiCurve instead of gml:MultiLineString.
+ * Since the latter is deprecated in GML 3.
+ * @property {boolean} [multiSurface=true] Write gml:multiSurface instead of
+ * gml:MultiPolygon. Since the latter is deprecated in GML 3.
+ * @property {string} [schemaLocation] Optional schemaLocation to use when
+ * writing out the GML, this will override the default provided.
+ * @property {boolean} [hasZ=false] If coordinates have a Z value.
+ */
+
+/**
+ * @classdesc
+ * Abstract base class; normally only used for creating subclasses and not
+ * instantiated in apps.
+ * Feature base format for reading and writing data in the GML format.
+ * This class cannot be instantiated, it contains only base content that
+ * is shared with versioned format classes GML2 and GML3.
+ *
+ * @abstract
+ */
+
+var GMLBase =
+/** @class */
+function (_super) {
+  __extends(GMLBase, _super);
+  /**
+   * @param {Options=} opt_options Optional configuration object.
+   */
+
+
+  function GMLBase(opt_options) {
+    var _this = _super.call(this) || this;
+
+    var options =
+    /** @type {Options} */
+    opt_options ? opt_options : {};
+    /**
+     * @protected
+     * @type {Array<string>|string|undefined}
+     */
+
+    _this.featureType = options.featureType;
+    /**
+     * @protected
+     * @type {Object<string, string>|string|undefined}
+     */
+
+    _this.featureNS = options.featureNS;
+    /**
+     * @protected
+     * @type {string}
+     */
+
+    _this.srsName = options.srsName;
+    /**
+     * @protected
+     * @type {string}
+     */
+
+    _this.schemaLocation = '';
+    /**
+     * @type {Object<string, Object<string, Object>>}
+     */
+
+    _this.FEATURE_COLLECTION_PARSERS = {};
+    _this.FEATURE_COLLECTION_PARSERS[_this.namespace] = {
+      'featureMember': (0, _xml.makeArrayPusher)(_this.readFeaturesInternal),
+      'featureMembers': (0, _xml.makeReplacer)(_this.readFeaturesInternal)
+    };
+    return _this;
+  }
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Array<Feature> | undefined} Features.
+   */
+
+
+  GMLBase.prototype.readFeaturesInternal = function (node, objectStack) {
+    var localName = node.localName;
+    var features = null;
+
+    if (localName == 'FeatureCollection') {
+      features = (0, _xml.pushParseAndPop)([], this.FEATURE_COLLECTION_PARSERS, node, objectStack, this);
+    } else if (localName == 'featureMembers' || localName == 'featureMember') {
+      var context = objectStack[0];
+      var featureType = context['featureType'];
+      var featureNS = context['featureNS'];
+      var prefix = 'p';
+      var defaultPrefix = 'p0';
+
+      if (!featureType && node.childNodes) {
+        featureType = [], featureNS = {};
+
+        for (var i = 0, ii = node.childNodes.length; i < ii; ++i) {
+          var child = node.childNodes[i];
+
+          if (child.nodeType === 1) {
+            var ft = child.nodeName.split(':').pop();
+
+            if (featureType.indexOf(ft) === -1) {
+              var key = '';
+              var count = 0;
+              var uri = child.namespaceURI;
+
+              for (var candidate in featureNS) {
+                if (featureNS[candidate] === uri) {
+                  key = candidate;
+                  break;
+                }
+
+                ++count;
+              }
+
+              if (!key) {
+                key = prefix + count;
+                featureNS[key] = uri;
+              }
+
+              featureType.push(key + ':' + ft);
+            }
+          }
+        }
+
+        if (localName != 'featureMember') {
+          // recheck featureType for each featureMember
+          context['featureType'] = featureType;
+          context['featureNS'] = featureNS;
+        }
+      }
+
+      if (typeof featureNS === 'string') {
+        var ns = featureNS;
+        featureNS = {};
+        featureNS[defaultPrefix] = ns;
+      }
+      /** @type {Object<string, Object<string, import("../xml.js").Parser>>} */
+
+
+      var parsersNS = {};
+      var featureTypes = Array.isArray(featureType) ? featureType : [featureType];
+
+      for (var p in featureNS) {
+        /** @type {Object<string, import("../xml.js").Parser>} */
+        var parsers = {};
+
+        for (var i = 0, ii = featureTypes.length; i < ii; ++i) {
+          var featurePrefix = featureTypes[i].indexOf(':') === -1 ? defaultPrefix : featureTypes[i].split(':')[0];
+
+          if (featurePrefix === p) {
+            parsers[featureTypes[i].split(':').pop()] = localName == 'featureMembers' ? (0, _xml.makeArrayPusher)(this.readFeatureElement, this) : (0, _xml.makeReplacer)(this.readFeatureElement, this);
+          }
+        }
+
+        parsersNS[featureNS[p]] = parsers;
+      }
+
+      if (localName == 'featureMember') {
+        features = (0, _xml.pushParseAndPop)(undefined, parsersNS, node, objectStack);
+      } else {
+        features = (0, _xml.pushParseAndPop)([], parsersNS, node, objectStack);
+      }
+    }
+
+    if (features === null) {
+      features = [];
+    }
+
+    return features;
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {import("../geom/Geometry.js").default|import("../extent.js").Extent|undefined} Geometry.
+   */
+
+
+  GMLBase.prototype.readGeometryElement = function (node, objectStack) {
+    var context =
+    /** @type {Object} */
+    objectStack[0];
+    context['srsName'] = node.firstElementChild.getAttribute('srsName');
+    context['srsDimension'] = node.firstElementChild.getAttribute('srsDimension');
+    var geometry = (0, _xml.pushParseAndPop)(null, this.GEOMETRY_PARSERS, node, objectStack, this);
+
+    if (geometry) {
+      if (Array.isArray(geometry)) {
+        return (0, _Feature2.transformExtentWithOptions)(
+        /** @type {import("../extent.js").Extent} */
+        geometry, context);
+      } else {
+        return (0, _Feature2.transformGeometryWithOptions)(
+        /** @type {import("../geom/Geometry.js").default} */
+        geometry, false, context);
+      }
+    } else {
+      return undefined;
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @param {boolean} asFeature whether result should be wrapped as a feature.
+   * @return {Feature|Object} Feature
+   */
+
+
+  GMLBase.prototype.readFeatureElementInternal = function (node, objectStack, asFeature) {
+    var geometryName;
+    var values = {};
+
+    for (var n = node.firstElementChild; n; n = n.nextElementSibling) {
+      var value = void 0;
+      var localName = n.localName; // first, check if it is simple attribute
+
+      if (n.childNodes.length === 0 || n.childNodes.length === 1 && (n.firstChild.nodeType === 3 || n.firstChild.nodeType === 4)) {
+        value = (0, _xml.getAllTextContent)(n, false);
+
+        if (ONLY_WHITESPACE_RE.test(value)) {
+          value = undefined;
+        }
+      } else {
+        if (asFeature) {
+          //if feature, try it as a geometry
+          value = this.readGeometryElement(n, objectStack);
+        }
+
+        if (!value) {
+          //if not a geometry or not a feature, treat it as a complex attribute
+          value = this.readFeatureElementInternal(n, objectStack, false);
+        } else if (localName !== 'boundedBy') {
+          // boundedBy is an extent and must not be considered as a geometry
+          geometryName = localName;
+        }
+      }
+
+      if (values[localName]) {
+        if (!(values[localName] instanceof Array)) {
+          values[localName] = [values[localName]];
+        }
+
+        values[localName].push(value);
+      } else {
+        values[localName] = value;
+      }
+
+      var len = n.attributes.length;
+
+      if (len > 0) {
+        values[localName] = {
+          _content_: values[localName]
+        };
+
+        for (var i = 0; i < len; i++) {
+          var attName = n.attributes[i].name;
+          values[localName][attName] = n.attributes[i].value;
+        }
+      }
+    }
+
+    if (!asFeature) {
+      return values;
+    } else {
+      var feature = new _Feature.default(values);
+
+      if (geometryName) {
+        feature.setGeometryName(geometryName);
+      }
+
+      var fid = node.getAttribute('fid') || (0, _xml.getAttributeNS)(node, this.namespace, 'id');
+
+      if (fid) {
+        feature.setId(fid);
+      }
+
+      return feature;
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Feature} Feature.
+   */
+
+
+  GMLBase.prototype.readFeatureElement = function (node, objectStack) {
+    return this.readFeatureElementInternal(node, objectStack, true);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Point|undefined} Point.
+   */
+
+
+  GMLBase.prototype.readPoint = function (node, objectStack) {
+    var flatCoordinates = this.readFlatCoordinatesFromNode(node, objectStack);
+
+    if (flatCoordinates) {
+      return new _Point.default(flatCoordinates, _GeometryLayout.default.XYZ);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {MultiPoint|undefined} MultiPoint.
+   */
+
+
+  GMLBase.prototype.readMultiPoint = function (node, objectStack) {
+    /** @type {Array<Array<number>>} */
+    var coordinates = (0, _xml.pushParseAndPop)([], this.MULTIPOINT_PARSERS, node, objectStack, this);
+
+    if (coordinates) {
+      return new _MultiPoint.default(coordinates);
+    } else {
+      return undefined;
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {MultiLineString|undefined} MultiLineString.
+   */
+
+
+  GMLBase.prototype.readMultiLineString = function (node, objectStack) {
+    /** @type {Array<LineString>} */
+    var lineStrings = (0, _xml.pushParseAndPop)([], this.MULTILINESTRING_PARSERS, node, objectStack, this);
+
+    if (lineStrings) {
+      return new _MultiLineString.default(lineStrings);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {MultiPolygon|undefined} MultiPolygon.
+   */
+
+
+  GMLBase.prototype.readMultiPolygon = function (node, objectStack) {
+    /** @type {Array<Polygon>} */
+    var polygons = (0, _xml.pushParseAndPop)([], this.MULTIPOLYGON_PARSERS, node, objectStack, this);
+
+    if (polygons) {
+      return new _MultiPolygon.default(polygons);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   */
+
+
+  GMLBase.prototype.pointMemberParser = function (node, objectStack) {
+    (0, _xml.parseNode)(this.POINTMEMBER_PARSERS, node, objectStack, this);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   */
+
+
+  GMLBase.prototype.lineStringMemberParser = function (node, objectStack) {
+    (0, _xml.parseNode)(this.LINESTRINGMEMBER_PARSERS, node, objectStack, this);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   */
+
+
+  GMLBase.prototype.polygonMemberParser = function (node, objectStack) {
+    (0, _xml.parseNode)(this.POLYGONMEMBER_PARSERS, node, objectStack, this);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {LineString|undefined} LineString.
+   */
+
+
+  GMLBase.prototype.readLineString = function (node, objectStack) {
+    var flatCoordinates = this.readFlatCoordinatesFromNode(node, objectStack);
+
+    if (flatCoordinates) {
+      var lineString = new _LineString.default(flatCoordinates, _GeometryLayout.default.XYZ);
+      return lineString;
+    } else {
+      return undefined;
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Array<number>|undefined} LinearRing flat coordinates.
+   */
+
+
+  GMLBase.prototype.readFlatLinearRing = function (node, objectStack) {
+    var ring = (0, _xml.pushParseAndPop)(null, this.GEOMETRY_FLAT_COORDINATES_PARSERS, node, objectStack, this);
+
+    if (ring) {
+      return ring;
+    } else {
+      return undefined;
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {LinearRing|undefined} LinearRing.
+   */
+
+
+  GMLBase.prototype.readLinearRing = function (node, objectStack) {
+    var flatCoordinates = this.readFlatCoordinatesFromNode(node, objectStack);
+
+    if (flatCoordinates) {
+      return new _LinearRing.default(flatCoordinates, _GeometryLayout.default.XYZ);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Polygon|undefined} Polygon.
+   */
+
+
+  GMLBase.prototype.readPolygon = function (node, objectStack) {
+    /** @type {Array<Array<number>>} */
+    var flatLinearRings = (0, _xml.pushParseAndPop)([null], this.FLAT_LINEAR_RINGS_PARSERS, node, objectStack, this);
+
+    if (flatLinearRings && flatLinearRings[0]) {
+      var flatCoordinates = flatLinearRings[0];
+      var ends = [flatCoordinates.length];
+      var i = void 0,
+          ii = void 0;
+
+      for (i = 1, ii = flatLinearRings.length; i < ii; ++i) {
+        (0, _array.extend)(flatCoordinates, flatLinearRings[i]);
+        ends.push(flatCoordinates.length);
+      }
+
+      return new _Polygon.default(flatCoordinates, _GeometryLayout.default.XYZ, ends);
+    } else {
+      return undefined;
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Array<number>} Flat coordinates.
+   */
+
+
+  GMLBase.prototype.readFlatCoordinatesFromNode = function (node, objectStack) {
+    return (0, _xml.pushParseAndPop)(null, this.GEOMETRY_FLAT_COORDINATES_PARSERS, node, objectStack, this);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("./Feature.js").ReadOptions=} opt_options Options.
+   * @protected
+   * @return {import("../geom/Geometry.js").default|import("../extent.js").Extent} Geometry.
+   */
+  //@ts-ignore
+
+
+  GMLBase.prototype.readGeometryFromNode = function (node, opt_options) {
+    var geometry = this.readGeometryElement(node, [this.getReadOptions(node, opt_options ? opt_options : {})]);
+    return geometry ? geometry : null;
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("./Feature.js").ReadOptions=} opt_options Options.
+   * @return {Array<import("../Feature.js").default>} Features.
+   */
+
+
+  GMLBase.prototype.readFeaturesFromNode = function (node, opt_options) {
+    var options = {
+      featureType: this.featureType,
+      featureNS: this.featureNS
+    };
+
+    if (opt_options) {
+      (0, _obj.assign)(options, this.getReadOptions(node, opt_options));
+    }
+
+    var features = this.readFeaturesInternal(node, [options]);
+    return features || [];
+  };
+  /**
+   * @param {Element} node Node.
+   * @return {import("../proj/Projection.js").default} Projection.
+   */
+
+
+  GMLBase.prototype.readProjectionFromNode = function (node) {
+    return (0, _proj.get)(this.srsName ? this.srsName : node.firstElementChild.getAttribute('srsName'));
+  };
+
+  return GMLBase;
+}(_XMLFeature.default);
+
+GMLBase.prototype.namespace = GMLNS;
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.FLAT_LINEAR_RINGS_PARSERS = {
+  'http://www.opengis.net/gml': {}
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS = {
+  'http://www.opengis.net/gml': {}
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.GEOMETRY_PARSERS = {
+  'http://www.opengis.net/gml': {}
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.MULTIPOINT_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'pointMember': (0, _xml.makeArrayPusher)(GMLBase.prototype.pointMemberParser),
+    'pointMembers': (0, _xml.makeArrayPusher)(GMLBase.prototype.pointMemberParser)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.MULTILINESTRING_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'lineStringMember': (0, _xml.makeArrayPusher)(GMLBase.prototype.lineStringMemberParser),
+    'lineStringMembers': (0, _xml.makeArrayPusher)(GMLBase.prototype.lineStringMemberParser)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.MULTIPOLYGON_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'polygonMember': (0, _xml.makeArrayPusher)(GMLBase.prototype.polygonMemberParser),
+    'polygonMembers': (0, _xml.makeArrayPusher)(GMLBase.prototype.polygonMemberParser)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.POINTMEMBER_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'Point': (0, _xml.makeArrayPusher)(GMLBase.prototype.readFlatCoordinatesFromNode)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.LINESTRINGMEMBER_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'LineString': (0, _xml.makeArrayPusher)(GMLBase.prototype.readLineString)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.POLYGONMEMBER_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'Polygon': (0, _xml.makeArrayPusher)(GMLBase.prototype.readPolygon)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GMLBase.prototype.RING_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'LinearRing': (0, _xml.makeReplacer)(GMLBase.prototype.readFlatLinearRing)
+  }
+};
+var _default = GMLBase;
+exports.default = _default;
+},{"../Feature.js":"node_modules/ol/Feature.js","../geom/GeometryLayout.js":"node_modules/ol/geom/GeometryLayout.js","../geom/LineString.js":"node_modules/ol/geom/LineString.js","../geom/LinearRing.js":"node_modules/ol/geom/LinearRing.js","../geom/MultiLineString.js":"node_modules/ol/geom/MultiLineString.js","../geom/MultiPoint.js":"node_modules/ol/geom/MultiPoint.js","../geom/MultiPolygon.js":"node_modules/ol/geom/MultiPolygon.js","../geom/Point.js":"node_modules/ol/geom/Point.js","../geom/Polygon.js":"node_modules/ol/geom/Polygon.js","./XMLFeature.js":"node_modules/ol/format/XMLFeature.js","../obj.js":"node_modules/ol/obj.js","../array.js":"node_modules/ol/array.js","../xml.js":"node_modules/ol/xml.js","../proj.js":"node_modules/ol/proj.js","./Feature.js":"node_modules/ol/format/Feature.js"}],"node_modules/ol/format/GML2.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _GMLBase = _interopRequireWildcard(require("./GMLBase.js"));
+
+var _xml = require("../xml.js");
+
+var _obj = require("../obj.js");
+
+var _extent = require("../extent.js");
+
+var _proj = require("../proj.js");
+
+var _Feature = require("./Feature.js");
+
+var _xsd = require("./xsd.js");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+var __extends = void 0 && (void 0).__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+/**
+ * @module ol/format/GML2
+ */
+
+
+/**
+ * @const
+ * @type {string}
+ */
+var schemaLocation = _GMLBase.GMLNS + ' http://schemas.opengis.net/gml/2.1.2/feature.xsd';
+/**
+ * @const
+ * @type {Object<string, string>}
+ */
+
+var MULTIGEOMETRY_TO_MEMBER_NODENAME = {
+  'MultiLineString': 'lineStringMember',
+  'MultiCurve': 'curveMember',
+  'MultiPolygon': 'polygonMember',
+  'MultiSurface': 'surfaceMember'
+};
+/**
+ * @classdesc
+ * Feature format for reading and writing data in the GML format,
+ * version 2.1.2.
+ *
+ * @api
+ */
+
+var GML2 =
+/** @class */
+function (_super) {
+  __extends(GML2, _super);
+  /**
+   * @param {import("./GMLBase.js").Options=} opt_options Optional configuration object.
+   */
+
+
+  function GML2(opt_options) {
+    var _this = this;
+
+    var options =
+    /** @type {import("./GMLBase.js").Options} */
+    opt_options ? opt_options : {};
+    _this = _super.call(this, options) || this;
+    _this.FEATURE_COLLECTION_PARSERS[_GMLBase.GMLNS]['featureMember'] = (0, _xml.makeArrayPusher)(_this.readFeaturesInternal);
+    /**
+     * @type {string}
+     */
+
+    _this.schemaLocation = options.schemaLocation ? options.schemaLocation : schemaLocation;
+    return _this;
+  }
+  /**
+   * @param {Node} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Array<number>|undefined} Flat coordinates.
+   */
+
+
+  GML2.prototype.readFlatCoordinates = function (node, objectStack) {
+    var s = (0, _xml.getAllTextContent)(node, false).replace(/^\s*|\s*$/g, '');
+    var context =
+    /** @type {import("../xml.js").NodeStackItem} */
+    objectStack[0];
+    var containerSrs = context['srsName'];
+    var axisOrientation = 'enu';
+
+    if (containerSrs) {
+      var proj = (0, _proj.get)(containerSrs);
+
+      if (proj) {
+        axisOrientation = proj.getAxisOrientation();
+      }
+    }
+
+    var coordsGroups = s.trim().split(/\s+/);
+    var flatCoordinates = [];
+
+    for (var i = 0, ii = coordsGroups.length; i < ii; i++) {
+      var coords = coordsGroups[i].split(/,+/);
+      var x = parseFloat(coords[0]);
+      var y = parseFloat(coords[1]);
+      var z = coords.length === 3 ? parseFloat(coords[2]) : 0;
+
+      if (axisOrientation.substr(0, 2) === 'en') {
+        flatCoordinates.push(x, y, z);
+      } else {
+        flatCoordinates.push(y, x, z);
+      }
+    }
+
+    return flatCoordinates;
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {import("../extent.js").Extent|undefined} Envelope.
+   */
+
+
+  GML2.prototype.readBox = function (node, objectStack) {
+    /** @type {Array<number>} */
+    var flatCoordinates = (0, _xml.pushParseAndPop)([null], this.BOX_PARSERS_, node, objectStack, this);
+    return (0, _extent.createOrUpdate)(flatCoordinates[1][0], flatCoordinates[1][1], flatCoordinates[1][3], flatCoordinates[1][4]);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   */
+
+
+  GML2.prototype.innerBoundaryIsParser = function (node, objectStack) {
+    /** @type {Array<number>|undefined} */
+    var flatLinearRing = (0, _xml.pushParseAndPop)(undefined, this.RING_PARSERS, node, objectStack, this);
+
+    if (flatLinearRing) {
+      var flatLinearRings =
+      /** @type {Array<Array<number>>} */
+      objectStack[objectStack.length - 1];
+      flatLinearRings.push(flatLinearRing);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   */
+
+
+  GML2.prototype.outerBoundaryIsParser = function (node, objectStack) {
+    /** @type {Array<number>|undefined} */
+    var flatLinearRing = (0, _xml.pushParseAndPop)(undefined, this.RING_PARSERS, node, objectStack, this);
+
+    if (flatLinearRing) {
+      var flatLinearRings =
+      /** @type {Array<Array<number>>} */
+      objectStack[objectStack.length - 1];
+      flatLinearRings[0] = flatLinearRing;
+    }
+  };
+  /**
+   * @const
+   * @param {*} value Value.
+   * @param {Array<*>} objectStack Object stack.
+   * @param {string=} opt_nodeName Node name.
+   * @return {Element|undefined} Node.
+   * @private
+   */
+
+
+  GML2.prototype.GEOMETRY_NODE_FACTORY_ = function (value, objectStack, opt_nodeName) {
+    var context = objectStack[objectStack.length - 1];
+    var multiSurface = context['multiSurface'];
+    var surface = context['surface'];
+    var multiCurve = context['multiCurve'];
+    var nodeName;
+
+    if (!Array.isArray(value)) {
+      nodeName =
+      /** @type {import("../geom/Geometry.js").default} */
+      value.getType();
+
+      if (nodeName === 'MultiPolygon' && multiSurface === true) {
+        nodeName = 'MultiSurface';
+      } else if (nodeName === 'Polygon' && surface === true) {
+        nodeName = 'Surface';
+      } else if (nodeName === 'MultiLineString' && multiCurve === true) {
+        nodeName = 'MultiCurve';
+      }
+    } else {
+      nodeName = 'Envelope';
+    }
+
+    return (0, _xml.createElementNS)('http://www.opengis.net/gml', nodeName);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../Feature.js").default} feature Feature.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeFeatureElement = function (node, feature, objectStack) {
+    var fid = feature.getId();
+
+    if (fid) {
+      node.setAttribute('fid',
+      /** @type {string} */
+      fid);
+    }
+
+    var context =
+    /** @type {Object} */
+    objectStack[objectStack.length - 1];
+    var featureNS = context['featureNS'];
+    var geometryName = feature.getGeometryName();
+
+    if (!context.serializers) {
+      context.serializers = {};
+      context.serializers[featureNS] = {};
+    }
+
+    var keys = [];
+    var values = [];
+
+    if (feature.hasProperties()) {
+      var properties = feature.getProperties();
+
+      for (var key in properties) {
+        var value = properties[key];
+
+        if (value !== null) {
+          keys.push(key);
+          values.push(value);
+
+          if (key == geometryName || typeof
+          /** @type {?} */
+          value.getSimplifiedGeometry === 'function') {
+            if (!(key in context.serializers[featureNS])) {
+              context.serializers[featureNS][key] = (0, _xml.makeChildAppender)(this.writeGeometryElement, this);
+            }
+          } else {
+            if (!(key in context.serializers[featureNS])) {
+              context.serializers[featureNS][key] = (0, _xml.makeChildAppender)(_xsd.writeStringTextNode);
+            }
+          }
+        }
+      }
+    }
+
+    var item = (0, _obj.assign)({}, context);
+    item.node = node;
+    (0, _xml.pushSerializeAndPop)(
+    /** @type {import("../xml.js").NodeStackItem} */
+    item, context.serializers, (0, _xml.makeSimpleNodeFactory)(undefined, featureNS), values, objectStack, keys);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/LineString.js").default} geometry LineString geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeCurveOrLineString = function (node, geometry, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var srsName = context['srsName'];
+
+    if (node.nodeName !== 'LineStringSegment' && srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    if (node.nodeName === 'LineString' || node.nodeName === 'LineStringSegment') {
+      var coordinates = this.createCoordinatesNode_(node.namespaceURI);
+      node.appendChild(coordinates);
+      this.writeCoordinates_(coordinates, geometry, objectStack);
+    } else if (node.nodeName === 'Curve') {
+      var segments = (0, _xml.createElementNS)(node.namespaceURI, 'segments');
+      node.appendChild(segments);
+      this.writeCurveSegments_(segments, geometry, objectStack);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/LineString.js").default} line LineString geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeLineStringOrCurveMember = function (node, line, objectStack) {
+    var child = this.GEOMETRY_NODE_FACTORY_(line, objectStack);
+
+    if (child) {
+      node.appendChild(child);
+      this.writeCurveOrLineString(child, line, objectStack);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/MultiLineString.js").default} geometry MultiLineString geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeMultiCurveOrLineString = function (node, geometry, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var hasZ = context['hasZ'];
+    var srsName = context['srsName'];
+    var curve = context['curve'];
+
+    if (srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    var lines = geometry.getLineStrings();
+    (0, _xml.pushSerializeAndPop)({
+      node: node,
+      hasZ: hasZ,
+      srsName: srsName,
+      curve: curve
+    }, this.LINESTRINGORCURVEMEMBER_SERIALIZERS, this.MULTIGEOMETRY_MEMBER_NODE_FACTORY_, lines, objectStack, undefined, this);
+  };
+  /**
+   * @param {Node} node Node.
+   * @param {import("../geom/Geometry.js").default|import("../extent.js").Extent} geometry Geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeGeometryElement = function (node, geometry, objectStack) {
+    var context =
+    /** @type {import("./Feature.js").WriteOptions} */
+    objectStack[objectStack.length - 1];
+    var item = (0, _obj.assign)({}, context);
+    item['node'] = node;
+    var value;
+
+    if (Array.isArray(geometry)) {
+      value = (0, _Feature.transformExtentWithOptions)(
+      /** @type {import("../extent.js").Extent} */
+      geometry, context);
+    } else {
+      value = (0, _Feature.transformGeometryWithOptions)(
+      /** @type {import("../geom/Geometry.js").default} */
+      geometry, true, context);
+    }
+
+    (0, _xml.pushSerializeAndPop)(
+    /** @type {import("../xml.js").NodeStackItem} */
+    item, this.GEOMETRY_SERIALIZERS, this.GEOMETRY_NODE_FACTORY_, [value], objectStack, undefined, this);
+  };
+  /**
+   * @param {string} namespaceURI XML namespace.
+   * @returns {Element} coordinates node.
+   * @private
+   */
+
+
+  GML2.prototype.createCoordinatesNode_ = function (namespaceURI) {
+    var coordinates = (0, _xml.createElementNS)(namespaceURI, 'coordinates');
+    coordinates.setAttribute('decimal', '.');
+    coordinates.setAttribute('cs', ',');
+    coordinates.setAttribute('ts', ' ');
+    return coordinates;
+  };
+  /**
+   * @param {Node} node Node.
+   * @param {import("../geom/LineString.js").default|import("../geom/LinearRing.js").default} value Geometry.
+   * @param {Array<*>} objectStack Node stack.
+   * @private
+   */
+
+
+  GML2.prototype.writeCoordinates_ = function (node, value, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var hasZ = context['hasZ'];
+    var srsName = context['srsName']; // only 2d for simple features profile
+
+    var points = value.getCoordinates();
+    var len = points.length;
+    var parts = new Array(len);
+
+    for (var i = 0; i < len; ++i) {
+      var point = points[i];
+      parts[i] = this.getCoords_(point, srsName, hasZ);
+    }
+
+    (0, _xsd.writeStringTextNode)(node, parts.join(' '));
+  };
+  /**
+   * @param {Node} node Node.
+   * @param {import("../geom/LineString.js").default} line LineString geometry.
+   * @param {Array<*>} objectStack Node stack.
+   * @private
+   */
+
+
+  GML2.prototype.writeCurveSegments_ = function (node, line, objectStack) {
+    var child = (0, _xml.createElementNS)(node.namespaceURI, 'LineStringSegment');
+    node.appendChild(child);
+    this.writeCurveOrLineString(child, line, objectStack);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/Polygon.js").default} geometry Polygon geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeSurfaceOrPolygon = function (node, geometry, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var hasZ = context['hasZ'];
+    var srsName = context['srsName'];
+
+    if (node.nodeName !== 'PolygonPatch' && srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    if (node.nodeName === 'Polygon' || node.nodeName === 'PolygonPatch') {
+      var rings = geometry.getLinearRings();
+      (0, _xml.pushSerializeAndPop)({
+        node: node,
+        hasZ: hasZ,
+        srsName: srsName
+      }, this.RING_SERIALIZERS, this.RING_NODE_FACTORY_, rings, objectStack, undefined, this);
+    } else if (node.nodeName === 'Surface') {
+      var patches = (0, _xml.createElementNS)(node.namespaceURI, 'patches');
+      node.appendChild(patches);
+      this.writeSurfacePatches_(patches, geometry, objectStack);
+    }
+  };
+  /**
+   * @param {*} value Value.
+   * @param {Array<*>} objectStack Object stack.
+   * @param {string=} opt_nodeName Node name.
+   * @return {Node} Node.
+   * @private
+   */
+
+
+  GML2.prototype.RING_NODE_FACTORY_ = function (value, objectStack, opt_nodeName) {
+    var context = objectStack[objectStack.length - 1];
+    var parentNode = context.node;
+    var exteriorWritten = context['exteriorWritten'];
+
+    if (exteriorWritten === undefined) {
+      context['exteriorWritten'] = true;
+    }
+
+    return (0, _xml.createElementNS)(parentNode.namespaceURI, exteriorWritten !== undefined ? 'innerBoundaryIs' : 'outerBoundaryIs');
+  };
+  /**
+   * @param {Node} node Node.
+   * @param {import("../geom/Polygon.js").default} polygon Polygon geometry.
+   * @param {Array<*>} objectStack Node stack.
+   * @private
+   */
+
+
+  GML2.prototype.writeSurfacePatches_ = function (node, polygon, objectStack) {
+    var child = (0, _xml.createElementNS)(node.namespaceURI, 'PolygonPatch');
+    node.appendChild(child);
+    this.writeSurfaceOrPolygon(child, polygon, objectStack);
+  };
+  /**
+   * @param {Node} node Node.
+   * @param {import("../geom/LinearRing.js").default} ring LinearRing geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeRing = function (node, ring, objectStack) {
+    var linearRing = (0, _xml.createElementNS)(node.namespaceURI, 'LinearRing');
+    node.appendChild(linearRing);
+    this.writeLinearRing(linearRing, ring, objectStack);
+  };
+  /**
+   * @param {Array<number>} point Point geometry.
+   * @param {string=} opt_srsName Optional srsName
+   * @param {boolean=} opt_hasZ whether the geometry has a Z coordinate (is 3D) or not.
+   * @return {string} The coords string.
+   * @private
+   */
+
+
+  GML2.prototype.getCoords_ = function (point, opt_srsName, opt_hasZ) {
+    var axisOrientation = 'enu';
+
+    if (opt_srsName) {
+      axisOrientation = (0, _proj.get)(opt_srsName).getAxisOrientation();
+    }
+
+    var coords = axisOrientation.substr(0, 2) === 'en' ? point[0] + ',' + point[1] : point[1] + ',' + point[0];
+
+    if (opt_hasZ) {
+      // For newly created points, Z can be undefined.
+      var z = point[2] || 0;
+      coords += ',' + z;
+    }
+
+    return coords;
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/Point.js").default} geometry Point geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writePoint = function (node, geometry, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var hasZ = context['hasZ'];
+    var srsName = context['srsName'];
+
+    if (srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    var coordinates = this.createCoordinatesNode_(node.namespaceURI);
+    node.appendChild(coordinates);
+    var point = geometry.getCoordinates();
+    var coord = this.getCoords_(point, srsName, hasZ);
+    (0, _xsd.writeStringTextNode)(coordinates, coord);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/MultiPoint.js").default} geometry MultiPoint geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeMultiPoint = function (node, geometry, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var hasZ = context['hasZ'];
+    var srsName = context['srsName'];
+
+    if (srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    var points = geometry.getPoints();
+    (0, _xml.pushSerializeAndPop)({
+      node: node,
+      hasZ: hasZ,
+      srsName: srsName
+    }, this.POINTMEMBER_SERIALIZERS, (0, _xml.makeSimpleNodeFactory)('pointMember'), points, objectStack, undefined, this);
+  };
+  /**
+   * @param {Node} node Node.
+   * @param {import("../geom/Point.js").default} point Point geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writePointMember = function (node, point, objectStack) {
+    var child = (0, _xml.createElementNS)(node.namespaceURI, 'Point');
+    node.appendChild(child);
+    this.writePoint(child, point, objectStack);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/LinearRing.js").default} geometry LinearRing geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeLinearRing = function (node, geometry, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var srsName = context['srsName'];
+
+    if (srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    var coordinates = this.createCoordinatesNode_(node.namespaceURI);
+    node.appendChild(coordinates);
+    this.writeCoordinates_(coordinates, geometry, objectStack);
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../geom/MultiPolygon.js").default} geometry MultiPolygon geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeMultiSurfaceOrPolygon = function (node, geometry, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var hasZ = context['hasZ'];
+    var srsName = context['srsName'];
+    var surface = context['surface'];
+
+    if (srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    var polygons = geometry.getPolygons();
+    (0, _xml.pushSerializeAndPop)({
+      node: node,
+      hasZ: hasZ,
+      srsName: srsName,
+      surface: surface
+    }, this.SURFACEORPOLYGONMEMBER_SERIALIZERS, this.MULTIGEOMETRY_MEMBER_NODE_FACTORY_, polygons, objectStack, undefined, this);
+  };
+  /**
+   * @param {Node} node Node.
+   * @param {import("../geom/Polygon.js").default} polygon Polygon geometry.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeSurfaceOrPolygonMember = function (node, polygon, objectStack) {
+    var child = this.GEOMETRY_NODE_FACTORY_(polygon, objectStack);
+
+    if (child) {
+      node.appendChild(child);
+      this.writeSurfaceOrPolygon(child, polygon, objectStack);
+    }
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {import("../extent.js").Extent} extent Extent.
+   * @param {Array<*>} objectStack Node stack.
+   */
+
+
+  GML2.prototype.writeEnvelope = function (node, extent, objectStack) {
+    var context = objectStack[objectStack.length - 1];
+    var srsName = context['srsName'];
+
+    if (srsName) {
+      node.setAttribute('srsName', srsName);
+    }
+
+    var keys = ['lowerCorner', 'upperCorner'];
+    var values = [extent[0] + ' ' + extent[1], extent[2] + ' ' + extent[3]];
+    (0, _xml.pushSerializeAndPop)(
+    /** @type {import("../xml.js").NodeStackItem} */
+    {
+      node: node
+    }, this.ENVELOPE_SERIALIZERS, _xml.OBJECT_PROPERTY_NODE_FACTORY, values, objectStack, keys, this);
+  };
+  /**
+   * @const
+   * @param {*} value Value.
+   * @param {Array<*>} objectStack Object stack.
+   * @param {string=} opt_nodeName Node name.
+   * @return {Node|undefined} Node.
+   * @private
+   */
+
+
+  GML2.prototype.MULTIGEOMETRY_MEMBER_NODE_FACTORY_ = function (value, objectStack, opt_nodeName) {
+    var parentNode = objectStack[objectStack.length - 1].node;
+    return (0, _xml.createElementNS)('http://www.opengis.net/gml', MULTIGEOMETRY_TO_MEMBER_NODENAME[parentNode.nodeName]);
+  };
+
+  return GML2;
+}(_GMLBase.default);
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+
+GML2.prototype.GEOMETRY_FLAT_COORDINATES_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'coordinates': (0, _xml.makeReplacer)(GML2.prototype.readFlatCoordinates)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GML2.prototype.FLAT_LINEAR_RINGS_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'innerBoundaryIs': GML2.prototype.innerBoundaryIsParser,
+    'outerBoundaryIs': GML2.prototype.outerBoundaryIsParser
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GML2.prototype.BOX_PARSERS_ = {
+  'http://www.opengis.net/gml': {
+    'coordinates': (0, _xml.makeArrayPusher)(GML2.prototype.readFlatCoordinates)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Parser>>}
+ */
+
+GML2.prototype.GEOMETRY_PARSERS = {
+  'http://www.opengis.net/gml': {
+    'Point': (0, _xml.makeReplacer)(_GMLBase.default.prototype.readPoint),
+    'MultiPoint': (0, _xml.makeReplacer)(_GMLBase.default.prototype.readMultiPoint),
+    'LineString': (0, _xml.makeReplacer)(_GMLBase.default.prototype.readLineString),
+    'MultiLineString': (0, _xml.makeReplacer)(_GMLBase.default.prototype.readMultiLineString),
+    'LinearRing': (0, _xml.makeReplacer)(_GMLBase.default.prototype.readLinearRing),
+    'Polygon': (0, _xml.makeReplacer)(_GMLBase.default.prototype.readPolygon),
+    'MultiPolygon': (0, _xml.makeReplacer)(_GMLBase.default.prototype.readMultiPolygon),
+    'Box': (0, _xml.makeReplacer)(GML2.prototype.readBox)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Serializer>>}
+ */
+
+GML2.prototype.GEOMETRY_SERIALIZERS = {
+  'http://www.opengis.net/gml': {
+    'Curve': (0, _xml.makeChildAppender)(GML2.prototype.writeCurveOrLineString),
+    'MultiCurve': (0, _xml.makeChildAppender)(GML2.prototype.writeMultiCurveOrLineString),
+    'Point': (0, _xml.makeChildAppender)(GML2.prototype.writePoint),
+    'MultiPoint': (0, _xml.makeChildAppender)(GML2.prototype.writeMultiPoint),
+    'LineString': (0, _xml.makeChildAppender)(GML2.prototype.writeCurveOrLineString),
+    'MultiLineString': (0, _xml.makeChildAppender)(GML2.prototype.writeMultiCurveOrLineString),
+    'LinearRing': (0, _xml.makeChildAppender)(GML2.prototype.writeLinearRing),
+    'Polygon': (0, _xml.makeChildAppender)(GML2.prototype.writeSurfaceOrPolygon),
+    'MultiPolygon': (0, _xml.makeChildAppender)(GML2.prototype.writeMultiSurfaceOrPolygon),
+    'Surface': (0, _xml.makeChildAppender)(GML2.prototype.writeSurfaceOrPolygon),
+    'MultiSurface': (0, _xml.makeChildAppender)(GML2.prototype.writeMultiSurfaceOrPolygon),
+    'Envelope': (0, _xml.makeChildAppender)(GML2.prototype.writeEnvelope)
+  }
+};
+/**
+ * @type {Object<string, Object<string, import("../xml.js").Serializer>>}
+ */
+
+GML2.prototype.LINESTRINGORCURVEMEMBER_SERIALIZERS = {
+  'http://www.opengis.net/gml': {
+    'lineStringMember': (0, _xml.makeChildAppender)(GML2.prototype.writeLineStringOrCurveMember),
+    'curveMember': (0, _xml.makeChildAppender)(GML2.prototype.writeLineStringOrCurveMember)
+  }
+};
+/**
+ * @type {Object<string, Object<string, import("../xml.js").Serializer>>}
+ */
+
+GML2.prototype.RING_SERIALIZERS = {
+  'http://www.opengis.net/gml': {
+    'outerBoundaryIs': (0, _xml.makeChildAppender)(GML2.prototype.writeRing),
+    'innerBoundaryIs': (0, _xml.makeChildAppender)(GML2.prototype.writeRing)
+  }
+};
+/**
+ * @type {Object<string, Object<string, import("../xml.js").Serializer>>}
+ */
+
+GML2.prototype.POINTMEMBER_SERIALIZERS = {
+  'http://www.opengis.net/gml': {
+    'pointMember': (0, _xml.makeChildAppender)(GML2.prototype.writePointMember)
+  }
+};
+/**
+ * @const
+ * @type {Object<string, Object<string, import("../xml.js").Serializer>>}
+ */
+
+GML2.prototype.SURFACEORPOLYGONMEMBER_SERIALIZERS = {
+  'http://www.opengis.net/gml': {
+    'surfaceMember': (0, _xml.makeChildAppender)(GML2.prototype.writeSurfaceOrPolygonMember),
+    'polygonMember': (0, _xml.makeChildAppender)(GML2.prototype.writeSurfaceOrPolygonMember)
+  }
+};
+/**
+ * @type {Object<string, Object<string, import("../xml.js").Serializer>>}
+ */
+
+GML2.prototype.ENVELOPE_SERIALIZERS = {
+  'http://www.opengis.net/gml': {
+    'lowerCorner': (0, _xml.makeChildAppender)(_xsd.writeStringTextNode),
+    'upperCorner': (0, _xml.makeChildAppender)(_xsd.writeStringTextNode)
+  }
+};
+var _default = GML2;
+exports.default = _default;
+},{"./GMLBase.js":"node_modules/ol/format/GMLBase.js","../xml.js":"node_modules/ol/xml.js","../obj.js":"node_modules/ol/obj.js","../extent.js":"node_modules/ol/extent.js","../proj.js":"node_modules/ol/proj.js","./Feature.js":"node_modules/ol/format/Feature.js","./xsd.js":"node_modules/ol/format/xsd.js"}],"node_modules/ol/format/WMSGetFeatureInfo.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _GML = _interopRequireDefault(require("./GML2.js"));
+
+var _XMLFeature = _interopRequireDefault(require("./XMLFeature.js"));
+
+var _obj = require("../obj.js");
+
+var _array = require("../array.js");
+
+var _xml = require("../xml.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var __extends = void 0 && (void 0).__extends || function () {
+  var extendStatics = function (d, b) {
+    extendStatics = Object.setPrototypeOf || {
+      __proto__: []
+    } instanceof Array && function (d, b) {
+      d.__proto__ = b;
+    } || function (d, b) {
+      for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    };
+
+    return extendStatics(d, b);
+  };
+
+  return function (d, b) {
+    extendStatics(d, b);
+
+    function __() {
+      this.constructor = d;
+    }
+
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+  };
+}();
+/**
+ * @module ol/format/WMSGetFeatureInfo
+ */
+
+
+/**
+ * @typedef {Object} Options
+ * @property {Array<string>} [layers] If set, only features of the given layers will be returned by the format when read.
+ */
+
+/**
+ * @const
+ * @type {string}
+ */
+var featureIdentifier = '_feature';
+/**
+ * @const
+ * @type {string}
+ */
+
+var layerIdentifier = '_layer';
+/**
+ * @classdesc
+ * Format for reading WMSGetFeatureInfo format. It uses
+ * {@link module:ol/format/GML2~GML2} to read features.
+ *
+ * @api
+ */
+
+var WMSGetFeatureInfo =
+/** @class */
+function (_super) {
+  __extends(WMSGetFeatureInfo, _super);
+  /**
+   * @param {Options=} opt_options Options.
+   */
+
+
+  function WMSGetFeatureInfo(opt_options) {
+    var _this = _super.call(this) || this;
+
+    var options = opt_options ? opt_options : {};
+    /**
+     * @private
+     * @type {string}
+     */
+
+    _this.featureNS_ = 'http://mapserver.gis.umn.edu/mapserver';
+    /**
+     * @private
+     * @type {GML2}
+     */
+
+    _this.gmlFormat_ = new _GML.default();
+    /**
+     * @private
+     * @type {Array<string>}
+     */
+
+    _this.layers_ = options.layers ? options.layers : null;
+    return _this;
+  }
+  /**
+   * @return {Array<string>} layers
+   */
+
+
+  WMSGetFeatureInfo.prototype.getLayers = function () {
+    return this.layers_;
+  };
+  /**
+   * @param {Array<string>} layers Layers to parse.
+   */
+
+
+  WMSGetFeatureInfo.prototype.setLayers = function (layers) {
+    this.layers_ = layers;
+  };
+  /**
+   * @param {Element} node Node.
+   * @param {Array<*>} objectStack Object stack.
+   * @return {Array<import("../Feature.js").default>} Features.
+   * @private
+   */
+
+
+  WMSGetFeatureInfo.prototype.readFeatures_ = function (node, objectStack) {
+    node.setAttribute('namespaceURI', this.featureNS_);
+    var localName = node.localName;
+    /** @type {Array<import("../Feature.js").default>} */
+
+    var features = [];
+
+    if (node.childNodes.length === 0) {
+      return features;
+    }
+
+    if (localName == 'msGMLOutput') {
+      for (var i = 0, ii = node.childNodes.length; i < ii; i++) {
+        var layer = node.childNodes[i];
+
+        if (layer.nodeType !== Node.ELEMENT_NODE) {
+          continue;
+        }
+
+        var layerElement =
+        /** @type {Element} */
+        layer;
+        var context = objectStack[0];
+        var toRemove = layerIdentifier;
+        var layerName = layerElement.localName.replace(toRemove, '');
+
+        if (this.layers_ && !(0, _array.includes)(this.layers_, layerName)) {
+          continue;
+        }
+
+        var featureType = layerName + featureIdentifier;
+        context['featureType'] = featureType;
+        context['featureNS'] = this.featureNS_;
+        /** @type {Object<string, import("../xml.js").Parser>} */
+
+        var parsers = {};
+        parsers[featureType] = (0, _xml.makeArrayPusher)(this.gmlFormat_.readFeatureElement, this.gmlFormat_);
+        var parsersNS = (0, _xml.makeStructureNS)([context['featureNS'], null], parsers);
+        layerElement.setAttribute('namespaceURI', this.featureNS_);
+        var layerFeatures = (0, _xml.pushParseAndPop)([], // @ts-ignore
+        parsersNS, layerElement, objectStack, this.gmlFormat_);
+
+        if (layerFeatures) {
+          (0, _array.extend)(features, layerFeatures);
+        }
+      }
+    }
+
+    if (localName == 'FeatureCollection') {
+      var gmlFeatures = (0, _xml.pushParseAndPop)([], this.gmlFormat_.FEATURE_COLLECTION_PARSERS, node, [{}], this.gmlFormat_);
+
+      if (gmlFeatures) {
+        features = gmlFeatures;
+      }
+    }
+
+    return features;
+  };
+  /**
+   * @protected
+   * @param {Element} node Node.
+   * @param {import("./Feature.js").ReadOptions=} opt_options Options.
+   * @return {Array<import("../Feature.js").default>} Features.
+   */
+
+
+  WMSGetFeatureInfo.prototype.readFeaturesFromNode = function (node, opt_options) {
+    var options = {};
+
+    if (opt_options) {
+      (0, _obj.assign)(options, this.getReadOptions(node, opt_options));
+    }
+
+    return this.readFeatures_(node, [options]);
+  };
+
+  return WMSGetFeatureInfo;
+}(_XMLFeature.default);
+
+var _default = WMSGetFeatureInfo;
+exports.default = _default;
+},{"./GML2.js":"node_modules/ol/format/GML2.js","./XMLFeature.js":"node_modules/ol/format/XMLFeature.js","../obj.js":"node_modules/ol/obj.js","../array.js":"node_modules/ol/array.js","../xml.js":"node_modules/ol/xml.js"}],"hourSix.kml":[function(require,module,exports) {
 module.exports = "/hourSix.409270c7.kml";
 },{}],"dayOne.kml":[function(require,module,exports) {
 module.exports = "/dayOne.954e8eed.kml";
@@ -93609,6 +95345,8 @@ var _layer = require("ol/layer");
 
 var _OSM = _interopRequireDefault(require("ol/source/OSM"));
 
+var _WMSGetFeatureInfo = _interopRequireDefault(require("ol/format/WMSGetFeatureInfo"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -93636,6 +95374,7 @@ var timeObject = {
   cumDayOneTwoThreeFourFive: require('./cumDayOneTwoThreeFourFive.kml'),
   cumDayOneTwoThreeFourFiveSixSeven: require('./cumDayOneTwoThreeFourFiveSixSeven.kml')
 };
+var rainfall_layers = [];
 var colorMap = {
   '0,0,255': 1,
   //#0000FF - Depth 1
@@ -93762,8 +95501,8 @@ function getTotalDepth(inputs, data) {
     console.log('????????????????????????????');
 
     for (var i = 0; i < final.length; i = i + 4) {
-      console.log(final.length); //Only compare if current isn't completely transparent
-
+      // console.log(final.length);
+      //Only compare if current isn't completely transparent
       if (current[i + 3] > 0) {
         var current_rgba = [current[i], current[i + 1], current[i + 2], current[i + 3]];
         var final_rgba = [final[i], final[i + 1], final[i + 2], final[i + 3]];
@@ -93781,7 +95520,8 @@ function getTotalDepth(inputs, data) {
         // console.log(`Rainfall = ${current_depth + final_depth}`);
 
 
-        var rainfall = "".concat(current_depth + final_depth); // console.log(rainfall);
+        var rainfall = "".concat(current_depth + final_depth);
+        console.log(rainfall);
 
         for (var _i = 0, _Object$entries = Object.entries(colorMap); _i < _Object$entries.length; _i++) {
           var _Object$entries$_i = _slicedToArray(_Object$entries[_i], 2),
@@ -93857,7 +95597,7 @@ function toDepth(rgb, colorMap) {
 
 var createMosaicLayer = function createMosaicLayer(time) {
   var days = [];
-  var rainfall_layers = [];
+  rainfall_layers = [];
   var rainfallTotalDepth = [];
   var url = 'http://localhost:8080/geoserver/wms';
 
@@ -93989,7 +95729,55 @@ var map = new _ol2.Map({
     zoom: 0
   })
 });
-},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/source/TileWMS":"node_modules/ol/source/TileWMS.js","ol/source/ImageWMS":"node_modules/ol/source/ImageWMS.js","ol/source/Raster":"node_modules/ol/source/Raster.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","./hourSix.kml":"hourSix.kml","./dayOne.kml":"dayOne.kml","./dayTwo.kml":"dayTwo.kml","./dayThree.kml":"dayThree.kml","./dayFourFive.kml":"dayFourFive.kml","./daySixSeven.kml":"daySixSeven.kml","./cumDayOneTwo.kml":"cumDayOneTwo.kml","./cumDayOneTwoThree.kml":"cumDayOneTwoThree.kml","./cumDayOneTwoThreeFourFive.kml":"cumDayOneTwoThreeFourFive.kml","./cumDayOneTwoThreeFourFiveSixSeven.kml":"cumDayOneTwoThreeFourFiveSixSeven.kml"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+var parser = new _WMSGetFeatureInfo.default();
+var viewResolution = map.getView().getResolution();
+var viewProjection = map.getView().getProjection();
+map.on('singleclick', function (evt) {
+  var depth = [];
+  console.log(evt.coordinate);
+
+  for (var i = 0; i < rainfall_layers.length; i++) {
+    var url = rainfall_layers[i].getFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection, {
+      'INFO_FORMAT': 'application/vnd.ogc.gml'
+    });
+    $.ajax({
+      type: 'GET',
+      url: url
+    }).done(function (data) {
+      console.log(data);
+      var features = parser.readFeatures(data);
+      console.log(features[0]);
+
+      if (features.length > 0) {
+        var depthNum = parseInt(features[0].values_.GRAY_INDEX);
+
+        if (depthNum === 255) {
+          depthNum = 0;
+        }
+
+        depth.push(depthNum);
+        console.log(depth);
+        var maxDepth = Math.max.apply(Math, depth);
+        console.log(maxDepth); // createFlags(evt.coordinate, maxDepth);
+        // below works but has generalized data
+        // geom = features[0].H.geom;
+        // features[0].setGeometry(geom);
+        // features[0].getGeometry().transform('EPSG:4326', 'EPSG:3857')
+        // featureOverlay.getSource().clear();
+        // featureOverlay.getSource().addFeatures(features);
+        // overlay.setPosition(evt.coordinate);
+        // content.innerText = features[0].H.zone_name;
+        // container.style.display = 'block';
+        // console.log(overlay);
+      } // } else {
+      //   featureOverlay.getSource().clear();
+      //   container.style.display = 'none';
+      // }
+
+    });
+  }
+});
+},{"ol/ol.css":"node_modules/ol/ol.css","ol/format/KML":"node_modules/ol/format/KML.js","ol":"node_modules/ol/index.js","ol/source/Vector":"node_modules/ol/source/Vector.js","ol/source/TileWMS":"node_modules/ol/source/TileWMS.js","ol/source/ImageWMS":"node_modules/ol/source/ImageWMS.js","ol/source/Raster":"node_modules/ol/source/Raster.js","ol/layer":"node_modules/ol/layer.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/format/WMSGetFeatureInfo":"node_modules/ol/format/WMSGetFeatureInfo.js","./hourSix.kml":"hourSix.kml","./dayOne.kml":"dayOne.kml","./dayTwo.kml":"dayTwo.kml","./dayThree.kml":"dayThree.kml","./dayFourFive.kml":"dayFourFive.kml","./daySixSeven.kml":"daySixSeven.kml","./cumDayOneTwo.kml":"cumDayOneTwo.kml","./cumDayOneTwoThree.kml":"cumDayOneTwoThree.kml","./cumDayOneTwoThreeFourFive.kml":"cumDayOneTwoThreeFourFive.kml","./cumDayOneTwoThreeFourFiveSixSeven.kml":"cumDayOneTwoThreeFourFiveSixSeven.kml"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -94017,7 +95805,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63781" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "54622" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

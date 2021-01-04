@@ -7,6 +7,7 @@ import ImageWMS from 'ol/source/ImageWMS';
 import RasterSource from 'ol/source/Raster';
 import {Tile as TileLayer, Vector as VectorLayer, Image as ImageLayer} from 'ol/layer';
 import OSM from 'ol/source/OSM';
+import WMSGetFeatureInfo from 'ol/format/WMSGetFeatureInfo';
 // import {Fill, Stroke, Style} from 'ol/style';
 
 var timeObject = {
@@ -21,6 +22,8 @@ var timeObject = {
   cumDayOneTwoThreeFourFive: require('./cumDayOneTwoThreeFourFive.kml'),
   cumDayOneTwoThreeFourFiveSixSeven: require('./cumDayOneTwoThreeFourFiveSixSeven.kml')
 }
+
+let rainfall_layers = [];
 
 var colorMap = {
   '0,0,255': 1,       //#0000FF - Depth 1
@@ -135,7 +138,7 @@ function getTotalDepth(inputs, data) {
   var max = dataArray.reduce(function(final, current) {
     console.log('????????????????????????????');
     for (var i = 0; i < final.length; i = i+4) {
-      console.log(final.length);
+      // console.log(final.length);
       //Only compare if current isn't completely transparent
       if (current[i+3] > 0) {
         var current_rgba = [current[i], current[i+1], current[i+2], current[i+3]];
@@ -156,7 +159,7 @@ function getTotalDepth(inputs, data) {
         // console.log(`Rainfall = ${current_depth + final_depth}`);
         const rainfall = `${current_depth + final_depth}`
 
-        // console.log(rainfall);
+        console.log(rainfall);
 
         for (const [rgba, depth] of Object.entries(colorMap)) {
           // console.log(depth);
@@ -219,7 +222,7 @@ function toDepth(rgb, colorMap) {
 var createMosaicLayer = (time) => {
 
   var days = [];
-  var rainfall_layers = [];
+  rainfall_layers = [];
   var rainfallTotalDepth = [];
   
   var url = 'http://localhost:8080/geoserver/wms';
@@ -360,4 +363,61 @@ var map = new Map({
    
     zoom: 0
   })
+});
+
+
+var parser = new WMSGetFeatureInfo();
+  var viewResolution = map.getView().getResolution();
+  var viewProjection = map.getView().getProjection();
+
+
+map.on('singleclick', function (evt) {
+  let depth = [];
+  console.log(evt.coordinate);
+  for (var i = 0; i < rainfall_layers.length; i++) {
+  var url = rainfall_layers[i].getFeatureInfoUrl(evt.coordinate, viewResolution, viewProjection,
+    {
+      'INFO_FORMAT': 'application/vnd.ogc.gml',
+    });
+  $.ajax({
+    type: 'GET',
+    url: url
+  }).done(function (data) {
+    console.log(data);
+    var features = parser.readFeatures(data);
+    console.log(features[0]);
+    if (features.length > 0) {
+      var depthNum = parseInt(features[0].values_.GRAY_INDEX);
+      if (depthNum === 255) {
+        depthNum = 0;
+      }
+      depth.push(depthNum);
+      console.log(depth);
+
+      var maxDepth = Math.max.apply(Math, depth);
+      console.log(maxDepth);
+      // createFlags(evt.coordinate, maxDepth);
+
+
+
+      // below works but has generalized data
+      // geom = features[0].H.geom;
+      // features[0].setGeometry(geom);
+      // features[0].getGeometry().transform('EPSG:4326', 'EPSG:3857')
+      // featureOverlay.getSource().clear();
+      // featureOverlay.getSource().addFeatures(features);
+      // overlay.setPosition(evt.coordinate);
+      // content.innerText = features[0].H.zone_name;
+      // container.style.display = 'block';
+      // console.log(overlay);
+    }
+
+    
+    // } else {
+    //   featureOverlay.getSource().clear();
+    //   container.style.display = 'none';
+    // }
+
+  })
+  }
 });
