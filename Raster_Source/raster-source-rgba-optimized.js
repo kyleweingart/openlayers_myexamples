@@ -79,8 +79,9 @@ var flagsLayer = null;
         //Only compare if current isn't completely transparent
         if (current[i+3] > 0) {
           var current_rgba = [current[i], current[i+1], current[i+2], current[i+3]];
+          console.log(current_rgba);
           var final_rgba = [final[i], final[i+1], final[i+2], final[i+3]];
-
+          console.log(final_rgba);
           var current_depth = toDepth(current_rgba, colorMap);
           var final_depth = toDepth(final_rgba, colorMap);
 

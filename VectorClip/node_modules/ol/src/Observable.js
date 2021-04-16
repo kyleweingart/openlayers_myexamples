@@ -1,9 +1,9 @@
 /**
  * @module ol/Observable
  */
-import {listen, unlistenByKey, listenOnce} from './events.js';
 import EventTarget from './events/Target.js';
 import EventType from './events/EventType.js';
+import {listen, listenOnce, unlistenByKey} from './events.js';
 
 /**
  * @classdesc
@@ -18,7 +18,6 @@ import EventType from './events/EventType.js';
  */
 class Observable extends EventTarget {
   constructor() {
-
     super();
 
     /**
@@ -26,7 +25,6 @@ class Observable extends EventTarget {
      * @type {number}
      */
     this.revision_ = 0;
-
   }
 
   /**
@@ -51,7 +49,7 @@ class Observable extends EventTarget {
   /**
    * Listen for a certain type of event.
    * @param {string|Array<string>} type The event type or array of event types.
-   * @param {import("./events.js").ListenerFunction} listener The listener function.
+   * @param {function(?): ?} listener The listener function.
    * @return {import("./events.js").EventsKey|Array<import("./events.js").EventsKey>} Unique key for the listener. If
    *     called with an array of event types as the first argument, the return
    *     will be an array of keys.
@@ -80,16 +78,18 @@ class Observable extends EventTarget {
    * @api
    */
   once(type, listener) {
+    let key;
     if (Array.isArray(type)) {
       const len = type.length;
-      const keys = new Array(len);
+      key = new Array(len);
       for (let i = 0; i < len; ++i) {
-        keys[i] = listenOnce(this, type[i], listener);
+        key[i] = listenOnce(this, type[i], listener);
       }
-      return keys;
     } else {
-      return listenOnce(this, /** @type {string} */ (type), listener);
+      key = listenOnce(this, /** @type {string} */ (type), listener);
     }
+    /** @type {Object} */ (listener).ol_key = key;
+    return key;
   }
 
   /**
@@ -99,7 +99,10 @@ class Observable extends EventTarget {
    * @api
    */
   un(type, listener) {
-    if (Array.isArray(type)) {
+    const key = /** @type {Object} */ (listener).ol_key;
+    if (key) {
+      unByKey(key);
+    } else if (Array.isArray(type)) {
       for (let i = 0, ii = type.length; i < ii; ++i) {
         this.removeEventListener(type[i], listener);
       }
@@ -108,7 +111,6 @@ class Observable extends EventTarget {
     }
   }
 }
-
 
 /**
  * Removes an event listener using the key returned by `on()` or `once()`.
@@ -125,6 +127,5 @@ export function unByKey(key) {
     unlistenByKey(/** @type {import("./events.js").EventsKey} */ (key));
   }
 }
-
 
 export default Observable;

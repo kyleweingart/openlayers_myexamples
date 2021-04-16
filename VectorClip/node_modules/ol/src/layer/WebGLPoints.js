@@ -1,11 +1,10 @@
 /**
  * @module ol/layer/WebGLPoints
  */
-import {assign} from '../obj.js';
-import WebGLPointsLayerRenderer from '../renderer/webgl/PointsLayer.js';
-import {parseLiteralStyle} from '../webgl/ShaderBuilder.js';
 import Layer from './Layer.js';
-
+import WebGLPointsLayerRenderer from '../renderer/webgl/PointsLayer.js';
+import {assign} from '../obj.js';
+import {parseLiteralStyle} from '../webgl/ShaderBuilder.js';
 
 /**
  * @typedef {Object} Options
@@ -31,7 +30,6 @@ import Layer from './Layer.js';
  * @property {boolean} [disableHitDetection=false] Setting this to true will provide a slight performance boost, but will
  * prevent all hit detection on the layer.
  */
-
 
 /**
  * @classdesc
@@ -93,27 +91,30 @@ class WebGLPointsLayer extends Layer {
   }
 
   /**
-   * @inheritDoc
+   * Create a renderer for this layer.
+   * @return {WebGLPointsLayerRenderer} A layer renderer.
    */
   createRenderer() {
     return new WebGLPointsLayerRenderer(this, {
+      className: this.getClassName(),
       vertexShader: this.parseResult_.builder.getSymbolVertexShader(),
       fragmentShader: this.parseResult_.builder.getSymbolFragmentShader(),
-      hitVertexShader: !this.hitDetectionDisabled_ &&
+      hitVertexShader:
+        !this.hitDetectionDisabled_ &&
         this.parseResult_.builder.getSymbolVertexShader(true),
-      hitFragmentShader: !this.hitDetectionDisabled_ &&
+      hitFragmentShader:
+        !this.hitDetectionDisabled_ &&
         this.parseResult_.builder.getSymbolFragmentShader(true),
       uniforms: this.parseResult_.uniforms,
-      attributes: this.parseResult_.attributes
+      attributes: this.parseResult_.attributes,
     });
   }
 
   /**
-   *
-   * @inheritDoc
+   * Clean up.
    */
   disposeInternal() {
-    this.renderer_.dispose();
+    this.getRenderer().disposeInternal();
     super.disposeInternal();
   }
 }

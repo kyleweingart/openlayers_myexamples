@@ -8,14 +8,37 @@
  * @enum {string}
  */
 const Units = {
+  /**
+   * Degrees
+   * @api
+   */
   DEGREES: 'degrees',
+  /**
+   * Feet
+   * @api
+   */
   FEET: 'ft',
+  /**
+   * Meters
+   * @api
+   */
   METERS: 'm',
+  /**
+   * Pixels
+   * @api
+   */
   PIXELS: 'pixels',
+  /**
+   * Tile Pixels
+   * @api
+   */
   TILE_PIXELS: 'tile-pixels',
-  USFEET: 'us-ft'
+  /**
+   * US Feet
+   * @api
+   */
+  USFEET: 'us-ft',
 };
-
 
 /**
  * Meters per unit lookup table.
@@ -25,7 +48,7 @@ const Units = {
  */
 export const METERS_PER_UNIT = {};
 // use the radius of the Normal sphere
-METERS_PER_UNIT[Units.DEGREES] = 2 * Math.PI * 6370997 / 360;
+METERS_PER_UNIT[Units.DEGREES] = (2 * Math.PI * 6370997) / 360;
 METERS_PER_UNIT[Units.FEET] = 0.3048;
 METERS_PER_UNIT[Units.METERS] = 1;
 METERS_PER_UNIT[Units.USFEET] = 1200 / 3937;

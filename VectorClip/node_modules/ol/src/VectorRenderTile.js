@@ -1,10 +1,9 @@
 /**
  * @module ol/VectorRenderTile
  */
-import {getUid} from './util.js';
 import Tile from './Tile.js';
 import {createCanvasContext2D} from './dom.js';
-
+import {getUid} from './util.js';
 
 /**
  * @typedef {Object} ReplayState
@@ -24,7 +23,6 @@ import {createCanvasContext2D} from './dom.js';
 const canvasPool = [];
 
 class VectorRenderTile extends Tile {
-
   /**
    * @param {import("./tilecoord.js").TileCoord} tileCoord Tile coordinate.
    * @param {import("./TileState.js").default} state State.
@@ -33,7 +31,6 @@ class VectorRenderTile extends Tile {
    * to get source tiles for this tile.
    */
   constructor(tileCoord, state, urlTileCoord, getSourceTiles) {
-
     super(tileCoord, state, {transition: 0});
 
     /**
@@ -47,6 +44,12 @@ class VectorRenderTile extends Tile {
      * @type {Object<string, Array<import("./render/canvas/ExecutorGroup.js").default>>}
      */
     this.executorGroups = {};
+
+    /**
+     * Executor groups for decluttering, by layer uid. Entries are read/written by the renderer.
+     * @type {Object<string, Array<import("./render/canvas/ExecutorGroup.js").default>>}
+     */
+    this.declutterExecutorGroups = {};
 
     /**
      * Number of loading source tiles. Read/written by the source.
@@ -148,29 +151,29 @@ class VectorRenderTile extends Tile {
         renderedTileResolution: NaN,
         renderedTileRevision: -1,
         renderedZ: -1,
-        renderedTileZ: -1
+        renderedTileZ: -1,
       };
     }
     return this.replayState_[key];
   }
 
   /**
-   * @inheritDoc
+   * Load the tile.
    */
   load() {
     this.getSourceTiles();
   }
 
   /**
-   * @inheritDoc
+   * Remove from the cache due to expiry
    */
   release() {
     for (const key in this.context_) {
       canvasPool.push(this.context_[key].canvas);
+      delete this.context_[key];
     }
     super.release();
   }
 }
-
 
 export default VectorRenderTile;

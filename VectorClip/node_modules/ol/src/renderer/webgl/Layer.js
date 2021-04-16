@@ -2,14 +2,15 @@
  * @module ol/renderer/webgl/Layer
  */
 import LayerRenderer from '../Layer.js';
+import RenderEvent from '../../render/Event.js';
+import RenderEventType from '../../render/EventType.js';
 import WebGLHelper from '../../webgl/Helper.js';
-
 
 /**
  * @enum {string}
  */
 export const WebGLWorkerMessageType = {
-  GENERATE_BUFFERS: 'GENERATE_BUFFERS'
+  GENERATE_BUFFERS: 'GENERATE_BUFFERS',
 };
 
 /**
@@ -36,6 +37,7 @@ export const WebGLWorkerMessageType = {
 
 /**
  * @typedef {Object} Options
+ * @property {string} [className='ol-layer'] A CSS class name to set to the canvas element.
  * @property {Object.<string,import("../../webgl/Helper").UniformValue>} [uniforms] Uniform definitions for the post process steps
  * @property {Array<PostProcessesOptions>} [postProcesses] Post-processes definitions
  */
@@ -47,7 +49,6 @@ export const WebGLWorkerMessageType = {
  * @template {import("../../layer/Layer.js").default} LayerType
  */
 class WebGLLayerRenderer extends LayerRenderer {
-
   /**
    * @param {LayerType} layer Layer.
    * @param {Options=} [opt_options] Options.
@@ -63,12 +64,16 @@ class WebGLLayerRenderer extends LayerRenderer {
      */
     this.helper = new WebGLHelper({
       postProcesses: options.postProcesses,
-      uniforms: options.uniforms
+      uniforms: options.uniforms,
     });
+
+    if (options.className !== undefined) {
+      this.helper.getCanvas().className = options.className;
+    }
   }
 
   /**
-   * @inheritDoc
+   * Clean up.
    */
   disposeInternal() {
     this.helper.dispose();
@@ -84,6 +89,35 @@ class WebGLLayerRenderer extends LayerRenderer {
     return this.helper.getShaderCompileErrors();
   }
 
+  /**
+   * @param {import("../../render/EventType.js").default} type Event type.
+   * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
+   * @private
+   */
+  dispatchRenderEvent_(type, frameState) {
+    const layer = this.getLayer();
+    if (layer.hasListener(type)) {
+      // RenderEvent does not get a context or an inversePixelTransform, because WebGL allows much less direct editing than Canvas2d does.
+      const event = new RenderEvent(type, null, frameState, null);
+      layer.dispatchEvent(event);
+    }
+  }
+
+  /**
+   * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
+   * @protected
+   */
+  preRender(frameState) {
+    this.dispatchRenderEvent_(RenderEventType.PRERENDER, frameState);
+  }
+
+  /**
+   * @param {import("../../PluggableMap.js").FrameState} frameState Frame state.
+   * @protected
+   */
+  postRender(frameState) {
+    this.dispatchRenderEvent_(RenderEventType.POSTRENDER, frameState);
+  }
 }
 
 const tmpArray_ = [];
@@ -115,7 +149,14 @@ function writePointVertex(buffer, pos, x, y, index) {
  * @property {number} indexPosition New position in the index buffer where future writes should start.
  * @private
  */
-export function writePointFeatureToBuffers(instructions, elementIndex, vertexBuffer, indexBuffer, customAttributesCount, bufferPositions) {
+export function writePointFeatureToBuffers(
+  instructions,
+  elementIndex,
+  vertexBuffer,
+  indexBuffer,
+  customAttributesCount,
+  bufferPositions
+) {
   // This is for x, y and index
   const baseVertexAttrsCount = 3;
   const baseInstructionsCount = 2;
@@ -137,23 +178,31 @@ export function writePointFeatureToBuffers(instructions, elementIndex, vertexBuf
 
   // push vertices for each of the four quad corners (first standard then custom attributes)
   writePointVertex(vertexBuffer, vPos, x, y, 0);
-  customAttrs.length && vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
+  customAttrs.length &&
+    vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
   vPos += stride;
 
   writePointVertex(vertexBuffer, vPos, x, y, 1);
-  customAttrs.length && vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
+  customAttrs.length &&
+    vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
   vPos += stride;
 
   writePointVertex(vertexBuffer, vPos, x, y, 2);
-  customAttrs.length && vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
+  customAttrs.length &&
+    vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
   vPos += stride;
 
   writePointVertex(vertexBuffer, vPos, x, y, 3);
-  customAttrs.length && vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
+  customAttrs.length &&
+    vertexBuffer.set(customAttrs, vPos + baseVertexAttrsCount);
   vPos += stride;
 
-  indexBuffer[iPos++] = baseIndex; indexBuffer[iPos++] = baseIndex + 1; indexBuffer[iPos++] = baseIndex + 3;
-  indexBuffer[iPos++] = baseIndex + 1; indexBuffer[iPos++] = baseIndex + 2; indexBuffer[iPos++] = baseIndex + 3;
+  indexBuffer[iPos++] = baseIndex;
+  indexBuffer[iPos++] = baseIndex + 1;
+  indexBuffer[iPos++] = baseIndex + 3;
+  indexBuffer[iPos++] = baseIndex + 1;
+  indexBuffer[iPos++] = baseIndex + 2;
+  indexBuffer[iPos++] = baseIndex + 3;
 
   bufferPositions_.vertexPosition = vPos;
   bufferPositions_.indexPosition = iPos;
@@ -193,7 +242,6 @@ export function colorEncodeId(id, opt_array) {
   array[3] = (id % radix) / divide;
   return array;
 }
-
 
 /**
  * Reads an id from a color-encoded array

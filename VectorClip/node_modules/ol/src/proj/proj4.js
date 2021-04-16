@@ -1,9 +1,17 @@
 /**
  * @module ol/proj/proj4
  */
-import {addCoordinateTransforms, addProjection, addEquivalentProjections, get} from '../proj.js';
-import {get as getTransform} from './transforms.js';
 import Projection from './Projection.js';
+import Units from './Units.js';
+import {
+  addCoordinateTransforms,
+  addEquivalentProjections,
+  addProjection,
+  createSafeCoordinateTransform,
+  get,
+} from '../proj.js';
+import {assign} from '../obj.js';
+import {get as getTransform} from './transforms.js';
 
 /**
  * Make projections defined in proj4 (with `proj4.defs()`) available in
@@ -24,12 +32,18 @@ export function register(proj4) {
     const code = projCodes[i];
     if (!get(code)) {
       const def = proj4.defs(code);
-      addProjection(new Projection({
-        code: code,
-        axisOrientation: def.axis,
-        metersPerUnit: def.to_meter,
-        units: def.units
-      }));
+      let units = def.units;
+      if (!units && def.projName === 'longlat') {
+        units = Units.DEGREES;
+      }
+      addProjection(
+        new Projection({
+          code: code,
+          axisOrientation: def.axis,
+          metersPerUnit: def.to_meter,
+          units,
+        })
+      );
     }
   }
   for (i = 0; i < len; ++i) {
@@ -39,11 +53,22 @@ export function register(proj4) {
       const code2 = projCodes[j];
       const proj2 = get(code2);
       if (!getTransform(code1, code2)) {
-        if (proj4.defs[code1] === proj4.defs[code2]) {
+        const def1 = proj4.defs(code1);
+        const def2 = proj4.defs(code2);
+        if (def1 === def2) {
           addEquivalentProjections([proj1, proj2]);
         } else {
-          const transform = proj4(code1, code2);
-          addCoordinateTransforms(proj1, proj2, transform.forward, transform.inverse);
+          // Reset axis because OpenLayers always uses x, y axis order
+          const transform = proj4(
+            assign({}, def1, {axis: undefined}),
+            assign({}, def2, {axis: undefined})
+          );
+          addCoordinateTransforms(
+            proj1,
+            proj2,
+            createSafeCoordinateTransform(proj1, proj2, transform.forward),
+            createSafeCoordinateTransform(proj2, proj1, transform.inverse)
+          );
         }
       }
     }

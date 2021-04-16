@@ -1,15 +1,29 @@
 /**
  * @module ol/render/canvas/TextBuilder
  */
-import {getUid} from '../../util.js';
+import CanvasBuilder from './Builder.js';
+import CanvasInstruction from './Instruction.js';
+import GeometryType from '../../geom/GeometryType.js';
+import TextPlacement from '../../style/TextPlacement.js';
 import {asColorLike} from '../../colorlike.js';
+import {
+  defaultFillStyle,
+  defaultFont,
+  defaultLineCap,
+  defaultLineDash,
+  defaultLineDashOffset,
+  defaultLineJoin,
+  defaultLineWidth,
+  defaultMiterLimit,
+  defaultPadding,
+  defaultStrokeStyle,
+  defaultTextAlign,
+  defaultTextBaseline,
+  registerFont,
+} from '../canvas.js';
+import {getUid} from '../../util.js';
 import {intersects} from '../../extent.js';
 import {matchingChunk} from '../../geom/flat/straightchunk.js';
-import GeometryType from '../../geom/GeometryType.js';
-import {defaultTextAlign, defaultPadding, defaultLineCap, defaultLineDashOffset, defaultLineDash, defaultLineJoin, defaultFillStyle, registerFont, defaultFont, defaultLineWidth, defaultMiterLimit, defaultStrokeStyle, defaultTextBaseline} from '../canvas.js';
-import CanvasInstruction from './Instruction.js';
-import CanvasBuilder from './Builder.js';
-import TextPlacement from '../../style/TextPlacement.js';
 /**
  * @const
  * @enum {number}
@@ -25,9 +39,8 @@ export const TEXT_ALIGN = {
   'hanging': 0.2,
   'alphabetic': 0.8,
   'ideographic': 0.8,
-  'bottom': 1
+  'bottom': 1,
 };
-
 
 class CanvasTextBuilder extends CanvasBuilder {
   /**
@@ -38,12 +51,6 @@ class CanvasTextBuilder extends CanvasBuilder {
    */
   constructor(tolerance, maxExtent, resolution, pixelRatio) {
     super(tolerance, maxExtent, resolution, pixelRatio);
-
-    /**
-     * @private
-     * @type {import("../canvas.js").DeclutterGroups}
-     */
-    this.declutterGroups_;
 
     /**
      * @private
@@ -131,10 +138,17 @@ class CanvasTextBuilder extends CanvasBuilder {
      * @type {string}
      */
     this.strokeKey_ = '';
+
+    /**
+     * Data shared with an image builder for combined decluttering.
+     * @private
+     * @type {import("../canvas.js").DeclutterImageWithText}
+     */
+    this.declutterImageWithText_ = undefined;
   }
 
   /**
-   * @inheritDoc
+   * @return {import("../canvas.js").SerializableInstructions} the serializable instructions.
    */
   finish() {
     const instructions = super.finish();
@@ -145,7 +159,8 @@ class CanvasTextBuilder extends CanvasBuilder {
   }
 
   /**
-   * @inheritDoc
+   * @param {import("../../geom/SimpleGeometry.js").default|import("../Feature.js").default} geometry Geometry.
+   * @param {import("../../Feature.js").FeatureLike} feature Feature.
    */
   drawText(geometry, feature) {
     const fillState = this.textFillState_;
@@ -155,31 +170,37 @@ class CanvasTextBuilder extends CanvasBuilder {
       return;
     }
 
-    let begin = this.coordinates.length;
+    const coordinates = this.coordinates;
+    let begin = coordinates.length;
 
     const geometryType = geometry.getType();
     let flatCoordinates = null;
-    let end = 2;
-    let stride = 2;
-    let i, ii;
+    let stride = geometry.getStride();
 
-    if (textState.placement === TextPlacement.LINE) {
+    if (
+      textState.placement === TextPlacement.LINE &&
+      (geometryType == GeometryType.LINE_STRING ||
+        geometryType == GeometryType.MULTI_LINE_STRING ||
+        geometryType == GeometryType.POLYGON ||
+        geometryType == GeometryType.MULTI_POLYGON)
+    ) {
       if (!intersects(this.getBufferedMaxExtent(), geometry.getExtent())) {
         return;
       }
       let ends;
       flatCoordinates = geometry.getFlatCoordinates();
-      stride = geometry.getStride();
       if (geometryType == GeometryType.LINE_STRING) {
         ends = [flatCoordinates.length];
       } else if (geometryType == GeometryType.MULTI_LINE_STRING) {
-        ends = geometry.getEnds();
+        ends = /** @type {import("../../geom/MultiLineString.js").default} */ (geometry).getEnds();
       } else if (geometryType == GeometryType.POLYGON) {
-        ends = geometry.getEnds().slice(0, 1);
+        ends = /** @type {import("../../geom/Polygon.js").default} */ (geometry)
+          .getEnds()
+          .slice(0, 1);
       } else if (geometryType == GeometryType.MULTI_POLYGON) {
-        const endss = geometry.getEndss();
+        const endss = /** @type {import("../../geom/MultiPolygon.js").default} */ (geometry).getEndss();
         ends = [];
-        for (i = 0, ii = endss.length; i < ii; ++i) {
+        for (let i = 0, ii = endss.length; i < ii; ++i) {
           ends.push(endss[i][0]);
         }
       }
@@ -189,36 +210,33 @@ class CanvasTextBuilder extends CanvasBuilder {
       let flatEnd;
       for (let o = 0, oo = ends.length; o < oo; ++o) {
         if (textAlign == undefined) {
-          const range = matchingChunk(textState.maxAngle, flatCoordinates, flatOffset, ends[o], stride);
+          const range = matchingChunk(
+            textState.maxAngle,
+            flatCoordinates,
+            flatOffset,
+            ends[o],
+            stride
+          );
           flatOffset = range[0];
           flatEnd = range[1];
         } else {
           flatEnd = ends[o];
         }
-        for (i = flatOffset; i < flatEnd; i += stride) {
-          this.coordinates.push(flatCoordinates[i], flatCoordinates[i + 1]);
+        for (let i = flatOffset; i < flatEnd; i += stride) {
+          coordinates.push(flatCoordinates[i], flatCoordinates[i + 1]);
         }
-        end = this.coordinates.length;
+        const end = coordinates.length;
         flatOffset = ends[o];
-        const declutterGroup = this.declutterGroups_ ?
-          (o === 0 ? this.declutterGroups_[0] : [].concat(this.declutterGroups_[0])) :
-          null;
-        this.drawChars_(begin, end, declutterGroup);
+        this.drawChars_(begin, end);
         begin = end;
       }
       this.endGeometry(feature);
-
     } else {
-
-      let geometryWidths = null;
-      if (!textState.overflow) {
-        geometryWidths = [];
-      }
+      const geometryWidths = textState.overflow ? null : [];
       switch (geometryType) {
         case GeometryType.POINT:
         case GeometryType.MULTI_POINT:
-          flatCoordinates = geometry.getFlatCoordinates();
-          end = flatCoordinates.length;
+          flatCoordinates = /** @type {import("../../geom/MultiPoint.js").default} */ (geometry).getFlatCoordinates();
           break;
         case GeometryType.LINE_STRING:
           flatCoordinates = /** @type {import("../../geom/LineString.js").default} */ (geometry).getFlatMidpoint();
@@ -228,7 +246,7 @@ class CanvasTextBuilder extends CanvasBuilder {
           break;
         case GeometryType.MULTI_LINE_STRING:
           flatCoordinates = /** @type {import("../../geom/MultiLineString.js").default} */ (geometry).getFlatMidpoints();
-          end = flatCoordinates.length;
+          stride = 2;
           break;
         case GeometryType.POLYGON:
           flatCoordinates = /** @type {import("../../geom/Polygon.js").default} */ (geometry).getFlatInteriorPoint();
@@ -240,25 +258,31 @@ class CanvasTextBuilder extends CanvasBuilder {
         case GeometryType.MULTI_POLYGON:
           const interiorPoints = /** @type {import("../../geom/MultiPolygon.js").default} */ (geometry).getFlatInteriorPoints();
           flatCoordinates = [];
-          for (i = 0, ii = interiorPoints.length; i < ii; i += 3) {
+          for (let i = 0, ii = interiorPoints.length; i < ii; i += 3) {
             if (!textState.overflow) {
               geometryWidths.push(interiorPoints[i + 2] / this.resolution);
             }
             flatCoordinates.push(interiorPoints[i], interiorPoints[i + 1]);
           }
-          end = flatCoordinates.length;
-          if (end == 0) {
+          if (flatCoordinates.length === 0) {
             return;
           }
+          stride = 2;
           break;
         default:
       }
-      end = this.appendFlatCoordinates(flatCoordinates, 0, end, stride, false, false);
+      const end = this.appendFlatPointCoordinates(flatCoordinates, stride);
+      if (end === begin) {
+        return;
+      }
 
       this.saveTextStates_();
 
       if (textState.backgroundFill || textState.backgroundStroke) {
-        this.setFillStrokeStyle(textState.backgroundFill, textState.backgroundStroke);
+        this.setFillStrokeStyle(
+          textState.backgroundFill,
+          textState.backgroundStroke
+        );
         if (textState.backgroundFill) {
           this.updateFillStyle(this.state, this.createFill);
           this.hitDetectionInstructions.push(this.createFill(this.state));
@@ -271,28 +295,89 @@ class CanvasTextBuilder extends CanvasBuilder {
 
       this.beginGeometry(geometry, feature);
 
+      // adjust padding for negative scale
+      let padding = textState.padding;
+      if (
+        padding != defaultPadding &&
+        (textState.scale[0] < 0 || textState.scale[1] < 0)
+      ) {
+        let p0 = textState.padding[0];
+        let p1 = textState.padding[1];
+        let p2 = textState.padding[2];
+        let p3 = textState.padding[3];
+        if (textState.scale[0] < 0) {
+          p1 = -p1;
+          p3 = -p3;
+        }
+        if (textState.scale[1] < 0) {
+          p0 = -p0;
+          p2 = -p2;
+        }
+        padding = [p0, p1, p2, p3];
+      }
+
       // The image is unknown at this stage so we pass null; it will be computed at render time.
       // For clarity, we pass NaN for offsetX, offsetY, width and height, which will be computed at
       // render time.
       const pixelRatio = this.pixelRatio;
-      this.instructions.push([CanvasInstruction.DRAW_IMAGE, begin, end,
-        null, NaN, NaN, this.declutterGroups_, NaN, 1, 0, 0,
-        this.textRotateWithView_, this.textRotation_, 1, NaN,
-        textState.padding == defaultPadding ?
-          defaultPadding : textState.padding.map(function(p) {
-            return p * pixelRatio;
-          }),
-        !!textState.backgroundFill, !!textState.backgroundStroke,
-        this.text_, this.textKey_, this.strokeKey_, this.fillKey_,
-        this.textOffsetX_, this.textOffsetY_, geometryWidths
+      this.instructions.push([
+        CanvasInstruction.DRAW_IMAGE,
+        begin,
+        end,
+        null,
+        NaN,
+        NaN,
+        NaN,
+        1,
+        0,
+        0,
+        this.textRotateWithView_,
+        this.textRotation_,
+        [1, 1],
+        NaN,
+        this.declutterImageWithText_,
+        padding == defaultPadding
+          ? defaultPadding
+          : padding.map(function (p) {
+              return p * pixelRatio;
+            }),
+        !!textState.backgroundFill,
+        !!textState.backgroundStroke,
+        this.text_,
+        this.textKey_,
+        this.strokeKey_,
+        this.fillKey_,
+        this.textOffsetX_,
+        this.textOffsetY_,
+        geometryWidths,
       ]);
-      this.hitDetectionInstructions.push([CanvasInstruction.DRAW_IMAGE, begin, end,
-        null, NaN, NaN, this.declutterGroups_, NaN, 1, 0, 0,
-        this.textRotateWithView_, this.textRotation_, 1 / this.pixelRatio, NaN,
-        textState.padding,
-        !!textState.backgroundFill, !!textState.backgroundStroke,
-        this.text_, this.textKey_, this.strokeKey_, this.fillKey_,
-        this.textOffsetX_, this.textOffsetY_, geometryWidths
+      const scale = 1 / pixelRatio;
+      this.hitDetectionInstructions.push([
+        CanvasInstruction.DRAW_IMAGE,
+        begin,
+        end,
+        null,
+        NaN,
+        NaN,
+        NaN,
+        1,
+        0,
+        0,
+        this.textRotateWithView_,
+        this.textRotation_,
+        [scale, scale],
+        NaN,
+        this.declutterImageWithText_,
+        padding,
+        !!textState.backgroundFill,
+        !!textState.backgroundStroke,
+        this.text_,
+        this.textKey_,
+        this.strokeKey_,
+        this.fillKey_,
+        this.textOffsetX_,
+        this.textOffsetY_,
+        geometryWidths,
       ]);
 
       this.endGeometry(feature);
@@ -317,7 +402,7 @@ class CanvasTextBuilder extends CanvasBuilder {
           lineWidth: strokeState.lineWidth,
           lineJoin: strokeState.lineJoin,
           miterLimit: strokeState.miterLimit,
-          lineDash: strokeState.lineDash
+          lineDash: strokeState.lineDash,
         };
       }
     }
@@ -327,14 +412,14 @@ class CanvasTextBuilder extends CanvasBuilder {
         font: textState.font,
         textAlign: textState.textAlign || defaultTextAlign,
         textBaseline: textState.textBaseline || defaultTextBaseline,
-        scale: textState.scale
+        scale: textState.scale,
       };
     }
     const fillKey = this.fillKey_;
     if (fillState) {
       if (!(fillKey in this.fillStates)) {
         this.fillStates[fillKey] = {
-          fillStyle: fillState.fillStyle
+          fillStyle: fillState.fillStyle,
         };
       }
     }
@@ -344,9 +429,8 @@ class CanvasTextBuilder extends CanvasBuilder {
    * @private
    * @param {number} begin Begin.
    * @param {number} end End.
-   * @param {import("../canvas.js").DeclutterGroup} declutterGroup Declutter group.
    */
-  drawChars_(begin, end, declutterGroup) {
+  drawChars_(begin, end) {
     const strokeState = this.textStrokeState_;
     const textState = this.textState_;
 
@@ -355,39 +439,58 @@ class CanvasTextBuilder extends CanvasBuilder {
     const fillKey = this.fillKey_;
     this.saveTextStates_();
 
-
     const pixelRatio = this.pixelRatio;
     const baseline = TEXT_ALIGN[textState.textBaseline];
 
     const offsetY = this.textOffsetY_ * pixelRatio;
     const text = this.text_;
-    const textScale = textState.scale;
-    const strokeWidth = strokeState ? strokeState.lineWidth * textScale / 2 : 0;
+    const strokeWidth = strokeState
+      ? (strokeState.lineWidth * Math.abs(textState.scale[0])) / 2
+      : 0;
 
-    this.instructions.push([CanvasInstruction.DRAW_CHARS,
-      begin, end, baseline, declutterGroup,
-      textState.overflow, fillKey, textState.maxAngle,
+    this.instructions.push([
+      CanvasInstruction.DRAW_CHARS,
+      begin,
+      end,
+      baseline,
+      textState.overflow,
+      fillKey,
+      textState.maxAngle,
       pixelRatio,
-      offsetY, strokeKey, strokeWidth * pixelRatio, text, textKey, 1
-    ]);
-    this.hitDetectionInstructions.push([CanvasInstruction.DRAW_CHARS,
-      begin, end, baseline, declutterGroup,
-      textState.overflow, fillKey, textState.maxAngle,
+      offsetY,
+      strokeKey,
+      strokeWidth * pixelRatio,
+      text,
+      textKey,
       1,
-      offsetY, strokeKey, strokeWidth, text, textKey, 1 / pixelRatio
+    ]);
+    this.hitDetectionInstructions.push([
+      CanvasInstruction.DRAW_CHARS,
+      begin,
+      end,
+      baseline,
+      textState.overflow,
+      fillKey,
+      textState.maxAngle,
+      1,
+      offsetY,
+      strokeKey,
+      strokeWidth,
+      text,
+      textKey,
+      1 / pixelRatio,
     ]);
   }
 
   /**
-   * @inheritDoc
+   * @param {import("../../style/Text.js").default} textStyle Text style.
+   * @param {Object=} opt_sharedData Shared data.
    */
-  setTextStyle(textStyle, declutterGroups) {
+  setTextStyle(textStyle, opt_sharedData) {
     let textState, fillState, strokeState;
     if (!textStyle) {
       this.text_ = '';
     } else {
-      this.declutterGroups_ = /** @type {import("../canvas.js").DeclutterGroups} */ (declutterGroups);
-
       const textFillStyle = textStyle.getFill();
       if (!textFillStyle) {
         fillState = null;
@@ -399,7 +502,8 @@ class CanvasTextBuilder extends CanvasBuilder {
           this.textFillState_ = fillState;
         }
         fillState.fillStyle = asColorLike(
-          textFillStyle.getColor() || defaultFillStyle);
+          textFillStyle.getColor() || defaultFillStyle
+        );
       }
 
       const textStrokeStyle = textStyle.getStroke();
@@ -419,30 +523,32 @@ class CanvasTextBuilder extends CanvasBuilder {
         strokeState.lineCap = textStrokeStyle.getLineCap() || defaultLineCap;
         strokeState.lineDash = lineDash ? lineDash.slice() : defaultLineDash;
         strokeState.lineDashOffset =
-            lineDashOffset === undefined ? defaultLineDashOffset : lineDashOffset;
+          lineDashOffset === undefined ? defaultLineDashOffset : lineDashOffset;
         strokeState.lineJoin = textStrokeStyle.getLineJoin() || defaultLineJoin;
         strokeState.lineWidth =
-            lineWidth === undefined ? defaultLineWidth : lineWidth;
+          lineWidth === undefined ? defaultLineWidth : lineWidth;
         strokeState.miterLimit =
-            miterLimit === undefined ? defaultMiterLimit : miterLimit;
+          miterLimit === undefined ? defaultMiterLimit : miterLimit;
         strokeState.strokeStyle = asColorLike(
-          textStrokeStyle.getColor() || defaultStrokeStyle);
+          textStrokeStyle.getColor() || defaultStrokeStyle
+        );
       }
 
       textState = this.textState_;
       const font = textStyle.getFont() || defaultFont;
       registerFont(font);
-      const textScale = textStyle.getScale();
+      const textScale = textStyle.getScaleArray();
       textState.overflow = textStyle.getOverflow();
       textState.font = font;
       textState.maxAngle = textStyle.getMaxAngle();
       textState.placement = textStyle.getPlacement();
       textState.textAlign = textStyle.getTextAlign();
-      textState.textBaseline = textStyle.getTextBaseline() || defaultTextBaseline;
+      textState.textBaseline =
+        textStyle.getTextBaseline() || defaultTextBaseline;
       textState.backgroundFill = textStyle.getBackgroundFill();
       textState.backgroundStroke = textStyle.getBackgroundStroke();
       textState.padding = textStyle.getPadding() || defaultPadding;
-      textState.scale = textScale === undefined ? 1 : textScale;
+      textState.scale = textScale === undefined ? [1, 1] : textScale;
 
       const textOffsetX = textStyle.getOffsetX();
       const textOffsetY = textStyle.getOffsetY();
@@ -451,21 +557,37 @@ class CanvasTextBuilder extends CanvasBuilder {
       this.text_ = textStyle.getText() || '';
       this.textOffsetX_ = textOffsetX === undefined ? 0 : textOffsetX;
       this.textOffsetY_ = textOffsetY === undefined ? 0 : textOffsetY;
-      this.textRotateWithView_ = textRotateWithView === undefined ? false : textRotateWithView;
+      this.textRotateWithView_ =
+        textRotateWithView === undefined ? false : textRotateWithView;
       this.textRotation_ = textRotation === undefined ? 0 : textRotation;
 
-      this.strokeKey_ = strokeState ?
-        (typeof strokeState.strokeStyle == 'string' ? strokeState.strokeStyle : getUid(strokeState.strokeStyle)) +
-        strokeState.lineCap + strokeState.lineDashOffset + '|' + strokeState.lineWidth +
-        strokeState.lineJoin + strokeState.miterLimit + '[' + strokeState.lineDash.join() + ']' :
-        '';
-      this.textKey_ = textState.font + textState.scale + (textState.textAlign || '?') + (textState.textBaseline || '?');
-      this.fillKey_ = fillState ?
-        (typeof fillState.fillStyle == 'string' ? fillState.fillStyle : ('|' + getUid(fillState.fillStyle))) :
-        '';
+      this.strokeKey_ = strokeState
+        ? (typeof strokeState.strokeStyle == 'string'
+            ? strokeState.strokeStyle
+            : getUid(strokeState.strokeStyle)) +
+          strokeState.lineCap +
+          strokeState.lineDashOffset +
+          '|' +
+          strokeState.lineWidth +
+          strokeState.lineJoin +
+          strokeState.miterLimit +
+          '[' +
+          strokeState.lineDash.join() +
+          ']'
+        : '';
+      this.textKey_ =
+        textState.font +
+        textState.scale +
+        (textState.textAlign || '?') +
+        (textState.textBaseline || '?');
+      this.fillKey_ = fillState
+        ? typeof fillState.fillStyle == 'string'
+          ? fillState.fillStyle
+          : '|' + getUid(fillState.fillStyle)
+        : '';
     }
+    this.declutterImageWithText_ = opt_sharedData;
   }
 }
-
 
 export default CanvasTextBuilder;

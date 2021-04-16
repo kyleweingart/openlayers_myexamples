@@ -33,9 +33,9 @@ var colorMap = {
   '85,255,170': 5,    //#55FFAA - Depth 5
   '170,255,85': 6,    //#AAFF55 - Depth 6
   '255,255,0': 7,     //#FFFF00 - Depth 7
-  '255,170,0': 8,     //#FF5500 - Depth 8
-  '255,85,0': 9,      //#FFAA00 - Depth 9     
-  '255,0,0': 10,      //#FF0000 - Depth 10
+  '255,170,0': 8,     //#FFAA00 - Depth 8
+  '255,85,0': 9,      //#FF5500 - Depth 9     
+  '255,0,0': 10,      //#FF5500 - Depth 10
   '170,0,0': 11,};    //#AA0000 - Depth 11
 
 var createRainfallKMLLayer = (timePeriod) => {
@@ -141,13 +141,16 @@ function getTotalDepth(inputs, data) {
       // console.log(final.length);
       //Only compare if current isn't completely transparent
       if (current[i+3] > 0) {
+        // console.log(i);
+        // console.log(current[i+3]);
         var current_rgba = [current[i], current[i+1], current[i+2], current[i+3]];
+        // console.log(current_rgba);
         var final_rgba = [final[i], final[i+1], final[i+2], final[i+3]];
-
+        // console.log(final_rgba);
         var current_depth = toDepth(current_rgba, colorMap);
-        // console.log(current_depth);
+        console.log(current_depth);
         var final_depth = toDepth(final_rgba, colorMap);
-        // console.log(final_depth);
+        console.log(final_depth);
 
         if (typeof current_depth === "undefined") {
           current_depth = 0;
@@ -159,33 +162,43 @@ function getTotalDepth(inputs, data) {
         // console.log(`Rainfall = ${current_depth + final_depth}`);
         const rainfall = `${current_depth + final_depth}`
 
-        console.log(rainfall);
+        // console.log(`Rainfall Depth: ${rainfall}`);
 
         for (const [rgba, depth] of Object.entries(colorMap)) {
           // console.log(depth);
           // console.log(rainfall);
           if (depth == rainfall) {
+            // console.log('Depth:' + depth);
             // console.log('==================');
             // this is where to assign the new rgba values that correspond to the value in the color map
             // need to add some fail safes, etc. 
             const rgbaArray = rgba.split(',');
-            // console.log(rgbaArray);
+            final[i] = rgbaArray[0];   //R
+            
+            final[i+1] = rgbaArray[1]; //G
+           
+            final[i+2] = rgbaArray[2]; //B
+            
+            final[i+3] = 0.6 //A  255
+
+            // console.log(current[i+3])
+
             // console.log(rgbaArray[0]);
             // console.log(rgbaArray[1]);
             // console.log(rgbaArray[2]);
           }
         }
 
-        if (current_depth > final_depth) {
-          final[i] = current[i];     //R
-          // console.log(final[i]);
-          final[i+1] = current[i+1]; //G
-          // console.log(final[i+1]);
-          final[i+2] = current[i+2]; //B
-          // console.log(final[i+2]);
-          final[i+3] = current[i+3]; //A
-          // console.log(`A:${final[i+3]}`);
-        }
+        // if (current_depth > final_depth) {
+        //   final[i] = current[i];     //R
+        //   // console.log(final[i]);
+        //   final[i+1] = current[i+1]; //G
+        //   // console.log(final[i+1]);
+        //   final[i+2] = current[i+2]; //B
+        //   // console.log(final[i+2]);
+        //   final[i+3] = current[i+3]; //A
+        //   // console.log(`A:${final[i+3]}`);
+        // }
       }
     }
     // console.log(final);
@@ -393,9 +406,11 @@ map.on('singleclick', function (evt) {
       }
       depth.push(depthNum);
       console.log(depth);
+      const rainfallAmt = depth.reduce((a,b) => a + b, 0);
+      console.log(rainfallAmt);
 
-      var maxDepth = Math.max.apply(Math, depth);
-      console.log(maxDepth);
+      // var maxDepth = Math.max.apply(Math, depth);
+      // console.log(maxDepth);
       // createFlags(evt.coordinate, maxDepth);
 
 
