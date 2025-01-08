@@ -1,4 +1,10 @@
-
+fetch('./error_cone.geojson')
+.then(response => {
+  if (!response.ok) {
+    throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
+  }
+  return response.json();
+})
 
 
 var raster = new ol.layer.Tile({
@@ -60,39 +66,16 @@ function styleFunction(feature) {
 var map = new ol.Map({
   layers: [raster, vector],
   target: document.getElementById('map'),
+  
   view: new ol.View({
-    center: ol.proj.transform([-97.6114, 38.8403], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 5,
+    center: [0, 3000000],
+    zoom: 2
 
   }),
-  overlays: [overlay]
 });
 
-map.on('pointermove', function (e) {
-  if (e.dragging) {
-    return;
-  }
-  var pixel = map.getEventPixel(e.originalEvent);
-  var hit = map.hasFeatureAtPixel(pixel);
-  map.getTarget().style.cursor = hit ? 'pointer' : '';
-});
 
-var featureHover;
-map.on('pointermove', function (evt) {
-  featureHover = map.forEachFeatureAtPixel(evt.pixel, function (feature) {
-    console.log(feature);
-    textDescription = feature.get('OUTLOOK');
-    if (textDescription !== undefined) {
-      return feature;
-    }
-  });
 
-  if (featureHover) {
-    overlay.setPosition(evt.coordinate);
-    content.innerHTML = textDescription;
-    container.style.display = 'block';
-  } else {
-    container.style.display = 'none';
-  }
-});
+  
+
 
