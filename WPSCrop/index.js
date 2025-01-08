@@ -1,7 +1,7 @@
 
 //  this is a prototype for using WPS clipping
 
-import 'ol/ol.css';
+// import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import {Tile as TileLayer, Vector as VectorLayer} from 'ol/layer';
@@ -160,6 +160,8 @@ var map = new Map({
 
 // click event listener
 document.getElementById("btn").addEventListener("click", function(e){
+
+  console.log('clipped');
   
   // get clip features 
   // var features = clipVectorSource.getFeatures();
@@ -359,10 +361,14 @@ function fetchCroppedImage(coords) {
 
 console.log(cropCoverage);
 
+// need to figure out how to get image?
+// maybe need to wrap this url into a WMS request? 
+// might need some examples 
+
 fetch('https://dev-hvx.hurrevac.com/geoserver/wps', {
   method: 'POST',
   body: cropCoverage,
-  format: 'geotiff'
+  // format: 'geotiff'
 }).then((response) => {
   console.log(response)
   console.log(response.json());
