@@ -1,14 +1,4 @@
-Django REST frameworkadmin
-Storm Forecast Wind Swath
 
-Forecast Wind Swath
-Layer view for forecast_wind_swath
-
-GET /hmgis/layers/AL092024/1/forecast_wind_swath
-HTTP 200 OK
-Allow: GET, HEAD, OPTIONS
-Content-Type: application/json
-Vary: Accept
 
 {
     "type": "FeatureCollection",

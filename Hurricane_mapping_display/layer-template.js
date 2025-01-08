@@ -12,6 +12,7 @@ function initializeMap() {
   vectorSource = new ol.source.Vector(); // Empty source to start
   vectorLayer = new ol.layer.Vector({
     source: vectorSource,
+    style: styleFunction
   });
 
   map = new ol.Map({
@@ -46,7 +47,6 @@ function loadGeoJSON(layerName) {
       });
 
       // Clear the existing source and add new features
-      // vectorSource.clear();
       vectorSource.addFeatures(features);
     })
     .catch((error) => {
@@ -63,6 +63,23 @@ function setupLayerControls() {
       loadGeoJSON(selectedLayer); // Load the GeoJSON file for the selected layer
     });
   });
+}
+
+function styleFunction(feature) {
+  console.log(feature);
+  var outlook = feature.get('label');
+  console.log(outlook);
+  // if (outlook === 'Marginal (5-10%)') {
+  //   return rainStyles.mrgl;
+  // } else if (outlook === 'Slight (10-20%)') {
+  //   return rainStyles.slgt;
+  // } else if (outlook === 'Moderate (20-50%)') {
+  //   return rainStyles.mdt;
+  // } else if (outlook === 'High (>50%)') {
+  //   return rainStyles.high;
+  // } else {
+  //   return rainStyles.default;
+  // }
 }
 
 // Initialize the map and setup controls
