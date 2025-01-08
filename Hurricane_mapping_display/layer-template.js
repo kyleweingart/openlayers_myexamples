@@ -1,78 +1,74 @@
-fetch('./error_cone.geojson')
-.then(response => {
-  if (!response.ok) {
-    throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
-  }
-  return response.json();
-})
 
+let vectorSource; // Declare the vector source globally
+let vectorLayer;  // Declare the vector layer globally
+let map;          // Declare the map globally
 
-var raster = new ol.layer.Tile({
-  source: new ol.source.OSM()
-})
+// Initialize the map with a raster (OSM) layer
+function initializeMap() {
+  const raster = new ol.layer.Tile({
+    source: new ol.source.OSM(),
+  });
 
-var vector = new ol.layer.Vector({
-  source: new ol.source.Vector({
-    // url: 'https://data.hurrevac.com/excessive/Day_1_Excessive_Rainfall_Outlook_LATEST.kml',
-    url: 'http://localhost:8082/Excessive_Rainfall_Outlook/Excessive_Rain_Day1_latest.kml',
-    crossOrigin: 'anonymous',
-    format: new ol.format.KML({
-      extractStyles: false,
-      extractAttributes: true
+  vectorSource = new ol.source.Vector(); // Empty source to start
+  vectorLayer = new ol.layer.Vector({
+    source: vectorSource,
+  });
+
+  map = new ol.Map({
+    layers: [raster, vectorLayer],
+    target: document.getElementById('map'),
+    view: new ol.View({
+      center: [0, 3000000], 
+      zoom: 2,
     }),
-    projection: 'EPSG:3857'
-  }),
-  style: styleFunction
-});
+  });
 
-var rainStyles = {
-  default: new ol.style.Style({
-    stroke: new ol.style.Stroke({ color: 'black', width: 2 })
-  }),
-  mrgl: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [128, 230, 128, .9] }),
-    stroke: new ol.style.Stroke({ color: [0, 139, 0, .9], width: 2 })
-  }),
-  slgt: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
-    stroke: new ol.style.Stroke({ color: [255, 130, 71, .9], width: 2 })
-  }),
-  mdt: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
-    stroke: new ol.style.Stroke({ color: [205, 0, 0, .9], width: 2 })
-  }),
-  high: new ol.style.Style({
-    fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
-    stroke: new ol.style.Stroke({ color: [255, 0, 255, .9], width: 2 })
-  }),
+   // Load the "error_cone" layer by default
+   loadGeoJSON('error_cone');
 }
 
-function styleFunction(feature) {
-  var outlook = feature.get('OUTLOOK');
-  if (outlook === 'Marginal (5-10%)') {
-    return rainStyles.mrgl;
-  } else if (outlook === 'Slight (10-20%)') {
-    return rainStyles.slgt;
-  } else if (outlook === 'Moderate (20-50%)') {
-    return rainStyles.mdt;
-  } else if (outlook === 'High (>50%)') {
-    return rainStyles.high;
-  } else {
-    return rainStyles.default;
-  }
+// Function to fetch GeoJSON and update the vector layer
+function loadGeoJSON(layerName) {
+  const filePath = `./${layerName}.json`; // Construct file path based on layer name
+
+  fetch(filePath)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then((geojsonData) => {
+      // Read features from the GeoJSON file
+      const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
+        dataProjection: 'EPSG:4326', // GeoJSON standard
+        featureProjection: 'EPSG:3857', // Web Mercator for OpenLayers
+      });
+
+      // Clear the existing source and add new features
+      // vectorSource.clear();
+      vectorSource.addFeatures(features);
+    })
+    .catch((error) => {
+      console.error(error.message);
+    });
 }
 
+// Event listener for radio buttons
+function setupLayerControls() {
+  document.querySelectorAll('input[name="layer"]').forEach((radio) => {
+    radio.addEventListener('change', (event) => {
+      vectorSource.clear();
+      const selectedLayer = event.target.value;
+      loadGeoJSON(selectedLayer); // Load the GeoJSON file for the selected layer
+    });
+  });
+}
 
-var map = new ol.Map({
-  layers: [raster, vector],
-  target: document.getElementById('map'),
-  
-  view: new ol.View({
-    center: [0, 3000000],
-    zoom: 2
+// Initialize the map and setup controls
+initializeMap();
+setupLayerControls();
 
-  }),
-});
 
 
 

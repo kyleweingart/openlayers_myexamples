@@ -7,7 +7,16 @@
   </head>
   <body>
     <div id="map" class="map"></div>
-    <div id='toc' class='toc'>Map Layers</div>
+    <div id='toc' class='toc'>
+    <label><input type="radio" name="layer" value="error_cone" checked> Error Cone</label>
+    <label><input type="radio" name="layer" value="forecast_position"> Forecast Position</label>
+    <label><input type="radio" name="layer" value="forecast_track_line"> Forecast Track Line</label>
+    <label><input type="radio" name="layer" value="forecast_track_point"> Forecast Track Point</label>
+    <label><input type="radio" name="layer" value="forecast_winds"> Forecast Winds</label>
+    <label><input type="radio" name="layer" value="past_track_point"> Past Track Point</label>
+    <label><input type="radio" name="layer" value="wind_prob_polygon"> Wind Prob Polygon</label>
+    <label><input type="radio" name="layer" value="forecast_wind_swath"> Forecast Wind Swath</label>
+    </div>
    
     <!-- <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script> -->
     <!-- <script src="https://openlayers.org/en/v4.6.5/build/ol.js"></script> -->
