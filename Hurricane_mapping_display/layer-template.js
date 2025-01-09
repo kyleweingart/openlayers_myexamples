@@ -65,21 +65,31 @@ function setupLayerControls() {
   });
 }
 
+const errorConeStyles = {
+  0: new ol.style.Style({
+    fill: new ol.style.Fill({ color: [247, 247, 128, .9] }),
+    stroke: new ol.style.Stroke({ color: [255, 130, 71, .9], width: 2 })
+  }),
+  72: new ol.style.Style({
+    fill: new ol.style.Fill({ color: [255, 128, 128, .9] }),
+    stroke: new ol.style.Stroke({ color: [205, 0, 0, .9], width: 2 })
+  }),
+  120: new ol.style.Style({
+    fill: new ol.style.Fill({ color: [255, 128, 255, .9] }),
+    stroke: new ol.style.Stroke({ color: [255, 0, 255, .9], width: 2 })
+  }),
+}
+
 function styleFunction(feature) {
-  console.log(feature);
-  var outlook = feature.get('label');
-  console.log(outlook);
-  // if (outlook === 'Marginal (5-10%)') {
-  //   return rainStyles.mrgl;
-  // } else if (outlook === 'Slight (10-20%)') {
-  //   return rainStyles.slgt;
-  // } else if (outlook === 'Moderate (20-50%)') {
-  //   return rainStyles.mdt;
-  // } else if (outlook === 'High (>50%)') {
-  //   return rainStyles.high;
-  // } else {
-  //   return rainStyles.default;
-  // }
+  const label = feature.get('label');
+  if (label === '0') {
+    console.log(errorConeStyles);
+    return errorConeStyles[0];
+  } else if (label === '72') {
+    return errorConeStyles[72];
+  } else if (label === '120') {
+    return errorConeStyles[120];
+  }
 }
 
 // Initialize the map and setup controls
