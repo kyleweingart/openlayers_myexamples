@@ -16,7 +16,7 @@ function initializeMap() {
   vectorSource = new ol.source.Vector(); // Empty source to start
   vectorLayer = new ol.layer.Vector({
     source: vectorSource,
-    style: styleFunction
+    // style: styleFunction
   });
 
   map = new ol.Map({
@@ -192,6 +192,22 @@ const stylesByLayer = {
     })
    })
   },
+  past_track_line: {
+   default: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: '#777777',
+      width: 2
+    })
+   })
+  },
+  warning_line: {
+   default: new ol.style.Style({
+    stroke: new ol.style.Stroke({
+      color: '#777777',
+      width: 2
+    })
+   })
+  },
   forecast_track_point: {
     RED:  new ol.style.Style({
       image: new ol.style.RegularShape({
@@ -329,6 +345,14 @@ const stylesByLayer = {
         angle: Math.PI / 4,
       }),
     })
+  },
+  wind_prob_point: {
+    GREEN:  new ol.style.Style({
+      fill: new ol.style.Fill({
+        color: 'rgba(0, 178, 0, 0.4)'
+      }),
+      zIndex: 1
+  }),
   },
   wind_prob_polygon: {
     // '#00B200'
@@ -497,12 +521,21 @@ function styleFunction(feature) {
   } else if (layerName === 'past_track_point') {
     const color = getColorFromWS(feature.get('maxwind'));
       return currentStyles[color];
+  } else if (layerName === 'past_track_line') {
+      return currentStyles.default;
+  } else if (layerName === 'past_wind') {
+    console.log(feature);
+      // return currentStyles.default;
+  } else if (layerName === 'warning_line') {
+      return currentStyles.default;
+  } else if (layerName === 'wind_prob_point') {
+    console.log(feature);
+      // return currentStyles.default;
   } else if (layerName === 'wind_prob_polygon') {
     if (feature.get('windspd') === 34) {
     const color = getColorFromProb(feature.get('prob'));
     return currentStyles[color];
     }
-
   } else if (layerName === 'forecast_wind_swath') {
     const color = getColorFromWS(feature.get('windspd'));
     return currentStyles[color];
