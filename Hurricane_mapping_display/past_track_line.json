@@ -4,23 +4,34 @@
         {
             "type": "Feature",
             "geometry": {
-                "type": "Point",
+                "type": "LineString",
                 "coordinates": [
-                    -82.0,
-                    17.6
+                    [
+                        -68.6,
+                        13.9
+                    ],
+                    [
+                        -70.1,
+                        14.2
+                    ],
+                    [
+                        -71.3,
+                        14.7
+                    ],
+                    [
+                        -71.5,
+                        14.8
+                    ],
+                    [
+                        -72.0,
+                        14.8
+                    ]
                 ]
             },
             "properties": {
-                "time": "2024-09-23T15:00:00Z",
-                "fwdspd": 5,
-                "fwdspdmph": 6,
-                "maxwind": 25,
-                "maxwindmph": 22,
-                "pressuremb": 1004,
-                "sscategory": 0,
-                "past_advisory": "1",
-                "storm": "al092024",
-                "advisory": "1"
+                "advisory_time": "2022-09-24T03:00:00Z",
+                "storm": "al092022",
+                "advisory": "4"
             }
         }
     ]
