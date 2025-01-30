@@ -21,15 +21,54 @@ function initializeMap() {
 
   map = new ol.Map({
     layers: [raster, vectorLayer],
-    target: document.getElementById('map'),
+    // target: document.getElementById('map'),
+    target: 'main-container',
     view: new ol.View({
       center: [0, 3000000], 
       zoom: 2,
     }),
   });
 
+  console.log('init map', map);
+
    // Load the "error_cone" layer by default
-   loadGeoJSON('error_cone');
+  //  loadGeoJSON('error_cone');
+}
+
+function loadDataAPI(layer) {
+  console.log(layer);
+//   const username = 'admin';
+// const password = 'maps2024';
+
+const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
+
+
+// const headers = new Headers();
+// headers.set('Authorization', 'Basic ' + btoa(`${username}:${password}`));
+
+  // fetch(`https://data.hurricanemapping.com/hmgis/layers/AL092022/1/${layer}`, {
+  fetch(`https://data.hurricanemapping.com/hmgis/?format=json`, {
+    method: 'GET', 
+    headers: {
+    'Authorization': `Token ${token}`, // Include the token here
+    'Content-Type': 'application/json'
+    }} )
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
+      }
+      console.log(response.json());
+      return response.json();
+    })
+    .then((geojsonData) => {
+      
+      // Read features from the GeoJSON file
+      const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
+        dataProjection: 'EPSG:4326', // GeoJSON standard
+        featureProjection: 'EPSG:3857', // Web Mercator for OpenLayers
+      });
+      console.log(features);
+});
 }
 
 // Function to fetch GeoJSON and update the vector layer
@@ -68,7 +107,8 @@ function setupLayerControls() {
     radio.addEventListener('change', (event) => {
       vectorSource.clear();
       const selectedLayer = event.target.value;
-      loadGeoJSON(selectedLayer); // Load the GeoJSON file for the selected layer
+      // loadGeoJSON(selectedLayer); // Load the GeoJSON file for the selected layer
+      loadDataAPI(selectedLayer)
     });
   });
 }
@@ -288,6 +328,28 @@ const stylesByLayer = {
         }),
     })
   },
+  past_wind: {
+    RED:  new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'rgba(255, 0, 0, 0.4)'
+        }),
+    }),
+    BLUE:  new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'rgba(0, 36, 250, 0.4)'
+        }),
+    }),
+    WHITE:  new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 255, 0.4)'
+        }),
+    }),
+    YELLOW:  new ol.style.Style({
+        fill: new ol.style.Fill({
+          color: 'rgba(255, 255, 51, 0.4)'
+        }),
+    })
+  },
   past_track_point: {
     RED:  new ol.style.Style({
       image: new ol.style.RegularShape({
@@ -347,7 +409,7 @@ const stylesByLayer = {
     })
   },
   wind_prob_point: {
-    GREEN:  new ol.style.Style({
+    default:  new ol.style.Style({
       fill: new ol.style.Fill({
         color: 'rgba(0, 178, 0, 0.4)'
       }),
@@ -525,12 +587,13 @@ function styleFunction(feature) {
       return currentStyles.default;
   } else if (layerName === 'past_wind') {
     console.log(feature);
-      // return currentStyles.default;
+    const color = getColorFromWS(feature.get('windspd'));
+      return currentStyles[color];
   } else if (layerName === 'warning_line') {
       return currentStyles.default;
   } else if (layerName === 'wind_prob_point') {
     console.log(feature);
-      // return currentStyles.default;
+      return currentStyles.default;
   } else if (layerName === 'wind_prob_polygon') {
     if (feature.get('windspd') === 34) {
     const color = getColorFromProb(feature.get('prob'));
