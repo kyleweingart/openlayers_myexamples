@@ -61,6 +61,54 @@ function loadDataAPI(layer) {
 });
 }
 
+async function getStormLayers(storm) {
+  try {
+    const response = await fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `Token ${token}`, // Include the token here
+            'Content-Type': 'application/json'
+        }
+    });
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch advisories: ${response.statusText}`);
+    }
+
+    const advisories = await response.json();
+    stormList.forEach(storm => {
+      storm.workingAdvisories = advisories.filter(advisory => advisory.storm === storm.stormid);
+    });
+    return advisories;
+} catch (error) {
+    console.error(error);
+    return []; // Return an empty array on error
+}
+}
+  
+  https://data.hurricanemapping.com/hmgis/advisories/?storm=al092022
+//   fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
+//     method: 'GET', 
+//     headers: {
+//     'Authorization': `Token ${token}`, // Include the token here
+//     'Content-Type': 'application/json'
+//     }} )
+//     .then((response) => {
+//       if (!response.ok) {
+//         throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
+//       }
+//       return response.json();
+//     })
+//     .then((advisories) => {
+//       console.log(stormList);
+//       console.log(advisories);
+//       stormList.forEach(storm => {
+//         storm.workingAdvisories = advisories.filter(advisory => advisory.storm === storm.stormid);
+//       return stormList;
+//     });
+// });
+// }
+
 function loadStorms() {
   fetch(`https://data.hurricanemapping.com/hmgis/?format=json`, {
     method: 'GET', 
@@ -119,36 +167,51 @@ function loadComboBoxes() {
   setTimeout(() => {
     // Trigger change event for Year combobox
     document.getElementById('year-select').dispatchEvent(new Event('change')); 
-
-    // Trigger change event for Region combobox
-    document.getElementById('region-select').dispatchEvent(new Event('change'));
   }, 0); 
 }
 
 // Function to create storm template using template literals
-const createStormTemplate = (storm) => {
-  
-  const layersHTML =
-      `<div class="form-check">
-          <input class="form-check-input" type="radio" name="layer_${storm.stormId}" value="${storm.stormid}">
-          <label class="form-check-label">${storm.stormid}</label>
-      </div>
-  `;
+const createStormTemplate = async (storm) => {
+  const stormLayers =  await getStormLayers(storm);
 
+  // Get the last advisory
+  const lastAdvisory = stormLayers[stormLayers.length - 1];
+
+  // Only proceed if last advisory is not undefined
+  if (!lastAdvisory || !lastAdvisory.layers) {
+      console.warn(`No advisories or layers found for storm ${storm.stormid}`);
+      return ''; // Return an empty string to skip rendering this storm
+  }
+  
+  // Generate layersHTML dynamically, ensuring we display both the layer name and its value
+  const layersHTML = Object.entries(lastAdvisory.layers)
+  .map(([layerName, layerValue], index) => {
+    const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
+    return `
+      <div class="form-check">
+          <input class="form-check-input" type="radio" name="layer_${storm.stormid}_${layerName}" value="${layerValue}" ${checked}>
+          <label class="form-check-label">${layerName}</label>
+      </div>
+    `;
+  })
+  .join('');
+  
   return `
       <details>
-          <summary>${storm.stormid}</summary>
+          <summary>${lastAdvisory.storm_name}</summary>
           ${layersHTML}
       </details>
   `;
 };
 
 // Function to populate storm templates into the toc container
-const populateStormTemplates = (stormData) => {
+const populateStormTemplates = async (stormData) => {
   const container = document.getElementById('toc'); // Get the target container
   container.innerHTML = ''; // Clear any existing content
   // Generate and insert the storm templates dynamically
-  container.innerHTML = stormData.map(storm => createStormTemplate(storm)).join('');
+  const stormTemplates = await Promise.all(stormData.map(storm => createStormTemplate(storm)));
+   // Update the container with the generated HTML
+   container.innerHTML = stormTemplates.join('');
 };
 
 // Function to fetch GeoJSON and update the vector layer
