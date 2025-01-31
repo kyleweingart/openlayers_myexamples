@@ -1,31 +1,62 @@
-.map {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    font-family: Arial, sans-serif;
+
+body, html {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background-color: #f8f9fa;
+}
+.filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 10px;
+    background-color: #ffffff;
+    width: 100%;
+}
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.filter-container select {
+    width: 200px;
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid #ced4da;
+}
+.title-bar {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    width: 100%;
+    height: 10%
+}
+.main-container {
+    display: flex;
+    height: calc(100% - 110px);
+    width: 100%;
+}
+.control-panel {
+    width: 300px;
+    background: #ffffff;
+    padding: 15px;
+    overflow-y: auto;
+    color: black;
+    border-right: 1px solid #ced4da;
+}
+.map-panel {
+    height: 100%;
+    width: 100%
 }
 
-.toc {
-    border: 1px solid black;
-    position: fixed;
-    padding:15px;
-    top: 200px;
-    background-color: white;
-    bottom: 10;
-    color: gray;
-    z-index:1;
-    margin: 10px
+.form-check-label, .form-label {
+    color: black;
 }
-
-.toc label {
-    display: block;
-    margin-bottom: 5px;
-    margin-top: 5px
+.form-select {
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid #ced4da;
 }
-
-.ol-attribution>ul {
-    font-size: 1rem;
-}
-

@@ -3,12 +3,14 @@ let vectorSource; // Declare the vector source globally
 let vectorLayer;  // Declare the vector layer globally
 let map;          // Declare the map globally
 let currentStyles;
+let stormList;
+const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
 
 const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
 // What are the correct forecast hours?
 
 // Initialize the map with a raster (OSM) layer
-function initializeMap() {
+function initMap() {
   const raster = new ol.layer.Tile({
     source: new ol.source.OSM(),
   });
@@ -16,36 +18,25 @@ function initializeMap() {
   vectorSource = new ol.source.Vector(); // Empty source to start
   vectorLayer = new ol.layer.Vector({
     source: vectorSource,
-    // style: styleFunction
+    style: styleFunction
   });
 
   map = new ol.Map({
     layers: [raster, vectorLayer],
-    // target: document.getElementById('map'),
-    target: 'main-container',
+    target: document.getElementById('map'),
     view: new ol.View({
       center: [0, 3000000], 
       zoom: 2,
     }),
   });
 
-  console.log('init map', map);
+  
 
    // Load the "error_cone" layer by default
   //  loadGeoJSON('error_cone');
 }
 
 function loadDataAPI(layer) {
-  console.log(layer);
-//   const username = 'admin';
-// const password = 'maps2024';
-
-const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
-
-
-// const headers = new Headers();
-// headers.set('Authorization', 'Basic ' + btoa(`${username}:${password}`));
-
   // fetch(`https://data.hurricanemapping.com/hmgis/layers/AL092022/1/${layer}`, {
   fetch(`https://data.hurricanemapping.com/hmgis/?format=json`, {
     method: 'GET', 
@@ -61,7 +52,6 @@ const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
       return response.json();
     })
     .then((geojsonData) => {
-      
       // Read features from the GeoJSON file
       const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
         dataProjection: 'EPSG:4326', // GeoJSON standard
@@ -70,6 +60,96 @@ const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
       console.log(features);
 });
 }
+
+function loadStorms() {
+  fetch(`https://data.hurricanemapping.com/hmgis/?format=json`, {
+    method: 'GET', 
+    headers: {
+    'Authorization': `Token ${token}`, // Include the token here
+    'Content-Type': 'application/json'
+    }} )
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then((storms) => {
+      stormList = storms.map(storm => {
+          return {
+              ...storm,
+              year: storm.stormid.slice(-4),  // Extracts the year (last 4 characters)
+              region: storm.stormid.slice(0, 2), // Extracts the region (first 2 characters)
+              number: storm.stormid.slice(2, 4)
+          };
+      });
+      loadComboBoxes(); 
+  });
+}
+
+function loadComboBoxes() {
+  const years = [...new Set(stormList.map(storm => storm.year))].sort((a, b) => b - a);
+  const regions = [...new Set(stormList.map(storm => storm.region.toUpperCase()))].sort();
+
+  // Helper function to populate a combobox
+  const populateComboBox = (comboBoxId, options) => {
+      const comboBox = document.getElementById(comboBoxId);
+      options.forEach(optionValue => {
+          const option = document.createElement('option');
+          option.value = option.text = optionValue;
+          comboBox.appendChild(option);
+      });
+      comboBox.value = options[1]; // Set first option as selected by default
+  };
+
+  // Event listener for Year combobox
+  document.getElementById('year-select').addEventListener('change', (e) => {
+    populateStormTemplates(stormList.filter(storm => storm.year === e.target.value && storm.region === document.getElementById('region-select').value.toLowerCase()));
+  }); 
+  
+  // Event listener for Region combobox
+  document.getElementById('region-select').addEventListener('change', (e) => {
+    populateStormTemplates(stormList.filter(storm => storm.region === e.target.value.toLowerCase() && storm.year === document.getElementById('year-select').value));
+  });
+
+  // Populate Year and Region comboboxes
+  populateComboBox('year-select', years);
+  populateComboBox('region-select', regions);
+
+  setTimeout(() => {
+    // Trigger change event for Year combobox
+    document.getElementById('year-select').dispatchEvent(new Event('change')); 
+
+    // Trigger change event for Region combobox
+    document.getElementById('region-select').dispatchEvent(new Event('change'));
+  }, 0); 
+}
+
+// Function to create storm template using template literals
+const createStormTemplate = (storm) => {
+  
+  const layersHTML =
+      `<div class="form-check">
+          <input class="form-check-input" type="radio" name="layer_${storm.stormId}" value="${storm.stormid}">
+          <label class="form-check-label">${storm.stormid}</label>
+      </div>
+  `;
+
+  return `
+      <details>
+          <summary>${storm.stormid}</summary>
+          ${layersHTML}
+      </details>
+  `;
+};
+
+// Function to populate storm templates into the toc container
+const populateStormTemplates = (stormData) => {
+  const container = document.getElementById('toc'); // Get the target container
+  container.innerHTML = ''; // Clear any existing content
+  // Generate and insert the storm templates dynamically
+  container.innerHTML = stormData.map(storm => createStormTemplate(storm)).join('');
+};
 
 // Function to fetch GeoJSON and update the vector layer
 function loadGeoJSON(layerName) {
@@ -107,8 +187,8 @@ function setupLayerControls() {
     radio.addEventListener('change', (event) => {
       vectorSource.clear();
       const selectedLayer = event.target.value;
-      // loadGeoJSON(selectedLayer); // Load the GeoJSON file for the selected layer
-      loadDataAPI(selectedLayer)
+      loadGeoJSON(selectedLayer); // Load the GeoJSON file for the selected layer
+      // loadStorms()
     });
   });
 }
@@ -606,9 +686,11 @@ function styleFunction(feature) {
 }
 
 // Initialize the map and setup controls
-initializeMap();
-setupLayerControls();
-
+document.addEventListener("DOMContentLoaded", function() {
+  initMap();
+  loadStorms()
+  // setupLayerControls();
+});
 
 
 

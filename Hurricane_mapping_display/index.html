@@ -6,123 +6,33 @@
     <title>Hurricane Mapping Application</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://openlayers.org/en/v6.15.1/css/ol.css" type="text/css">
+    <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://openlayers.org/en/v6.15.1/build/ol.js"></script>
     <script src="layer-template.js"></script>
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            overflow: hidden;
-            background-color: #f8f9fa;
-        }
-        .filter-container {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            padding: 10px;
-            background-color: #ffffff;
-            width: 100%;
-        }
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .filter-container select {
-            width: 200px;
-            background-color: #ffffff;
-            color: black;
-            border: 1px solid #ced4da;
-        }
-        .title-bar {
-            background-color: #007bff;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            width: 100%;
-            height: 10%
-        }
-        .main-container {
-            display: flex;
-            height: calc(100% - 110px);
-            width: 100%;
-        }
-        .control-panel {
-            width: 300px;
-            background: #ffffff;
-            padding: 15px;
-            overflow-y: auto;
-            color: black;
-            border-right: 1px solid #ced4da;
-        }
-        .map-panel {
-           
-            
-            height: 100%;
-        }
-
-       
-        .form-check-label, .form-label {
-            color: black;
-        }
-        .form-select {
-            background-color: #ffffff;
-            color: black;
-            border: 1px solid #ced4da;
-        }
-    </style>
 </head>
 <body>
     <div class="filter-container">
         <div class="filter-group">
             <label for="year-select" class="form-label">Year:</label>
-            <select class="form-select" id="year-select">
-                <option value="">All Years</option>
-            </select>
+            <select class="form-select" id="year-select"></select>
         </div>
         <div class="filter-group">
             <label for="region-select" class="form-label">Region:</label>
-            <select class="form-select" id="region-select">
-                <option value="">All Regions</option>
-            </select>
+            <select class="form-select" id="region-select"></select>
         </div>
     </div>
     <div class="title-bar" id="storm-title"></div>
     <div class="main-container">
         <!-- Control Panel -->
         <div class="control-panel">
-            <h5>Selected Storms</h5>
+            <h5>Storms</h5>
             <div id='toc' class='toc'>
-                <details>
-                    <summary>Storm 1</summary>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="layer" value="error_cone" checked>
-                        <label class="form-check-label">Error Cone</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="layer" value="forecast_position">
-                        <label class="form-check-label">Forecast Position</label>
-                    </div>
-                </details>
-                <details>
-                    <summary>Storm 2</summary>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="layer" value="forecast_track_line">
-                        <label class="form-check-label">Forecast Track Line</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="layer" value="forecast_track_point">
-                        <label class="form-check-label">Forecast Track Point</label>
-                    </div>
-                </details>
+               <!-- This part will be dynamically populated with storm data -->
             </div>
         </div>
-        
         <!-- Map Panel -->
-        <div class="map" id="map"></div>
+        <div class="map-panel" id="map"></div>
     </div>
 </body>
 </html>
