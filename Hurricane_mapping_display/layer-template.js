@@ -36,31 +36,6 @@ function initMap() {
   //  loadGeoJSON('error_cone');
 }
 
-function loadDataAPI(layer) {
-  // fetch(`https://data.hurricanemapping.com/hmgis/layers/AL092022/1/${layer}`, {
-  fetch(`https://data.hurricanemapping.com/hmgis/?format=json`, {
-    method: 'GET', 
-    headers: {
-    'Authorization': `Token ${token}`, // Include the token here
-    'Content-Type': 'application/json'
-    }} )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
-      }
-      console.log(response.json());
-      return response.json();
-    })
-    .then((geojsonData) => {
-      // Read features from the GeoJSON file
-      const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
-        dataProjection: 'EPSG:4326', // GeoJSON standard
-        featureProjection: 'EPSG:3857', // Web Mercator for OpenLayers
-      });
-      console.log(features);
-});
-}
-
 async function getStormLayers(storm) {
   try {
     const response = await fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
@@ -173,7 +148,7 @@ function loadComboBoxes() {
 // Function to create storm template using template literals
 const createStormTemplate = async (storm) => {
   const stormLayers =  await getStormLayers(storm);
-
+  
   // Get the last advisory
   const lastAdvisory = stormLayers[stormLayers.length - 1];
 
@@ -187,9 +162,12 @@ const createStormTemplate = async (storm) => {
   const layersHTML = Object.entries(lastAdvisory.layers)
   .map(([layerName, layerValue], index) => {
     const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
+    if (layerValue.startsWith('http://')) {
+      layerValue = layerValue.replace('http://', 'https://');
+    }
     return `
       <div class="form-check">
-          <input class="form-check-input" type="radio" name="layer_${storm.stormid}_${layerName}" value="${layerValue}" ${checked}>
+          <input class="form-check-input" type="radio" name="layer_${storm.stormid}" value="${layerValue}" layername="${layerName}" ${checked}>
           <label class="form-check-label">${layerName}</label>
       </div>
     `;
@@ -197,7 +175,7 @@ const createStormTemplate = async (storm) => {
   .join('');
   
   return `
-      <details>
+      <details data-stormid="${storm.stormid}" >
           <summary>${lastAdvisory.storm_name}</summary>
           ${layersHTML}
       </details>
@@ -212,17 +190,66 @@ const populateStormTemplates = async (stormData) => {
   const stormTemplates = await Promise.all(stormData.map(storm => createStormTemplate(storm)));
    // Update the container with the generated HTML
    container.innerHTML = stormTemplates.join('');
+  //  To Do: fire layer creation add features get request once storm is added and error cone progromatically checked on.
+  // Set Layer Controls
+  stormData.forEach(storm => {
+    setupLayerControls(storm);
+  });
+  if (stormData.length > 0) {
+    console.log(stormData);
+    makeStormActive(stormData.find(storm => storm.workingAdvisories.length > 0 && storm.workingAdvisories[storm.workingAdvisories.length - 1].layers));
+  }
 };
 
+function makeStormActive(storm) {
+  console.log(storm);
+  if (storm) {
+    const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
+    console.log(lastAdvisory.layers.error_cone);
+    const titleBar = document.getElementById('storm-title');
+    if (titleBar && lastAdvisory) {
+      console.log('here');
+      titleBar.textContent = `Advisory #${lastAdvisory.advisory_id}`;
+    }
+
+    // Find the details element for the storm and open it.
+    const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
+    if (detailsEl) {
+      detailsEl.open = true;  // This programmatically opens the details element.
+    }
+    const firstRadio = document.querySelector(
+      // To Do - layername could be anything? what layers all always present? what makes sense?  position?
+      // `input[name="layer_${storm.stormid}"][layername="error_cone"]`
+      `input[name="layer_${storm.stormid}"][layername="forecast_position"]`
+    );
+
+    console.log(firstRadio);
+    if (firstRadio) {
+      console.log(firstRadio);
+      firstRadio.checked = true; // visually mark it as selected
+      // Dispatch a change event so that the associated event handler fires
+      firstRadio.dispatchEvent(new Event('change'));
+    }
+  }
+}
+
 // Function to fetch GeoJSON and update the vector layer
-function loadGeoJSON(layerName) {
-  const filePath = `./${layerName}.json`; // Construct file path based on layer name
-  vectorLayer.set('name', layerName);
+function loadLayer(layer) {
+  console.log(layer.attributes.layername.value);
+  // const filePath = `./${layerName}.json`; // Construct file path based on layer name
+  vectorLayer.set('name', layer.attributes.layername.value);
 
   // Update the current styles based on the layer
-  currentStyles = stylesByLayer[layerName];
-  
-  fetch(filePath)
+  currentStyles = stylesByLayer[layer.attributes.layername.value];
+
+  console.log(layer.value);
+
+  fetch(`${layer.value}`, {
+    method: 'GET', 
+    headers: {
+    'Authorization': `Token ${token}`, // Include the token here
+    'Content-Type': 'application/json'
+    }} )
     .then((response) => {
       if (!response.ok) {
         throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
@@ -230,6 +257,7 @@ function loadGeoJSON(layerName) {
       return response.json();
     })
     .then((geojsonData) => {
+      console.log(geojsonData);
       // Read features from the GeoJSON file
       const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
         dataProjection: 'EPSG:4326', // GeoJSON standard
@@ -245,12 +273,15 @@ function loadGeoJSON(layerName) {
 }
 
 // Event listener for radio buttons
-function setupLayerControls() {
-  document.querySelectorAll('input[name="layer"]').forEach((radio) => {
+function setupLayerControls(storm) {
+  document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((radio) => {
     radio.addEventListener('change', (event) => {
+      console.log('change event fired');
       vectorSource.clear();
-      const selectedLayer = event.target.value;
-      loadGeoJSON(selectedLayer); // Load the GeoJSON file for the selected layer
+      console.log(event);
+      // const selectedLayer = event.target.value;
+      
+      loadLayer(event.target); // Load the GeoJSON file for the selected layer
       // loadStorms()
     });
   });
