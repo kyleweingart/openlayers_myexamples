@@ -1,3 +1,10 @@
+// To DO: 
+// 1. ZOOM to Layer
+// Robust overhang
+// cycle through advisories
+// cache layers for quick display
+// load all Layers on application startup (improve speed and ui)
+// default storm names / load etc.
 
 let vectorSource; // Declare the vector source globally
 let vectorLayer;  // Declare the vector layer globally
@@ -29,14 +36,10 @@ function initMap() {
       zoom: 2,
     }),
   });
-
-  
-
-   // Load the "error_cone" layer by default
-  //  loadGeoJSON('error_cone');
 }
 
 async function getStormLayers(storm) {
+  // console.log(storm);
   try {
     const response = await fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
         method: 'GET',
@@ -51,6 +54,8 @@ async function getStormLayers(storm) {
     }
 
     const advisories = await response.json();
+    // console.log(stormList);
+    // To Do: this could be more efficient.
     stormList.forEach(storm => {
       storm.workingAdvisories = advisories.filter(advisory => advisory.storm === storm.stormid);
     });
@@ -122,7 +127,7 @@ function loadComboBoxes() {
           option.value = option.text = optionValue;
           comboBox.appendChild(option);
       });
-      comboBox.value = options[1]; // Set first option as selected by default
+      comboBox.value = options[0]; // Set first option as selected by default
   };
 
   // Event listener for Year combobox
@@ -148,9 +153,16 @@ function loadComboBoxes() {
 // Function to create storm template using template literals
 const createStormTemplate = async (storm) => {
   const stormLayers =  await getStormLayers(storm);
+  console.log(stormLayers);
+  // console.log(stormLayers);
   
   // Get the last advisory
   const lastAdvisory = stormLayers[stormLayers.length - 1];
+  console.log(lastAdvisory.storm_name);
+  const stormLabel = lastAdvisory.storm_name 
+    ? `${lastAdvisory.storm_name} (${storm.stormid})` 
+  : `${storm.stormid}`;
+
 
   // Only proceed if last advisory is not undefined
   if (!lastAdvisory || !lastAdvisory.layers) {
@@ -173,10 +185,10 @@ const createStormTemplate = async (storm) => {
     `;
   })
   .join('');
-  
+ 
   return `
       <details data-stormid="${storm.stormid}" >
-          <summary>${lastAdvisory.storm_name}</summary>
+          <summary>${stormLabel}</summary>
           ${layersHTML}
       </details>
   `;
@@ -184,31 +196,55 @@ const createStormTemplate = async (storm) => {
 
 // Function to populate storm templates into the toc container
 const populateStormTemplates = async (stormData) => {
+  console.log(stormData);
   const container = document.getElementById('toc'); // Get the target container
   container.innerHTML = ''; // Clear any existing content
   // Generate and insert the storm templates dynamically
   const stormTemplates = await Promise.all(stormData.map(storm => createStormTemplate(storm)));
-   // Update the container with the generated HTML
-   container.innerHTML = stormTemplates.join('');
-  //  To Do: fire layer creation add features get request once storm is added and error cone progromatically checked on.
+  // To Do - sort control order of storm templates?  currently object so no order.  
+  // Update the container with the generated HTML
+  container.innerHTML = stormTemplates.join('');
+
+  // Attach event listeners to <details> elements AFTER they are inserted
+  document.querySelectorAll('#toc details').forEach(details => {
+    details.addEventListener('toggle', function () {
+          if (details.open) {
+              // Remove highlight from all other summaries
+              document.querySelectorAll("#toc details > summary").forEach(summary => {
+                  summary.style.backgroundColor = "";
+              });
+
+              // Highlight the currently opened summary
+              details.querySelector("summary").style.backgroundColor = "yellow";
+              // To Do - get the attribute - get the workingAdvisories
+              const stormId = details.getAttribute("data-stormid");
+              // console.log(stormId);
+              const stormObj = stormList.find(storm => storm.stormid = stormId);
+              // console.log(stormObj);
+              makeStormActive(stormObj);
+
+             
+          }
+      });
+  });
   // Set Layer Controls
   stormData.forEach(storm => {
     setupLayerControls(storm);
   });
+
   if (stormData.length > 0) {
-    console.log(stormData);
     makeStormActive(stormData.find(storm => storm.workingAdvisories.length > 0 && storm.workingAdvisories[storm.workingAdvisories.length - 1].layers));
   }
 };
 
 function makeStormActive(storm) {
-  console.log(storm);
+  console.log('make Storm Active');
+  // console.log(storm);
   if (storm) {
     const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
-    console.log(lastAdvisory.layers.error_cone);
+    // console.log(lastAdvisory.layers.error_cone);
     const titleBar = document.getElementById('storm-title');
     if (titleBar && lastAdvisory) {
-      console.log('here');
       titleBar.textContent = `Advisory #${lastAdvisory.advisory_id}`;
     }
 
@@ -223,9 +259,8 @@ function makeStormActive(storm) {
       `input[name="layer_${storm.stormid}"][layername="forecast_position"]`
     );
 
-    console.log(firstRadio);
     if (firstRadio) {
-      console.log(firstRadio);
+      // console.log(firstRadio);
       firstRadio.checked = true; // visually mark it as selected
       // Dispatch a change event so that the associated event handler fires
       firstRadio.dispatchEvent(new Event('change'));
@@ -235,15 +270,11 @@ function makeStormActive(storm) {
 
 // Function to fetch GeoJSON and update the vector layer
 function loadLayer(layer) {
-  console.log(layer.attributes.layername.value);
-  // const filePath = `./${layerName}.json`; // Construct file path based on layer name
   vectorLayer.set('name', layer.attributes.layername.value);
 
   // Update the current styles based on the layer
   currentStyles = stylesByLayer[layer.attributes.layername.value];
-
-  console.log(layer.value);
-
+  // layer.value = 'https://data.hurricanemapping.com/hmgis/layers/SI112025/7/forecast_wind_swath';
   fetch(`${layer.value}`, {
     method: 'GET', 
     headers: {
@@ -257,7 +288,7 @@ function loadLayer(layer) {
       return response.json();
     })
     .then((geojsonData) => {
-      console.log(geojsonData);
+      // console.log(geojsonData);
       // Read features from the GeoJSON file
       const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
         dataProjection: 'EPSG:4326', // GeoJSON standard
@@ -276,13 +307,8 @@ function loadLayer(layer) {
 function setupLayerControls(storm) {
   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((radio) => {
     radio.addEventListener('change', (event) => {
-      console.log('change event fired');
       vectorSource.clear();
-      console.log(event);
-      // const selectedLayer = event.target.value;
-      
       loadLayer(event.target); // Load the GeoJSON file for the selected layer
-      // loadStorms()
     });
   });
 }
@@ -760,13 +786,13 @@ function styleFunction(feature) {
   } else if (layerName === 'past_track_line') {
       return currentStyles.default;
   } else if (layerName === 'past_wind') {
-    console.log(feature);
+    // console.log(feature);
     const color = getColorFromWS(feature.get('windspd'));
       return currentStyles[color];
   } else if (layerName === 'warning_line') {
       return currentStyles.default;
   } else if (layerName === 'wind_prob_point') {
-    console.log(feature);
+    // console.log(feature);
       return currentStyles.default;
   } else if (layerName === 'wind_prob_polygon') {
     if (feature.get('windspd') === 34) {
