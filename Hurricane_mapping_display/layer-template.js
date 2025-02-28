@@ -1,22 +1,20 @@
 // To DO: 
-// 1. ZOOM to Layer
+// 1. ZOOM to Layer / Zoom to Selected Region
 // Robust overhang
-// cycle through advisories
+// cycle through advisories - add another dimension to mapLayers Object
 // cache layers for quick display
 // load all Layers on application startup (improve speed and ui)
 // default storm names / load etc.
 
 const mapLayers = {};
 
-// let vectorSource; // Declare the vector source globally
-// let vectorLayer;  // Declare the vector layer globally
 let map;          // Declare the map globally
 let currentStyles;
 let stormList;
 const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
 
-const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
 // What are the correct forecast hours?
+const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
 
 // Initialize the map with a raster (OSM) layer
 function initMap() {
@@ -24,14 +22,7 @@ function initMap() {
     source: new ol.source.OSM(),
   });
 
-  // vectorSource = new ol.source.Vector(); // Empty source to start
-  // vectorLayer = new ol.layer.Vector({
-  //   source: vectorSource,
-  //   style: styleFunction
-  // });
-
   map = new ol.Map({
-    // layers: [raster, vectorLayer],
     layers: [raster],
     target: document.getElementById('map'),
     view: new ol.View({
@@ -42,7 +33,8 @@ function initMap() {
 }
 
 async function getStormLayers(storm) {
-  
+  // To Do: maybe need to add logic if workingAdvisories already fetched dont do it again/use existing storm Object
+  // this could be a factor if changing to and from years and regions - making same request multiple times
   try {
     const response = await fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
         method: 'GET',
@@ -60,7 +52,6 @@ async function getStormLayers(storm) {
 
     const index = stormList.findIndex(s => s.stormid === storm.stormid);
     if (index !== -1 && !stormList[index].workingAdvisories) {
-      // To Do: maybe need to add logic if workingAdvisories already fetched dont do it again/use existing
       stormList[index].workingAdvisories = advisories.filter(advisory => advisory.storm === storm.stormid);
     }
 
@@ -221,8 +212,25 @@ function makeStormActive(storm) {
     const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
     
     const titleBar = document.getElementById('storm-title');
+    const leftArrowButton = document.getElementById('left-arrow');
+    const rightArrowButton = document.getElementById('right-arrow');
+    const advisoryText = document.getElementById('advisory-text');
     if (titleBar && lastAdvisory) {
-      titleBar.textContent = `Advisory #${lastAdvisory.advisory_id}`;
+      advisoryText.textContent = `Advisory #${lastAdvisory.advisory_id}`;
+      // Show the left and right arrows
+      leftArrowButton.style.display = 'inline-block';
+      rightArrowButton.style.display = 'inline-block';
+
+      // Add event listeners for arrow buttons
+      leftArrowButton.addEventListener('click', () => {
+        console.log('Left arrow clicked');
+        // Add your logic for left arrow click here
+      });
+
+      rightArrowButton.addEventListener('click', () => {
+        console.log('Right arrow clicked');
+      // Add your logic for right arrow click here
+  });
     }
 
     // Find the details element for the storm and open it.
