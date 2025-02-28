@@ -6,8 +6,10 @@
 // load all Layers on application startup (improve speed and ui)
 // default storm names / load etc.
 
-let vectorSource; // Declare the vector source globally
-let vectorLayer;  // Declare the vector layer globally
+const mapLayers = {};
+
+// let vectorSource; // Declare the vector source globally
+// let vectorLayer;  // Declare the vector layer globally
 let map;          // Declare the map globally
 let currentStyles;
 let stormList;
@@ -22,14 +24,15 @@ function initMap() {
     source: new ol.source.OSM(),
   });
 
-  vectorSource = new ol.source.Vector(); // Empty source to start
-  vectorLayer = new ol.layer.Vector({
-    source: vectorSource,
-    style: styleFunction
-  });
+  // vectorSource = new ol.source.Vector(); // Empty source to start
+  // vectorLayer = new ol.layer.Vector({
+  //   source: vectorSource,
+  //   style: styleFunction
+  // });
 
   map = new ol.Map({
-    layers: [raster, vectorLayer],
+    // layers: [raster, vectorLayer],
+    layers: [raster],
     target: document.getElementById('map'),
     view: new ol.View({
       center: [0, 3000000], 
@@ -39,7 +42,7 @@ function initMap() {
 }
 
 async function getStormLayers(storm) {
-  // console.log(storm);
+  
   try {
     const response = await fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
         method: 'GET',
@@ -54,11 +57,13 @@ async function getStormLayers(storm) {
     }
 
     const advisories = await response.json();
-    // console.log(stormList);
-    // To Do: this could be more efficient.
-    stormList.forEach(storm => {
-      storm.workingAdvisories = advisories.filter(advisory => advisory.storm === storm.stormid);
-    });
+
+    const index = stormList.findIndex(s => s.stormid === storm.stormid);
+    if (index !== -1 && !stormList[index].workingAdvisories) {
+      // To Do: maybe need to add logic if workingAdvisories already fetched dont do it again/use existing
+      stormList[index].workingAdvisories = advisories.filter(advisory => advisory.storm === storm.stormid);
+    }
+
     return advisories;
 } catch (error) {
     console.error(error);
@@ -66,29 +71,6 @@ async function getStormLayers(storm) {
 }
 }
   
-  https://data.hurricanemapping.com/hmgis/advisories/?storm=al092022
-//   fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
-//     method: 'GET', 
-//     headers: {
-//     'Authorization': `Token ${token}`, // Include the token here
-//     'Content-Type': 'application/json'
-//     }} )
-//     .then((response) => {
-//       if (!response.ok) {
-//         throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
-//       }
-//       return response.json();
-//     })
-//     .then((advisories) => {
-//       console.log(stormList);
-//       console.log(advisories);
-//       stormList.forEach(storm => {
-//         storm.workingAdvisories = advisories.filter(advisory => advisory.storm === storm.stormid);
-//       return stormList;
-//     });
-// });
-// }
-
 function loadStorms() {
   fetch(`https://data.hurricanemapping.com/hmgis/?format=json`, {
     method: 'GET', 
@@ -153,16 +135,12 @@ function loadComboBoxes() {
 // Function to create storm template using template literals
 const createStormTemplate = async (storm) => {
   const stormLayers =  await getStormLayers(storm);
-  console.log(stormLayers);
-  // console.log(stormLayers);
-  
   // Get the last advisory
   const lastAdvisory = stormLayers[stormLayers.length - 1];
-  console.log(lastAdvisory.storm_name);
+ 
   const stormLabel = lastAdvisory.storm_name 
     ? `${lastAdvisory.storm_name} (${storm.stormid})` 
-  : `${storm.stormid}`;
-
+    : `${storm.stormid}`;
 
   // Only proceed if last advisory is not undefined
   if (!lastAdvisory || !lastAdvisory.layers) {
@@ -179,7 +157,7 @@ const createStormTemplate = async (storm) => {
     }
     return `
       <div class="form-check">
-          <input class="form-check-input" type="radio" name="layer_${storm.stormid}" value="${layerValue}" layername="${layerName}" ${checked}>
+          <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" layername="${layerName}" ${checked}>
           <label class="form-check-label">${layerName}</label>
       </div>
     `;
@@ -196,12 +174,12 @@ const createStormTemplate = async (storm) => {
 
 // Function to populate storm templates into the toc container
 const populateStormTemplates = async (stormData) => {
-  console.log(stormData);
   const container = document.getElementById('toc'); // Get the target container
   container.innerHTML = ''; // Clear any existing content
   // Generate and insert the storm templates dynamically
-  const stormTemplates = await Promise.all(stormData.map(storm => createStormTemplate(storm)));
-  // To Do - sort control order of storm templates?  currently object so no order.  
+  const stormTemplates = await Promise.all(
+    stormData.sort((a, b) => a.number - b.number).map(storm => createStormTemplate(storm)));
+  
   // Update the container with the generated HTML
   container.innerHTML = stormTemplates.join('');
 
@@ -216,14 +194,9 @@ const populateStormTemplates = async (stormData) => {
 
               // Highlight the currently opened summary
               details.querySelector("summary").style.backgroundColor = "yellow";
-              // To Do - get the attribute - get the workingAdvisories
               const stormId = details.getAttribute("data-stormid");
-              // console.log(stormId);
-              const stormObj = stormList.find(storm => storm.stormid = stormId);
-              // console.log(stormObj);
+              const stormObj = stormList.find(storm => storm.stormid === stormId);
               makeStormActive(stormObj);
-
-             
           }
       });
   });
@@ -233,16 +206,20 @@ const populateStormTemplates = async (stormData) => {
   });
 
   if (stormData.length > 0) {
-    makeStormActive(stormData.find(storm => storm.workingAdvisories.length > 0 && storm.workingAdvisories[storm.workingAdvisories.length - 1].layers));
+    // To Do: more refinement needed for making active by default (Active vs Current Year vs Archive Year)
+    // currently defaults to first storm in stormData array
+    const detailsEl = document.querySelector(`details[data-stormid="${stormData[0].stormid}"]`);
+   
+    if (detailsEl) {
+      detailsEl.open = true;  // This programmatically opens the details element.
+    }
   }
 };
 
 function makeStormActive(storm) {
-  console.log('make Storm Active');
-  // console.log(storm);
   if (storm) {
     const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
-    // console.log(lastAdvisory.layers.error_cone);
+    
     const titleBar = document.getElementById('storm-title');
     if (titleBar && lastAdvisory) {
       titleBar.textContent = `Advisory #${lastAdvisory.advisory_id}`;
@@ -253,62 +230,86 @@ function makeStormActive(storm) {
     if (detailsEl) {
       detailsEl.open = true;  // This programmatically opens the details element.
     }
-    const firstRadio = document.querySelector(
-      // To Do - layername could be anything? what layers all always present? what makes sense?  position?
-      // `input[name="layer_${storm.stormid}"][layername="error_cone"]`
-      `input[name="layer_${storm.stormid}"][layername="forecast_position"]`
+    const firstLayer = document.querySelector(
+      `input[name="layer_${storm.stormid}"]`
     );
 
-    if (firstRadio) {
-      // console.log(firstRadio);
-      firstRadio.checked = true; // visually mark it as selected
+    
+
+    if (firstLayer) {
+      firstLayer.checked = true; // visually mark it as selected
       // Dispatch a change event so that the associated event handler fires
-      firstRadio.dispatchEvent(new Event('change'));
+      firstLayer.dispatchEvent(new Event('change'));
     }
   }
 }
 
 // Function to fetch GeoJSON and update the vector layer
 function loadLayer(layer) {
-  vectorLayer.set('name', layer.attributes.layername.value);
+  if (!mapLayers[layer.attributes.name.value]) {
+    mapLayers[layer.attributes.name.value] = {};
+  }
+ 
+  const stormLayers = mapLayers[layer.attributes.name.value];
 
-  // Update the current styles based on the layer
-  currentStyles = stylesByLayer[layer.attributes.layername.value];
-  // layer.value = 'https://data.hurricanemapping.com/hmgis/layers/SI112025/7/forecast_wind_swath';
-  fetch(`${layer.value}`, {
-    method: 'GET', 
-    headers: {
-    'Authorization': `Token ${token}`, // Include the token here
-    'Content-Type': 'application/json'
-    }} )
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
-      }
-      return response.json();
-    })
-    .then((geojsonData) => {
-      // console.log(geojsonData);
-      // Read features from the GeoJSON file
-      const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
-        dataProjection: 'EPSG:4326', // GeoJSON standard
-        featureProjection: 'EPSG:3857', // Web Mercator for OpenLayers
-      });
+  if (!stormLayers[layer.attributes.layername.value]) {
+    // Update the current styles based on the layer
+    currentStyles = stylesByLayer[layer.attributes.layername.value];
+    fetch(`${layer.value}`, {
+      method: 'GET', 
+      headers: {
+      'Authorization': `Token ${token}`, // Include the token here
+      'Content-Type': 'application/json'
+      }} )
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to fetch GeoJSON file: ${response.statusText}`);
+        }
+        return response.json();
+      })
+      .then((geojsonData) => {
+        // Read features from the GeoJSON file
+        const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
+          dataProjection: 'EPSG:4326', // GeoJSON standard
+          featureProjection: 'EPSG:3857', // Web Mercator for OpenLayers
+        });
 
-      // Clear the existing source and add new features
-      vectorSource.addFeatures(features);
-    })
+        const vectorSource = new ol.source.Vector()
+        vectorSource.addFeatures(features);
+
+        const vectorLayer = new ol.layer.Vector({
+          source: vectorSource,
+          stormid: layer.attributes.name.value,
+          layer: layer.attributes.layername.value,
+          style: styleFunction
+        });
+        stormLayers[layer.attributes.layername.value] = vectorLayer;
+        map.addLayer(vectorLayer);
+      })
     .catch((error) => {
       console.error(error.message);
     });
+  } else {
+    map.addLayer(stormLayers[layer.attributes.layername.value]);
+  }
 }
+
+function clearLayer(layer) {
+  map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.layername.value]);
+}
+
+// To Do: sometimes assertion error in console when multiple storm layers turning off and on
 
 // Event listener for radio buttons
 function setupLayerControls(storm) {
-  document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((radio) => {
-    radio.addEventListener('change', (event) => {
-      vectorSource.clear();
-      loadLayer(event.target); // Load the GeoJSON file for the selected layer
+  document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyrChkBox) => {
+    lyrChkBox.addEventListener('change', (event) => {
+      if (event.target.checked) {
+        // Load the GeoJSON file for the selected layer
+        loadLayer(event.target);
+      } else {
+        clearLayer(event.target);
+      }
     });
   });
 }
@@ -762,7 +763,7 @@ function getColorFromProb(prob) {
 }
 
 function styleFunction(feature) {
-  const layerName = vectorLayer.get('name');
+  const layerName = feature.get('layer');
   if (layerName === 'error_cone') {
     return currentStyles[feature.get('label')];
   } else if (layerName === 'forecast_position') {
@@ -786,13 +787,11 @@ function styleFunction(feature) {
   } else if (layerName === 'past_track_line') {
       return currentStyles.default;
   } else if (layerName === 'past_wind') {
-    // console.log(feature);
     const color = getColorFromWS(feature.get('windspd'));
       return currentStyles[color];
   } else if (layerName === 'warning_line') {
       return currentStyles.default;
   } else if (layerName === 'wind_prob_point') {
-    // console.log(feature);
       return currentStyles.default;
   } else if (layerName === 'wind_prob_polygon') {
     if (feature.get('windspd') === 34) {
