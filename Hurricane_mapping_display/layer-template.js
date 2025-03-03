@@ -208,15 +208,83 @@ const populateStormTemplates = async (stormData) => {
 };
 
 function makeStormActive(storm) {
+  console.log(storm);
   if (storm) {
     const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
+    let currentIndex = storm.workingAdvisories.length - 1;
     
     const titleBar = document.getElementById('storm-title');
     const leftArrowButton = document.getElementById('left-arrow');
     const rightArrowButton = document.getElementById('right-arrow');
     const advisoryText = document.getElementById('advisory-text');
     if (titleBar && lastAdvisory) {
-      advisoryText.textContent = `Advisory #${lastAdvisory.advisory_id}`;
+
+      function updateArrowState(e) {
+        console.log(storm.workingAdvisories);
+        // console.log(detailsEl);
+        const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
+        .filter(layer => layer.checked)
+        .map(layer => layer.getAttribute('layername'));
+        
+        if (e === 'click') {
+        const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
+        detailsEl.querySelectorAll(".form-check").forEach(el => el.remove());
+        // To Do: need to replace values of all layers with check box with new advisory index
+        // also need to add/remove layers if needed - see which layers are checked on? off?
+        console.log(mapLayers);
+        console.log(storm.workingAdvisories[currentIndex]);
+
+        const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
+          .map(([layerName, layerValue], index) => {
+          const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
+          if (layerValue.startsWith('http://')) {
+            layerValue = layerValue.replace('http://', 'https://');
+          }
+          return `
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" layername="${layerName}" ${checked}>
+                <label class="form-check-label">${layerName}</label>
+            </div>
+          `;
+        })
+        .join('');
+
+        detailsEl.insertAdjacentHTML('beforeend', layersHTML);
+        console.log(layersHTML);
+        }
+
+
+
+        document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
+          console.log(lyr.checked);
+          console.log(lyr.attributes.layername.value);
+          if (lyr.checked) {
+            // lyr.dispatchEvent(new Event('change'));
+          }
+          // lyrChkBox.addEventListener('change', (event) => {
+          //   if (event.target.checked) {
+          //     // Load the GeoJSON file for the selected layer
+          //     loadLayer(event.target);
+          //   } else {
+          //     clearLayer(event.target);
+          //   }
+          });
+        // updateLayers();
+        // Update the advisory text
+        advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
+    
+        // Disable left arrow if at the beginning
+        leftArrowButton.disabled = currentIndex === 0;
+        leftArrowButton.style.opacity = currentIndex === 0 ? 0.5 : 1;
+        leftArrowButton.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+    
+        // Disable right arrow if at the end
+        rightArrowButton.disabled = currentIndex === storm.workingAdvisories.length - 1;
+        rightArrowButton.style.opacity = currentIndex === storm.workingAdvisories.length - 1 ? 0.5 : 1;
+        rightArrowButton.style.pointerEvents = currentIndex === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
+      }
+
+      // advisoryText.textContent = `Advisory #${lastAdvisory.advisory_id}`;
       // Show the left and right arrows
       leftArrowButton.style.display = 'inline-block';
       rightArrowButton.style.display = 'inline-block';
@@ -224,13 +292,25 @@ function makeStormActive(storm) {
       // Add event listeners for arrow buttons
       leftArrowButton.addEventListener('click', () => {
         console.log('Left arrow clicked');
+        // To Do: update advisory display
+        currentIndex--;
+        updateArrowState('click');
+        // console.log(storm.workingAdvisories[currentIndex]);
+        // advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
+        // document.getElementById('left-arrow').disabled = currentIndex === 0;
         // Add your logic for left arrow click here
       });
 
       rightArrowButton.addEventListener('click', () => {
         console.log('Right arrow clicked');
+        currentIndex++;
+        // advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
+        // document.getElementById('right-arrow').disabled = currentIndex === storm.workingAdvisories.length - 1;
+        updateArrowState('click');
       // Add your logic for right arrow click here
-  });
+      });
+
+      updateArrowState();
     }
 
     // Find the details element for the storm and open it.
@@ -254,6 +334,7 @@ function makeStormActive(storm) {
 
 // Function to fetch GeoJSON and update the vector layer
 function loadLayer(layer) {
+  console.log(layer);
   if (!mapLayers[layer.attributes.name.value]) {
     mapLayers[layer.attributes.name.value] = {};
   }
