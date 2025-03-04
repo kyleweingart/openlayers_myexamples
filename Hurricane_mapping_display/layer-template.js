@@ -138,17 +138,20 @@ const createStormTemplate = async (storm) => {
       console.warn(`No advisories or layers found for storm ${storm.stormid}`);
       return ''; // Return an empty string to skip rendering this storm
   }
+
+  console.log(lastAdvisory);
   
   // Generate layersHTML dynamically, ensuring we display both the layer name and its value
   const layersHTML = Object.entries(lastAdvisory.layers)
   .map(([layerName, layerValue], index) => {
+    console.log(lastAdvisory.advisory_id);
     const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
     if (layerValue.startsWith('http://')) {
       layerValue = layerValue.replace('http://', 'https://');
     }
     return `
       <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" layername="${layerName}" ${checked}>
+          <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${lastAdvisory.advisory_id}" layername="${layerName}" ${checked}>
           <label class="form-check-label">${layerName}</label>
       </div>
     `;
@@ -192,9 +195,9 @@ const populateStormTemplates = async (stormData) => {
       });
   });
   // Set Layer Controls
-  stormData.forEach(storm => {
-    setupLayerControls(storm);
-  });
+  // stormData.forEach(storm => {
+  //   setupLayerControls(storm);
+  // });
 
   if (stormData.length > 0) {
     // To Do: more refinement needed for making active by default (Active vs Current Year vs Archive Year)
@@ -208,7 +211,7 @@ const populateStormTemplates = async (stormData) => {
 };
 
 function makeStormActive(storm) {
-  console.log(storm);
+
   if (storm) {
     const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
     let currentIndex = storm.workingAdvisories.length - 1;
@@ -220,8 +223,7 @@ function makeStormActive(storm) {
     if (titleBar && lastAdvisory) {
 
       function updateArrowState(e) {
-        console.log(storm.workingAdvisories);
-        // console.log(detailsEl);
+        
         const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
         .filter(layer => layer.checked)
         .map(layer => layer.getAttribute('layername'));
@@ -232,17 +234,20 @@ function makeStormActive(storm) {
         // To Do: need to replace values of all layers with check box with new advisory index
         // also need to add/remove layers if needed - see which layers are checked on? off?
         console.log(mapLayers);
-        console.log(storm.workingAdvisories[currentIndex]);
+       
 
         const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
           .map(([layerName, layerValue], index) => {
-          const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
+          
+          const checked = checkedLayers.includes(layerName) ? 'checked' : '';
+
+          
           if (layerValue.startsWith('http://')) {
             layerValue = layerValue.replace('http://', 'https://');
           }
           return `
             <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" layername="${layerName}" ${checked}>
+                <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${storm.workingAdvisories[currentIndex].advisory_id}" layername="${layerName}" ${checked}>
                 <label class="form-check-label">${layerName}</label>
             </div>
           `;
@@ -250,25 +255,31 @@ function makeStormActive(storm) {
         .join('');
 
         detailsEl.insertAdjacentHTML('beforeend', layersHTML);
-        console.log(layersHTML);
         }
 
-
+        // setupLayerControls(storm);
 
         document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
-          console.log(lyr.checked);
-          console.log(lyr.attributes.layername.value);
-          if (lyr.checked) {
-            // lyr.dispatchEvent(new Event('change'));
-          }
-          // lyrChkBox.addEventListener('change', (event) => {
-          //   if (event.target.checked) {
-          //     // Load the GeoJSON file for the selected layer
-          //     loadLayer(event.target);
-          //   } else {
-          //     clearLayer(event.target);
-          //   }
+          
+          // console.log(lyr);
+          // console.log(lyr.attributes.value.value);
+
+          
+          lyr.addEventListener('change', (event) => {
+            if (event.target.checked) {
+              // Load the GeoJSON file for the selected layer
+              loadLayer(event.target);
+            } else {
+              clearLayer(event.target);
+            }
           });
+
+          if (lyr.checked) {
+            console.log(lyr);
+            console.log('dispatch change event');
+            lyr.dispatchEvent(new Event('change'));
+          }
+        });
         // updateLayers();
         // Update the advisory text
         advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
@@ -291,23 +302,15 @@ function makeStormActive(storm) {
 
       // Add event listeners for arrow buttons
       leftArrowButton.addEventListener('click', () => {
-        console.log('Left arrow clicked');
         // To Do: update advisory display
         currentIndex--;
         updateArrowState('click');
-        // console.log(storm.workingAdvisories[currentIndex]);
-        // advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
-        // document.getElementById('left-arrow').disabled = currentIndex === 0;
-        // Add your logic for left arrow click here
+       
       });
 
       rightArrowButton.addEventListener('click', () => {
-        console.log('Right arrow clicked');
         currentIndex++;
-        // advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
-        // document.getElementById('right-arrow').disabled = currentIndex === storm.workingAdvisories.length - 1;
         updateArrowState('click');
-      // Add your logic for right arrow click here
       });
 
       updateArrowState();
@@ -327,19 +330,29 @@ function makeStormActive(storm) {
     if (firstLayer) {
       firstLayer.checked = true; // visually mark it as selected
       // Dispatch a change event so that the associated event handler fires
-      firstLayer.dispatchEvent(new Event('change'));
+      // firstLayer.dispatchEvent(new Event('change'));
     }
   }
 }
 
 // Function to fetch GeoJSON and update the vector layer
 function loadLayer(layer) {
+  console.log('loadLayer');
   console.log(layer);
+  console.log(mapLayers[layer.attributes.name.value]);
+  console.log(mapLayers[layer.attributes.adv.value]);
+  console.log(mapLayers);
+ 
   if (!mapLayers[layer.attributes.name.value]) {
     mapLayers[layer.attributes.name.value] = {};
   }
+
+  // Ensure the advisory number exists within the storm ID
+  if (!mapLayers[layer.attributes.name.value][layer.attributes.adv.value]) {
+    mapLayers[layer.attributes.name.value][layer.attributes.adv.value] = {};
+  }
  
-  const stormLayers = mapLayers[layer.attributes.name.value];
+  const stormLayers = mapLayers[layer.attributes.name.value][layer.attributes.adv.value];
 
   if (!stormLayers[layer.attributes.layername.value]) {
     // Update the current styles based on the layer
@@ -369,6 +382,7 @@ function loadLayer(layer) {
         const vectorLayer = new ol.layer.Vector({
           source: vectorSource,
           stormid: layer.attributes.name.value,
+          advisory: layer.attributes.adv.value,
           layer: layer.attributes.layername.value,
           style: styleFunction
         });
@@ -384,7 +398,7 @@ function loadLayer(layer) {
 }
 
 function clearLayer(layer) {
-  map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.layername.value]);
+  map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
 }
 
 // To Do: sometimes assertion error in console when multiple storm layers turning off and on
@@ -393,7 +407,10 @@ function clearLayer(layer) {
 function setupLayerControls(storm) {
   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyrChkBox) => {
     lyrChkBox.addEventListener('change', (event) => {
+      console.log('fire click event');
+      console.log(event);
       if (event.target.checked) {
+        console.log('loadlayer - 400');
         // Load the GeoJSON file for the selected layer
         loadLayer(event.target);
       } else {
