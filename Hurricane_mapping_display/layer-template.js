@@ -139,12 +139,12 @@ const createStormTemplate = async (storm) => {
       return ''; // Return an empty string to skip rendering this storm
   }
 
-  console.log(lastAdvisory);
+  // console.log(lastAdvisory);
   
   // Generate layersHTML dynamically, ensuring we display both the layer name and its value
   const layersHTML = Object.entries(lastAdvisory.layers)
   .map(([layerName, layerValue], index) => {
-    console.log(lastAdvisory.advisory_id);
+    // console.log(lastAdvisory.advisory_id);
     const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
     if (layerValue.startsWith('http://')) {
       layerValue = layerValue.replace('http://', 'https://');
@@ -227,13 +227,21 @@ function makeStormActive(storm) {
         const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
         .filter(layer => layer.checked)
         .map(layer => layer.getAttribute('layername'));
+
         
-        if (e === 'click') {
+       
+          
+          if (e === 'click') {
+          checkedLayers.forEach(layer => { 
+            const lyrName = document.querySelector(`input[layername=${layer}]`)
+            console.log(lyrName);
+            clearLayer(lyrName);
+          });
         const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
         detailsEl.querySelectorAll(".form-check").forEach(el => el.remove());
         // To Do: need to replace values of all layers with check box with new advisory index
         // also need to add/remove layers if needed - see which layers are checked on? off?
-        console.log(mapLayers);
+        // console.log(mapLayers);
        
 
         const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
@@ -275,8 +283,8 @@ function makeStormActive(storm) {
           });
 
           if (lyr.checked) {
-            console.log(lyr);
-            console.log('dispatch change event');
+            // console.log(lyr);
+            // console.log('dispatch change event');
             lyr.dispatchEvent(new Event('change'));
           }
         });
@@ -337,11 +345,11 @@ function makeStormActive(storm) {
 
 // Function to fetch GeoJSON and update the vector layer
 function loadLayer(layer) {
-  console.log('loadLayer');
-  console.log(layer);
-  console.log(mapLayers[layer.attributes.name.value]);
-  console.log(mapLayers[layer.attributes.adv.value]);
-  console.log(mapLayers);
+  // console.log('loadLayer');
+  // console.log(layer);
+  // console.log(mapLayers[layer.attributes.name.value]);
+  // console.log(mapLayers[layer.attributes.adv.value]);
+  // console.log(mapLayers);
  
   if (!mapLayers[layer.attributes.name.value]) {
     mapLayers[layer.attributes.name.value] = {};
@@ -393,11 +401,16 @@ function loadLayer(layer) {
       console.error(error.message);
     });
   } else {
+    console.log(layer.attributes.layername.value);
+    console.log(layer);
+    console.log(stormLayers);
     map.addLayer(stormLayers[layer.attributes.layername.value]);
   }
 }
 
 function clearLayer(layer) {
+  console.log(layer);
+  console.log(mapLayers);
   map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
 }
 
