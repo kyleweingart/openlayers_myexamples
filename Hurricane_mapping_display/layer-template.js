@@ -11,6 +11,7 @@ const mapLayers = {};
 let map;          // Declare the map globally
 let currentStyles;
 let stormList;
+let activeStormId;
 const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
 
 // What are the correct forecast hours?
@@ -20,6 +21,7 @@ const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
 function initMap() {
   const raster = new ol.layer.Tile({
     source: new ol.source.OSM(),
+    name: 'basemap'
   });
 
   map = new ol.Map({
@@ -139,12 +141,10 @@ const createStormTemplate = async (storm) => {
       return ''; // Return an empty string to skip rendering this storm
   }
 
-  // console.log(lastAdvisory);
-  
   // Generate layersHTML dynamically, ensuring we display both the layer name and its value
   const layersHTML = Object.entries(lastAdvisory.layers)
   .map(([layerName, layerValue], index) => {
-    // console.log(lastAdvisory.advisory_id);
+  
     const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
     if (layerValue.startsWith('http://')) {
       layerValue = layerValue.replace('http://', 'https://');
@@ -181,15 +181,25 @@ const populateStormTemplates = async (stormData) => {
   document.querySelectorAll('#toc details').forEach(details => {
     details.addEventListener('toggle', function () {
           if (details.open) {
-              // Remove highlight from all other summaries
-              document.querySelectorAll("#toc details > summary").forEach(summary => {
-                  summary.style.backgroundColor = "";
+            const prevDetailsEl = document.querySelector(`details[data-stormid="${activeStormId}"]`);
+            if (prevDetailsEl) {
+              // Remove highlight and close previous active storm 
+              prevDetailsEl.querySelector("summary").style.backgroundColor = "";
+              prevDetailsEl.open = false;  // This programmatically closes the details element.
+              document.querySelectorAll(`input[name="layer_${activeStormId}"]`).forEach((lyr) => {
+                
+              // uncheck
+                if (lyr.checked) {
+                  lyr.checked = false;
+                  lyr.dispatchEvent(new Event('change'));
+                }
               });
-
+            }
+              
               // Highlight the currently opened summary
               details.querySelector("summary").style.backgroundColor = "yellow";
-              const stormId = details.getAttribute("data-stormid");
-              const stormObj = stormList.find(storm => storm.stormid === stormId);
+              activeStormId = details.getAttribute("data-stormid");
+              const stormObj = stormList.find(storm => storm.stormid === activeStormId);
               makeStormActive(stormObj);
           }
       });
@@ -223,33 +233,29 @@ function makeStormActive(storm) {
     if (titleBar && lastAdvisory) {
 
       function updateArrowState(e) {
+
+       
         
         const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
         .filter(layer => layer.checked)
         .map(layer => layer.getAttribute('layername'));
 
-        
-       
-          
           if (e === 'click') {
           checkedLayers.forEach(layer => { 
             const lyrName = document.querySelector(`input[layername=${layer}]`)
-            console.log(lyrName);
             clearLayer(lyrName);
           });
+
         const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
         detailsEl.querySelectorAll(".form-check").forEach(el => el.remove());
         // To Do: need to replace values of all layers with check box with new advisory index
         // also need to add/remove layers if needed - see which layers are checked on? off?
-        // console.log(mapLayers);
        
-
         const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
           .map(([layerName, layerValue], index) => {
           
           const checked = checkedLayers.includes(layerName) ? 'checked' : '';
 
-          
           if (layerValue.startsWith('http://')) {
             layerValue = layerValue.replace('http://', 'https://');
           }
@@ -263,16 +269,12 @@ function makeStormActive(storm) {
         .join('');
 
         detailsEl.insertAdjacentHTML('beforeend', layersHTML);
-        }
+        } 
 
-        // setupLayerControls(storm);
 
         document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
           
-          // console.log(lyr);
-          // console.log(lyr.attributes.value.value);
-
-          
+         
           lyr.addEventListener('change', (event) => {
             if (event.target.checked) {
               // Load the GeoJSON file for the selected layer
@@ -283,12 +285,10 @@ function makeStormActive(storm) {
           });
 
           if (lyr.checked) {
-            // console.log(lyr);
-            // console.log('dispatch change event');
             lyr.dispatchEvent(new Event('change'));
           }
         });
-        // updateLayers();
+      
         // Update the advisory text
         advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
     
@@ -303,7 +303,6 @@ function makeStormActive(storm) {
         rightArrowButton.style.pointerEvents = currentIndex === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
       }
 
-      // advisoryText.textContent = `Advisory #${lastAdvisory.advisory_id}`;
       // Show the left and right arrows
       leftArrowButton.style.display = 'inline-block';
       rightArrowButton.style.display = 'inline-block';
@@ -333,24 +332,15 @@ function makeStormActive(storm) {
       `input[name="layer_${storm.stormid}"]`
     );
 
-    
-
     if (firstLayer) {
       firstLayer.checked = true; // visually mark it as selected
-      // Dispatch a change event so that the associated event handler fires
-      // firstLayer.dispatchEvent(new Event('change'));
     }
   }
 }
 
 // Function to fetch GeoJSON and update the vector layer
 function loadLayer(layer) {
-  // console.log('loadLayer');
-  // console.log(layer);
-  // console.log(mapLayers[layer.attributes.name.value]);
-  // console.log(mapLayers[layer.attributes.adv.value]);
-  // console.log(mapLayers);
- 
+
   if (!mapLayers[layer.attributes.name.value]) {
     mapLayers[layer.attributes.name.value] = {};
   }
@@ -401,18 +391,25 @@ function loadLayer(layer) {
       console.error(error.message);
     });
   } else {
-    console.log(layer.attributes.layername.value);
-    console.log(layer);
-    console.log(stormLayers);
+   
     map.addLayer(stormLayers[layer.attributes.layername.value]);
   }
 }
 
 function clearLayer(layer) {
-  console.log(layer);
-  console.log(mapLayers);
+ 
   map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
 }
+
+// function clearAllLayers() {
+//   map.getLayers().forEach(layer => {
+//     console.log(layer.get('name'));
+//     if (layer.get('name') !== 'basemap') {
+//       console.log('remove layer');
+//       map.removeLayer(layer);
+//     }
+//   })
+// }
 
 // To Do: sometimes assertion error in console when multiple storm layers turning off and on
 
@@ -420,10 +417,7 @@ function clearLayer(layer) {
 function setupLayerControls(storm) {
   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyrChkBox) => {
     lyrChkBox.addEventListener('change', (event) => {
-      console.log('fire click event');
-      console.log(event);
       if (event.target.checked) {
-        console.log('loadlayer - 400');
         // Load the GeoJSON file for the selected layer
         loadLayer(event.target);
       } else {
