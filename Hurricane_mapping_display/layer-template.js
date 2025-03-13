@@ -146,12 +146,13 @@ const createStormTemplate = async (storm) => {
   .map(([layerName, layerValue], index) => {
   
     const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
+    console.log(checked)
     if (layerValue.startsWith('http://')) {
       layerValue = layerValue.replace('http://', 'https://');
     }
     return `
       <div class="form-check">
-          <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${lastAdvisory.advisory_id}" layername="${layerName}" ${checked}>
+          <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${lastAdvisory.advisory_id}" layername="${layerName}">
           <label class="form-check-label">${layerName}</label>
       </div>
     `;
@@ -247,7 +248,12 @@ function makeStormActive(storm) {
           });
 
         const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
-        detailsEl.querySelectorAll(".form-check").forEach(el => el.remove());
+        
+        detailsEl.querySelectorAll(".form-check").forEach(el => {
+         
+          el.removeEventListener('change',  handleCheckBoxChange);
+          el.remove();
+        });
         // To Do: need to replace values of all layers with check box with new advisory index
         // also need to add/remove layers if needed - see which layers are checked on? off?
        
@@ -273,18 +279,18 @@ function makeStormActive(storm) {
 
 
         document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
+        
+          console.log('removing event listener to layer');
+          lyr.removeEventListener('change', handleCheckBoxChange);
+       
           
-         
-          lyr.addEventListener('change', (event) => {
-            if (event.target.checked) {
-              // Load the GeoJSON file for the selected layer
-              loadLayer(event.target);
-            } else {
-              clearLayer(event.target);
-            }
-          });
+          console.log('adding event listener to layer');
+        //  To Do: in many cases event listeners getting added multiple times (which causes assertion errors)
+          lyr.addEventListener('change', handleCheckBoxChange);
+          
 
           if (lyr.checked) {
+            console.log('lyr.checked');
             lyr.dispatchEvent(new Event('change'));
           }
         });
@@ -333,8 +339,22 @@ function makeStormActive(storm) {
     );
 
     if (firstLayer) {
+      console.log(firstLayer);
+      // To Do: layer not being added - previously i think there was a change event fired here?
       firstLayer.checked = true; // visually mark it as selected
+      // console.log('firing an event change for first layer in newly activated storm');
+      firstLayer.dispatchEvent(new Event('change', {bubbles: true}));
     }
+  }
+}
+
+function handleCheckBoxChange(event) {
+  if (event.target.checked) {
+    console.log('load layer');
+    // Load the GeoJSON file for the selected layer
+    loadLayer(event.target);
+  } else {
+    clearLayer(event.target);
   }
 }
 
@@ -351,6 +371,8 @@ function loadLayer(layer) {
   }
  
   const stormLayers = mapLayers[layer.attributes.name.value][layer.attributes.adv.value];
+
+  
 
   if (!stormLayers[layer.attributes.layername.value]) {
     // Update the current styles based on the layer
@@ -385,20 +407,27 @@ function loadLayer(layer) {
           style: styleFunction
         });
         stormLayers[layer.attributes.layername.value] = vectorLayer;
+        console.log('add layer now - line 409');
         map.addLayer(vectorLayer);
       })
     .catch((error) => {
       console.error(error.message);
     });
   } else {
-   
+    
+    console.log('add layer now- line 402');
     map.addLayer(stormLayers[layer.attributes.layername.value]);
   }
 }
 
 function clearLayer(layer) {
  
+  // map.getLayers().forEach(layer => {
+  //   console.log(layer);
+  // })
+  // console.log(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
   map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
+  // console.log('layer removed');
 }
 
 // function clearAllLayers() {
@@ -414,18 +443,19 @@ function clearLayer(layer) {
 // To Do: sometimes assertion error in console when multiple storm layers turning off and on
 
 // Event listener for radio buttons
-function setupLayerControls(storm) {
-  document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyrChkBox) => {
-    lyrChkBox.addEventListener('change', (event) => {
-      if (event.target.checked) {
-        // Load the GeoJSON file for the selected layer
-        loadLayer(event.target);
-      } else {
-        clearLayer(event.target);
-      }
-    });
-  });
-}
+// function setupLayerControls(storm) {
+//   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyrChkBox) => {
+//     lyrChkBox.addEventListener('change', (event) => {
+//       if (event.target.checked) {
+//         console.log('load layer - 435');
+//         // Load the GeoJSON file for the selected layer
+//         loadLayer(event.target);
+//       } else {
+//         clearLayer(event.target);
+//       }
+//     });
+//   });
+// }
 
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
