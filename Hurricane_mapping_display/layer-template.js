@@ -12,6 +12,7 @@ let map;          // Declare the map globally
 let currentStyles;
 let stormList;
 let activeStormId;
+let currentIndex;
 const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
 
 // What are the correct forecast hours?
@@ -145,8 +146,8 @@ const createStormTemplate = async (storm) => {
   const layersHTML = Object.entries(lastAdvisory.layers)
   .map(([layerName, layerValue], index) => {
   
-    const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
-    console.log(checked)
+    // const checked = index === 0 ? 'checked' : ''; // Add 'checked' to the first layer
+   
     if (layerValue.startsWith('http://')) {
       layerValue = layerValue.replace('http://', 'https://');
     }
@@ -225,108 +226,107 @@ function makeStormActive(storm) {
 
   if (storm) {
     const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
-    let currentIndex = storm.workingAdvisories.length - 1;
+    currentIndex = storm.workingAdvisories.length - 1;
     
     const titleBar = document.getElementById('storm-title');
-    const leftArrowButton = document.getElementById('left-arrow');
-    const rightArrowButton = document.getElementById('right-arrow');
-    const advisoryText = document.getElementById('advisory-text');
+   
+    // const advisoryText = document.getElementById('advisory-text');
     if (titleBar && lastAdvisory) {
 
-      function updateArrowState(e) {
+      // function updateArrowState(e) {
 
        
         
-        const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
-        .filter(layer => layer.checked)
-        .map(layer => layer.getAttribute('layername'));
+      //   const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
+      //   .filter(layer => layer.checked)
+      //   .map(layer => layer.getAttribute('layername'));
 
-          if (e === 'click') {
-          checkedLayers.forEach(layer => { 
-            const lyrName = document.querySelector(`input[layername=${layer}]`)
-            clearLayer(lyrName);
-          });
+      //     if (e === 'click') {
+      //     checkedLayers.forEach(layer => { 
+      //       const lyrName = document.querySelector(`input[layername=${layer}]`)
+      //       clearLayer(lyrName);
+      //     });
 
-        const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
+      //   const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
         
-        detailsEl.querySelectorAll(".form-check").forEach(el => {
+      //   detailsEl.querySelectorAll(".form-check").forEach(el => {
          
-          el.removeEventListener('change',  handleCheckBoxChange);
-          el.remove();
-        });
-        // To Do: need to replace values of all layers with check box with new advisory index
-        // also need to add/remove layers if needed - see which layers are checked on? off?
+      //     el.removeEventListener('change',  handleCheckBoxChange);
+      //     el.remove();
+      //   });
+      //   // To Do: need to replace values of all layers with check box with new advisory index
+      //   // also need to add/remove layers if needed - see which layers are checked on? off?
        
-        const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
-          .map(([layerName, layerValue], index) => {
+      //   const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
+      //     .map(([layerName, layerValue], index) => {
           
-          const checked = checkedLayers.includes(layerName) ? 'checked' : '';
+      //     const checked = checkedLayers.includes(layerName) ? 'checked' : '';
 
-          if (layerValue.startsWith('http://')) {
-            layerValue = layerValue.replace('http://', 'https://');
-          }
-          return `
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${storm.workingAdvisories[currentIndex].advisory_id}" layername="${layerName}" ${checked}>
-                <label class="form-check-label">${layerName}</label>
-            </div>
-          `;
-        })
-        .join('');
+      //     if (layerValue.startsWith('http://')) {
+      //       layerValue = layerValue.replace('http://', 'https://');
+      //     }
+      //     return `
+      //       <div class="form-check">
+      //           <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${storm.workingAdvisories[currentIndex].advisory_id}" layername="${layerName}" ${checked}>
+      //           <label class="form-check-label">${layerName}</label>
+      //       </div>
+      //     `;
+      //   })
+      //   .join('');
 
-        detailsEl.insertAdjacentHTML('beforeend', layersHTML);
-        } 
+      //   detailsEl.insertAdjacentHTML('beforeend', layersHTML);
+      //   } 
 
 
-        document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
+      //   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
         
-          console.log('removing event listener to layer');
-          lyr.removeEventListener('change', handleCheckBoxChange);
+      //     console.log('removing event listener to layer');
+      //     lyr.removeEventListener('change', handleCheckBoxChange);
        
           
-          console.log('adding event listener to layer');
-        //  To Do: in many cases event listeners getting added multiple times (which causes assertion errors)
-          lyr.addEventListener('change', handleCheckBoxChange);
+      //     console.log('adding event listener to layer');
+      //   //  To Do: in many cases event listeners getting added multiple times (which causes assertion errors)
+      //     lyr.addEventListener('change', handleCheckBoxChange);
           
 
-          if (lyr.checked) {
-            console.log('lyr.checked');
-            lyr.dispatchEvent(new Event('change'));
-          }
-        });
+      //     if (lyr.checked) {
+      //       console.log('lyr.checked');
+      //       lyr.dispatchEvent(new Event('change'));
+      //     }
+      //   });
       
-        // Update the advisory text
-        advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
+      //   // Update the advisory text
+      //   advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
     
-        // Disable left arrow if at the beginning
-        leftArrowButton.disabled = currentIndex === 0;
-        leftArrowButton.style.opacity = currentIndex === 0 ? 0.5 : 1;
-        leftArrowButton.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+      //   // Disable left arrow if at the beginning
+      //   leftArrowButton.disabled = currentIndex === 0;
+      //   leftArrowButton.style.opacity = currentIndex === 0 ? 0.5 : 1;
+      //   leftArrowButton.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
     
-        // Disable right arrow if at the end
-        rightArrowButton.disabled = currentIndex === storm.workingAdvisories.length - 1;
-        rightArrowButton.style.opacity = currentIndex === storm.workingAdvisories.length - 1 ? 0.5 : 1;
-        rightArrowButton.style.pointerEvents = currentIndex === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
-      }
+      //   // Disable right arrow if at the end
+      //   rightArrowButton.disabled = currentIndex === storm.workingAdvisories.length - 1;
+      //   rightArrowButton.style.opacity = currentIndex === storm.workingAdvisories.length - 1 ? 0.5 : 1;
+      //   rightArrowButton.style.pointerEvents = currentIndex === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
+      // }
 
       // Show the left and right arrows
-      leftArrowButton.style.display = 'inline-block';
-      rightArrowButton.style.display = 'inline-block';
+      document.getElementById('left-arrow').style.display = 'inline-block';
+      document.getElementById('right-arrow').style.display = 'inline-block';
 
       // Add event listeners for arrow buttons
-      leftArrowButton.addEventListener('click', () => {
+      document.getElementById('left-arrow').addEventListener('click', () => {
         // To Do: update advisory display
         currentIndex--;
-        updateArrowState('click');
+        updateArrowState('click', storm);
        
       });
 
-      rightArrowButton.addEventListener('click', () => {
+      document.getElementById('right-arrow').addEventListener('click', () => {
         currentIndex++;
-        updateArrowState('click');
+        updateArrowState('click', storm);
       });
 
-      updateArrowState();
+      updateArrowState('init', storm);
     }
 
     // Find the details element for the storm and open it.
@@ -356,6 +356,82 @@ function handleCheckBoxChange(event) {
   } else {
     clearLayer(event.target);
   }
+}
+
+function updateArrowState(e, storm) {
+
+       
+        
+  const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
+  .filter(layer => layer.checked)
+  .map(layer => layer.getAttribute('layername'));
+
+    if (e === 'click') {
+    checkedLayers.forEach(layer => { 
+      const lyrName = document.querySelector(`input[layername=${layer}]`)
+      clearLayer(lyrName);
+    });
+
+  const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
+  
+  detailsEl.querySelectorAll(".form-check").forEach(el => {
+   
+    el.removeEventListener('change',  handleCheckBoxChange);
+    el.remove();
+  });
+  // To Do: need to replace values of all layers with check box with new advisory index
+  // also need to add/remove layers if needed - see which layers are checked on? off?
+ 
+  const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
+    .map(([layerName, layerValue], index) => {
+    
+    const checked = checkedLayers.includes(layerName) ? 'checked' : '';
+
+    if (layerValue.startsWith('http://')) {
+      layerValue = layerValue.replace('http://', 'https://');
+    }
+    return `
+      <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${storm.workingAdvisories[currentIndex].advisory_id}" layername="${layerName}" ${checked}>
+          <label class="form-check-label">${layerName}</label>
+      </div>
+    `;
+  })
+  .join('');
+
+  detailsEl.insertAdjacentHTML('beforeend', layersHTML);
+  } 
+
+
+  document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
+  
+    console.log('removing event listener to layer');
+    lyr.removeEventListener('change', handleCheckBoxChange);
+ 
+    
+    console.log('adding event listener to layer');
+  //  To Do: in many cases event listeners getting added multiple times (which causes assertion errors)
+    lyr.addEventListener('change', handleCheckBoxChange);
+    
+
+    if (lyr.checked) {
+      console.log('lyr.checked');
+      lyr.dispatchEvent(new Event('change'));
+    }
+  });
+
+  // Update the advisory text
+  document.getElementById('advisory-text').textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
+
+  // Disable left arrow if at the beginning
+  document.getElementById('left-arrow').disabled = currentIndex === 0;
+  document.getElementById('left-arrow').style.opacity = currentIndex === 0 ? 0.5 : 1;
+  document.getElementById('left-arrow').style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+
+  // Disable right arrow if at the end
+  document.getElementById('right-arrow').disabled = currentIndex === storm.workingAdvisories.length - 1;
+  document.getElementById('right-arrow').style.opacity = currentIndex === storm.workingAdvisories.length - 1 ? 0.5 : 1;
+  document.getElementById('right-arrow').style.pointerEvents = currentIndex === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
 }
 
 // Function to fetch GeoJSON and update the vector layer
