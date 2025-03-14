@@ -91,6 +91,7 @@ function loadStorms() {
   });
 }
 
+
 function loadComboBoxes() {
   const years = [...new Set(stormList.map(storm => storm.year))].sort((a, b) => b - a);
   const regions = [...new Set(stormList.map(storm => storm.region.toUpperCase()))].sort();
@@ -124,6 +125,29 @@ function loadComboBoxes() {
     // Trigger change event for Year combobox
     document.getElementById('year-select').dispatchEvent(new Event('change')); 
   }, 0); 
+}
+
+function setupArrowControls() {
+  // Remove existing listeners first to prevent duplicates
+  const leftArrow = document.getElementById('left-arrow');
+  const rightArrow = document.getElementById('right-arrow');
+  
+  // Clone and replace elements to remove all existing listeners
+  const newLeftArrow = leftArrow.cloneNode(true);
+  const newRightArrow = rightArrow.cloneNode(true);
+  leftArrow.parentNode.replaceChild(newLeftArrow, leftArrow);
+  rightArrow.parentNode.replaceChild(newRightArrow, rightArrow);
+  
+  // Add new listeners
+  newLeftArrow.addEventListener('click', () => {
+      currentIndex--;
+      updateArrowState('click', stormList.find(s => s.stormid === activeStormId));
+  });
+
+  newRightArrow.addEventListener('click', () => {
+      currentIndex++;
+      updateArrowState('click', stormList.find(s => s.stormid === activeStormId));
+  });
 }
 
 // Function to create storm template using template literals
@@ -206,10 +230,6 @@ const populateStormTemplates = async (stormData) => {
           }
       });
   });
-  // Set Layer Controls
-  // stormData.forEach(storm => {
-  //   setupLayerControls(storm);
-  // });
 
   if (stormData.length > 0) {
     // To Do: more refinement needed for making active by default (Active vs Current Year vs Archive Year)
@@ -227,104 +247,13 @@ function makeStormActive(storm) {
   if (storm) {
     const lastAdvisory = storm.workingAdvisories[storm.workingAdvisories.length - 1];
     currentIndex = storm.workingAdvisories.length - 1;
-    
     const titleBar = document.getElementById('storm-title');
-   
-    // const advisoryText = document.getElementById('advisory-text');
+  
     if (titleBar && lastAdvisory) {
-
-      // function updateArrowState(e) {
-
-       
-        
-      //   const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
-      //   .filter(layer => layer.checked)
-      //   .map(layer => layer.getAttribute('layername'));
-
-      //     if (e === 'click') {
-      //     checkedLayers.forEach(layer => { 
-      //       const lyrName = document.querySelector(`input[layername=${layer}]`)
-      //       clearLayer(lyrName);
-      //     });
-
-      //   const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
-        
-      //   detailsEl.querySelectorAll(".form-check").forEach(el => {
-         
-      //     el.removeEventListener('change',  handleCheckBoxChange);
-      //     el.remove();
-      //   });
-      //   // To Do: need to replace values of all layers with check box with new advisory index
-      //   // also need to add/remove layers if needed - see which layers are checked on? off?
-       
-      //   const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
-      //     .map(([layerName, layerValue], index) => {
-          
-      //     const checked = checkedLayers.includes(layerName) ? 'checked' : '';
-
-      //     if (layerValue.startsWith('http://')) {
-      //       layerValue = layerValue.replace('http://', 'https://');
-      //     }
-      //     return `
-      //       <div class="form-check">
-      //           <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" value="${layerValue}" adv="${storm.workingAdvisories[currentIndex].advisory_id}" layername="${layerName}" ${checked}>
-      //           <label class="form-check-label">${layerName}</label>
-      //       </div>
-      //     `;
-      //   })
-      //   .join('');
-
-      //   detailsEl.insertAdjacentHTML('beforeend', layersHTML);
-      //   } 
-
-
-      //   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
-        
-      //     console.log('removing event listener to layer');
-      //     lyr.removeEventListener('change', handleCheckBoxChange);
-       
-          
-      //     console.log('adding event listener to layer');
-      //   //  To Do: in many cases event listeners getting added multiple times (which causes assertion errors)
-      //     lyr.addEventListener('change', handleCheckBoxChange);
-          
-
-      //     if (lyr.checked) {
-      //       console.log('lyr.checked');
-      //       lyr.dispatchEvent(new Event('change'));
-      //     }
-      //   });
-      
-      //   // Update the advisory text
-      //   advisoryText.textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
-    
-      //   // Disable left arrow if at the beginning
-      //   leftArrowButton.disabled = currentIndex === 0;
-      //   leftArrowButton.style.opacity = currentIndex === 0 ? 0.5 : 1;
-      //   leftArrowButton.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
-    
-      //   // Disable right arrow if at the end
-      //   rightArrowButton.disabled = currentIndex === storm.workingAdvisories.length - 1;
-      //   rightArrowButton.style.opacity = currentIndex === storm.workingAdvisories.length - 1 ? 0.5 : 1;
-      //   rightArrowButton.style.pointerEvents = currentIndex === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
-      // }
-
+      // To Do: can I move this?
       // Show the left and right arrows
       document.getElementById('left-arrow').style.display = 'inline-block';
       document.getElementById('right-arrow').style.display = 'inline-block';
-
-      // Add event listeners for arrow buttons
-      document.getElementById('left-arrow').addEventListener('click', () => {
-        // To Do: update advisory display
-        currentIndex--;
-        updateArrowState('click', storm);
-       
-      });
-
-      document.getElementById('right-arrow').addEventListener('click', () => {
-        currentIndex++;
-        updateArrowState('click', storm);
-      });
 
       updateArrowState('init', storm);
     }
@@ -339,10 +268,7 @@ function makeStormActive(storm) {
     );
 
     if (firstLayer) {
-      console.log(firstLayer);
-      // To Do: layer not being added - previously i think there was a change event fired here?
-      firstLayer.checked = true; // visually mark it as selected
-      // console.log('firing an event change for first layer in newly activated storm');
+      firstLayer.checked = true; 
       firstLayer.dispatchEvent(new Event('change', {bubbles: true}));
     }
   }
@@ -359,9 +285,6 @@ function handleCheckBoxChange(event) {
 }
 
 function updateArrowState(e, storm) {
-
-       
-        
   const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
   .filter(layer => layer.checked)
   .map(layer => layer.getAttribute('layername'));
@@ -402,18 +325,10 @@ function updateArrowState(e, storm) {
   detailsEl.insertAdjacentHTML('beforeend', layersHTML);
   } 
 
-
   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyr) => {
-  
-    console.log('removing event listener to layer');
     lyr.removeEventListener('change', handleCheckBoxChange);
- 
-    
-    console.log('adding event listener to layer');
-  //  To Do: in many cases event listeners getting added multiple times (which causes assertion errors)
     lyr.addEventListener('change', handleCheckBoxChange);
     
-
     if (lyr.checked) {
       console.log('lyr.checked');
       lyr.dispatchEvent(new Event('change'));
@@ -1027,7 +942,7 @@ function styleFunction(feature) {
 document.addEventListener("DOMContentLoaded", function() {
   initMap();
   loadStorms()
-  // setupLayerControls();
+  setupArrowControls();
 });
 
 
