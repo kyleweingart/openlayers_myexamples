@@ -78,3 +78,16 @@ body, html {
 .arrow-button:hover {
     color: #ccc; /* Change color on hover for interactivity */
 }
+
+#layer-notifications {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    max-width: 300px;
+    z-index: 1000;
+}
