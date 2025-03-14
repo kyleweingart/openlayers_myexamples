@@ -337,7 +337,8 @@ function updateArrowState(e, storm) {
 
         if (unavailableCheckedLayers.length > 0) {
             const notificationDiv = document.getElementById('layer-notifications');
-            notificationDiv.textContent = `Previously selected layers are not available in this advisory: ${unavailableCheckedLayers.join(', ')}`;
+            const notificationText = notificationDiv.querySelector('.notification-text');
+            notificationText.textContent = `Previously selected layers are not available in this advisory: ${unavailableCheckedLayers.join(', ')}`;
             notificationDiv.style.display = 'block';
             
             // Hide notification after a few seconds
@@ -351,7 +352,7 @@ function updateArrowState(e, storm) {
                 const firstLayer = document.querySelector(`input[name="layer_${storm.stormid}"]`);
                 if (firstLayer) {
                     firstLayer.checked = true;
-                    notificationDiv.textContent += '\nAutomatically selected the first available layer.';
+                    notificationText.textContent += '\nAutomatically selected the first available layer.';
                 }
             }
         }
