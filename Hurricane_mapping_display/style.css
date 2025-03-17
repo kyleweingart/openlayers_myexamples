@@ -27,15 +27,21 @@ body, html {
     border: 1px solid #ced4da;
 }
 
+
 .title-bar {
-    background-color: #007bff;
-    color: white;
+    background-color: #d7e4f3;  /* Soft gray-blue */
+    color: #2c3e50;  /* Dark blue-gray for text */
     padding: 15px;
     text-align: center;
-    font-size: 1.5rem;
-    font-weight: bold;
+    font-size: 1.2rem;
+    font-weight: 500;
     width: 100%;
-    height: 10%
+    height: 60px;
+    border-bottom: 1px solid #e9ecef;  /* Lighter border */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
 }
 
 .main-container {
@@ -61,21 +67,26 @@ body, html {
 .form-check-label, .form-label {
     color: black;
 }
+
 .form-select {
     background-color: #ffffff;
     color: black;
     border: 1px solid #ced4da;
 }
 
+#advisory-text {
+    font-size: 1.7rem;  /* Larger than the title bar's 1.5rem */
+}
+
 .arrow-button {
-    font-size: 1.5rem; /* Increase size of the arrow */
-    color: white; /* Set arrow color to white */
+    font-size: 2rem;
+    color: darkslategrey;
     background-color: transparent; 
     border: none; 
-  }
+}
 
 .arrow-button:hover {
-    color: #ccc; /* Change color on hover for interactivity */
+    color: gray;
 }
 
 #layer-notifications {
@@ -117,4 +128,3 @@ body, html {
     margin: 0;
     padding: 0;
 }
-

@@ -1,12 +1,11 @@
 // To DO: 
-// 1. ZOOM to Layer / Zoom to Selected Region
+// ZOOM to Layer / Zoom to Selected Region
 // Robust overhang
-// cycle through advisories - add another dimension to mapLayers Object
 // cache layers for quick display
 // load all Layers on application startup (improve speed and ui)
-// default storm names / load etc.
 
-import styles from './styles.js';
+
+import styles from './layer-styles.js';
 
 
 const mapLayers = {};
