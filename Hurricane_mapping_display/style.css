@@ -128,3 +128,39 @@ body, html {
     margin: 0;
     padding: 0;
 }
+
+
+.folder-content.collapsed { 
+    display: none; 
+}
+
+.folder-header { 
+    cursor: pointer; 
+    font-weight: bold; 
+    margin: 4px 0; 
+}
+
+.storm-item { 
+    margin-left: 20px; 
+    cursor: pointer; 
+}
+
+.year-toggle {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    background: #e0e0e0;
+    color: #333;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: monospace;
+    margin-right: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .year-toggle:hover {
+    background: #cccccc;
+  }

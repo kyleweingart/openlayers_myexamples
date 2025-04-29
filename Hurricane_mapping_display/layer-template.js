@@ -2,16 +2,14 @@
 // ZOOM to Layer / Zoom to Selected Region
 // Robust overhang
 // cache layers for quick display
-// load all Layers on application startup (improve speed and ui)
+
 
 
 import styles from './layer-styles.js';
 
-
 const mapLayers = {};
 
-let map;          // Declare the map globally
-// let currentStyles;
+let map;          
 let stormList;
 let activeStormId;
 let currentIndex;
@@ -35,11 +33,35 @@ function initMap() {
       zoom: 2,
     }),
   });
+
+  document.getElementById('toc').addEventListener('toggle', function(e) {
+    // Only handle toggle events from <details> elements
+    const details = e.target;
+    if (details.tagName !== 'DETAILS') return;
+  
+    if (details.open) {
+      // Remove highlight and close previous active storm
+      const prevDetailsEl = document.querySelector(`details[data-stormid="${activeStormId}"]`);
+      if (prevDetailsEl && prevDetailsEl !== details) {
+        prevDetailsEl.querySelector("summary").style.backgroundColor = "";
+        prevDetailsEl.open = false;
+        document.querySelectorAll(`input[name="layer_${activeStormId}"]`).forEach((lyr) => {
+          if (lyr.checked) {
+            lyr.checked = false;
+            lyr.dispatchEvent(new Event('change'));
+          }
+        });
+      }
+      // Highlight the currently opened summary
+      details.querySelector("summary").style.backgroundColor = "yellow";
+      activeStormId = details.getAttribute("data-stormid");
+      const stormObj = stormList.find(storm => storm.stormid === activeStormId);
+      makeStormActive(stormObj);
+    }
+  }, true); // Use capture phase for toggle events
 }
 
 async function getStormLayers(storm) {
-  // To Do: maybe need to add logic if workingAdvisories already fetched dont do it again/use existing storm Object
-  // this could be a factor if changing to and from years and regions - making same request multiple times
   try {
     const response = await fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
         method: 'GET',
@@ -89,47 +111,115 @@ function loadStorms() {
               number: storm.stormid.slice(2, 4)
           };
       });
-      loadComboBoxes(); 
+      populateStorms();
   });
 }
 
+async function populateStorms() {
+  const toc = document.getElementById('toc');
+  toc.innerHTML = '';
+  let tocHTML = '';
 
-function loadComboBoxes() {
-  const years = [...new Set(stormList.map(storm => storm.year))].sort((a, b) => b - a);
-  const regions = [...new Set(stormList.map(storm => storm.region.toUpperCase()))].sort();
-
-  // Helper function to populate a combobox
-  const populateComboBox = (comboBoxId, options) => {
-      const comboBox = document.getElementById(comboBoxId);
-      options.forEach(optionValue => {
-          const option = document.createElement('option');
-          option.value = option.text = optionValue;
-          comboBox.appendChild(option);
-      });
-      comboBox.value = options[0]; // Set first option as selected by default
-  };
-
-  // Event listener for Year combobox
-  document.getElementById('year-select').addEventListener('change', (e) => {
-    populateStormTemplates(stormList.filter(storm => storm.year === e.target.value && storm.region === document.getElementById('region-select').value.toLowerCase()));
-  }); 
-  
-  // Event listener for Region combobox
-  document.getElementById('region-select').addEventListener('change', (e) => {
-    populateStormTemplates(stormList.filter(storm => storm.region === e.target.value.toLowerCase() && storm.year === document.getElementById('year-select').value));
+  // Group storms by year and region (regions capitalized)
+  const grouped = {};
+  stormList.forEach(storm => {
+    const year = storm.year;
+    const region = storm.region.toUpperCase();
+    if (!grouped[year]) grouped[year] = {};
+    if (!grouped[year][region]) grouped[year][region] = [];
+    grouped[year][region].push(storm);
   });
 
-  // Populate Year and Region comboboxes
-  populateComboBox('year-select', years);
-  populateComboBox('region-select', regions);
+  const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
+  const currentYear = sortedYears[0];
 
-  setTimeout(() => {
-    // Trigger change event for Year combobox
-    document.getElementById('year-select').dispatchEvent(new Event('change')); 
-  }, 0); 
+  for (const year of sortedYears) {
+    tocHTML += `<div class="folder year-folder">
+      <div class="folder-header" onclick="this.nextElementSibling.classList.toggle('collapsed'); 
+      const toggle = this.querySelector('.year-toggle');
+    toggle.textContent = toggle.textContent === '+' ? '-' : '+';">
+        <span class="year-toggle">+</span> ${year}
+      </div>
+      <div class="folder-content collapsed">`;
+      const sortedRegions = Object.keys(grouped[year]).sort();
+      for (const region of sortedRegions) {
+
+        tocHTML += `
+          <div class="folder region-folder" style="margin-left:10px;">
+            <div class="folder-header" onclick="this.nextElementSibling.classList.toggle('collapsed'); 
+            const toggle = this.querySelector('.year-toggle');
+    toggle.textContent = toggle.textContent === '+' ? '-' : '+';">
+              <span class="year-toggle">+</span> ${region}
+            </div>
+            <div class="folder-content collapsed" id="region-${year}-${region}" style="margin-left:20px;">
+              <div class="storm-list-placeholder">Loading...</div>
+            </div>
+          </div>
+        `;
+      }
+
+      tocHTML += `</div></div>`;
+    }
+  
+    toc.innerHTML = tocHTML;
+
+  //Prefetch and display current year storms
+  await Promise.all(
+    Object.keys(grouped[currentYear]).map(async region => {
+      const regionStorms = grouped[currentYear][region];
+      const regionStormsHTML = await populateStormTemplates(regionStorms);
+      document.getElementById(`region-${currentYear}-${region}`).innerHTML = regionStormsHTML;
+    })
+  );
+
+  // Now open the first storm details element in the current year
+  const firstDetails = document.querySelector(
+    Object.keys(grouped[currentYear])
+      .map(region => `#region-${currentYear}-${region} details`)
+      .join(', ')
+  );
+ 
+  if (firstDetails) {
+    // Expand region and year folders first
+    const regionContent = firstDetails.closest('.folder-content.collapsed');
+    if (regionContent) {
+      regionContent.classList.remove('collapsed');
+      const regionHeader = regionContent.previousElementSibling;
+      if (regionHeader) {
+        const regionToggle = regionHeader.querySelector('.year-toggle');
+        if (regionToggle) regionToggle.textContent = '-';
+      }
+      const yearContent = regionContent.parentElement.closest('.folder-content.collapsed');
+      if (yearContent) {
+        yearContent.classList.remove('collapsed');
+        const yearHeader = yearContent.previousElementSibling;
+        if (yearHeader) {
+          const yearToggle = yearHeader.querySelector('.year-toggle');
+          if (yearToggle) yearToggle.textContent = '-';
+        }
+      }
+    }
+  
+    // Now open the details element (fires toggle event)
+    firstDetails.open = true;
+  }
+
+  // Background load all other years/regions
+  sortedYears.slice(1).forEach(year => {
+    Object.keys(grouped[year]).forEach(region => {
+      // Use setTimeout to avoid blocking UI
+      setTimeout(async () => {
+        const regionStorms = grouped[year][region];
+        const regionStormsHTML = await populateStormTemplates(regionStorms);
+        document.getElementById(`region-${year}-${region}`).innerHTML = regionStormsHTML;
+      }, 0);
+    });
+  });
 }
 
 function setupArrowControls() {
+  // To Do: layers getting added and removed slowly
+  console.log('setup arrow controls - line 220');
   // Remove existing listeners first to prevent duplicates
   const leftArrow = document.getElementById('left-arrow');
   const rightArrow = document.getElementById('right-arrow');
@@ -143,6 +233,7 @@ function setupArrowControls() {
   // Add new listeners
   newLeftArrow.addEventListener('click', () => {
       currentIndex--;
+      // To Do: maybe don't go thru stormList for all this. 
       updateArrowState('click', stormList.find(s => s.stormid === activeStormId));
   });
 
@@ -158,16 +249,16 @@ const createStormTemplate = async (storm) => {
   // Get the last advisory
   const lastAdvisory = stormLayers[stormLayers.length - 1];
  
+  // Only proceed if last advisory is not undefined
+  if (!lastAdvisory || !lastAdvisory.layers) {
+    console.warn(`No advisories or layers found for storm ${storm.stormid}`);
+    return ''; // Return an empty string to skip rendering this storm
+  }
+
   const stormLabel = lastAdvisory.storm_name 
     ? `${lastAdvisory.storm_name} (${storm.stormid})` 
     : `${storm.stormid}`;
-
-  // Only proceed if last advisory is not undefined
-  if (!lastAdvisory || !lastAdvisory.layers) {
-      console.warn(`No advisories or layers found for storm ${storm.stormid}`);
-      return ''; // Return an empty string to skip rendering this storm
-  }
-
+  
   // Generate layersHTML dynamically, ensuring we display both the layer name and its value
   const layersHTML = Object.entries(lastAdvisory.layers)
   .map(([layerName, layerValue], index) => {
@@ -196,52 +287,11 @@ const createStormTemplate = async (storm) => {
 
 // Function to populate storm templates into the toc container
 const populateStormTemplates = async (stormData) => {
-  const container = document.getElementById('toc'); // Get the target container
-  container.innerHTML = ''; // Clear any existing content
   // Generate and insert the storm templates dynamically
   const stormTemplates = await Promise.all(
     stormData.sort((a, b) => a.number - b.number).map(storm => createStormTemplate(storm)));
-  
-  // Update the container with the generated HTML
-  container.innerHTML = stormTemplates.join('');
 
-  // Attach event listeners to <details> elements AFTER they are inserted
-  document.querySelectorAll('#toc details').forEach(details => {
-    details.addEventListener('toggle', function () {
-          if (details.open) {
-            const prevDetailsEl = document.querySelector(`details[data-stormid="${activeStormId}"]`);
-            if (prevDetailsEl) {
-              // Remove highlight and close previous active storm 
-              prevDetailsEl.querySelector("summary").style.backgroundColor = "";
-              prevDetailsEl.open = false;  // This programmatically closes the details element.
-              document.querySelectorAll(`input[name="layer_${activeStormId}"]`).forEach((lyr) => {
-                
-              // uncheck
-                if (lyr.checked) {
-                  lyr.checked = false;
-                  lyr.dispatchEvent(new Event('change'));
-                }
-              });
-            }
-              
-              // Highlight the currently opened summary
-              details.querySelector("summary").style.backgroundColor = "yellow";
-              activeStormId = details.getAttribute("data-stormid");
-              const stormObj = stormList.find(storm => storm.stormid === activeStormId);
-              makeStormActive(stormObj);
-          }
-      });
-  });
-
-  if (stormData.length > 0) {
-    // To Do: more refinement needed for making active by default (Active vs Current Year vs Archive Year)
-    // currently defaults to first storm in stormData array
-    const detailsEl = document.querySelector(`details[data-stormid="${stormData[0].stormid}"]`);
-   
-    if (detailsEl) {
-      detailsEl.open = true;  // This programmatically opens the details element.
-    }
-  }
+  return stormTemplates.join('');
 };
 
 function makeStormActive(storm) {
@@ -278,7 +328,6 @@ function makeStormActive(storm) {
 
 function handleCheckBoxChange(event) {
   if (event.target.checked) {
-    console.log('load layer');
     // Load the GeoJSON file for the selected layer
     loadLayer(event.target);
   } else {
@@ -295,7 +344,9 @@ function updateArrowState(e, storm) {
     if (e === 'click') {
         // Clear existing layers
         checkedLayers.forEach(layer => { 
+            console.log('clear layer - line 344');  
             const lyrName = document.querySelector(`input[layername=${layer}]`)
+            console.log(lyrName);
             clearLayer(lyrName);
         });
 
@@ -426,15 +477,12 @@ function loadLayer(layer) {
           style: styles.styleFunction.bind(styles)
         });
         stormLayers[layer.attributes.layername.value] = vectorLayer;
-        console.log('add layer now - line 409');
         map.addLayer(vectorLayer);
       })
     .catch((error) => {
       console.error(error.message);
     });
   } else {
-    
-    console.log('add layer now- line 402');
     map.addLayer(stormLayers[layer.attributes.layername.value]);
   }
 }
