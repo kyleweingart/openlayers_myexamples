@@ -3,6 +3,7 @@ body, html {
     margin: 0;
     overflow: hidden;
     background-color: #f8f9fa;
+    overflow: visible !important;
 }
 
 .filter-container {
@@ -27,7 +28,6 @@ body, html {
     border: 1px solid #ced4da;
 }
 
-
 .title-bar {
     background-color: #d7e4f3;  /* Soft gray-blue */
     color: #2c3e50;  /* Dark blue-gray for text */
@@ -41,41 +41,45 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    overflow: visible !important;
+    /* gap: 24px; Ensures even spacing between arrows, name, and advisory text */
 }
 
-.main-container {
-    display: flex;
-    height: calc(100% - 110px);
-    width: 100%;
+#storm-name {
+    font-size: 1.6rem;
+    width: 400px; /* Prevents shifting, adjust as needed */
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.control-panel {
-    width: 300px;
-    background: #ffffff;
-    padding: 15px;
-    overflow-y: auto;
-    color: black;
-    border-right: 1px solid #ced4da;
-}
-
-.map-panel {
-    height: 100%;
-    width: 100%
-}
-
-.form-check-label, .form-label {
-    color: black;
-}
-
-.form-select {
-    background-color: #ffffff;
-    color: black;
-    border: 1px solid #ced4da;
+#advisory-time {
+    font-size: 1.6rem;
+    width: 400px; /* Prevents shifting, adjust as needed */
+    display: inline-block;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #advisory-text {
     font-size: 1.7rem;  /* Larger than the title bar's 1.5rem */
+    border: none;
+    background: transparent;
+    color: inherit;
+    padding: 0;
+    margin: 0;
+    height: auto;
+    width: auto;
+    appearance: none;    /* Removes default dropdown arrow in most browsers */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
 }
 
 .arrow-button {
@@ -129,7 +133,6 @@ body, html {
     padding: 0;
 }
 
-
 .folder-content.collapsed { 
     display: none; 
 }
@@ -159,8 +162,94 @@ body, html {
     margin-right: 8px;
     cursor: pointer;
     transition: background 0.2s;
-  }
-  
-  .year-toggle:hover {
+}
+
+.year-toggle:hover {
     background: #cccccc;
+}
+
+.main-container {
+    display: flex;
+    height: calc(100% - 110px);
+    width: 100%;
+    overflow: visible !important;
+}
+
+.control-panel {
+    width: 300px;
+    background: #ffffff;
+    padding: 15px;
+    overflow-y: auto;
+    color: black;
+    border-right: 1px solid #ced4da;
+}
+
+.map-panel {
+    height: 100%;
+    width: 100%;
+    overflow: visible !important;
+}
+
+.form-check-label, .form-label {
+    color: black;
+}
+
+.form-select {
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid #ced4da;
+}
+
+.custom-dropdown {
+    position: relative;
+    display: inline-block;
+    font-size: 1.7rem;
+    min-width: 180px;
+    text-align: center;
+    color: inherit;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    z-index: 10;
+  }
+  .custom-dropdown .selected {
+    padding: 0 12px;
+    height: 2.2rem;
+    line-height: 2.2rem;
+    border-radius: 4px;
+    background: transparent;
+    border: none;
+    color: inherit;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .custom-dropdown .dropdown-list {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 100%;
+    background: #fff;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    z-index: 999;
+    max-height: 200px;
+    overflow-y: auto;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .custom-dropdown.open .dropdown-list {
+    display: block;
+  }
+  .custom-dropdown .dropdown-item {
+    padding: 8px 0;
+    cursor: pointer;
+    color: #2c3e50;
+  }
+  .custom-dropdown .dropdown-item:hover,
+  .custom-dropdown .dropdown-item.selected {
+    background: #e9ecef;
+    color: #1a2533;
   }

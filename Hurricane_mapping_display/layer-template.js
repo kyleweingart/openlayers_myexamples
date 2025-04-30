@@ -8,6 +8,7 @@
 import styles from './layer-styles.js';
 
 const mapLayers = {};
+let stormMap = {};
 
 let map;          
 let stormList;
@@ -53,7 +54,7 @@ function initMap() {
         });
       }
       // Highlight the currently opened summary
-      details.querySelector("summary").style.backgroundColor = "yellow";
+      details.querySelector("summary").style.backgroundColor = "#c1ddf2";
       activeStormId = details.getAttribute("data-stormid");
       const stormObj = stormList.find(storm => storm.stormid === activeStormId);
       makeStormActive(stormObj);
@@ -111,6 +112,8 @@ function loadStorms() {
               number: storm.stormid.slice(2, 4)
           };
       });
+      // Build the stormMap for fast lookup
+      stormMap = Object.fromEntries(stormList.map(storm => [storm.stormid, storm]));
       populateStorms();
   });
 }
@@ -204,22 +207,22 @@ async function populateStorms() {
     firstDetails.open = true;
   }
 
-  // Background load all other years/regions
-  sortedYears.slice(1).forEach(year => {
-    Object.keys(grouped[year]).forEach(region => {
-      // Use setTimeout to avoid blocking UI
-      setTimeout(async () => {
-        const regionStorms = grouped[year][region];
-        const regionStormsHTML = await populateStormTemplates(regionStorms);
-        document.getElementById(`region-${year}-${region}`).innerHTML = regionStormsHTML;
-      }, 0);
-    });
+  
+const backgroundTasks = [];
+sortedYears.slice(1).forEach(year => {
+  Object.keys(grouped[year]).forEach(region => {
+    backgroundTasks.push(() => runWhenIdle(async () => {
+      const regionStorms = grouped[year][region];
+      const regionStormsHTML = await populateStormTemplates(regionStorms);
+      document.getElementById(`region-${year}-${region}`).innerHTML = regionStormsHTML;
+    }));
   });
+});
+promisePool(backgroundTasks, 1); // Adjust concurrency as needed
 }
 
 function setupArrowControls() {
-  // To Do: layers getting added and removed slowly
-  console.log('setup arrow controls - line 220');
+  
   // Remove existing listeners first to prevent duplicates
   const leftArrow = document.getElementById('left-arrow');
   const rightArrow = document.getElementById('right-arrow');
@@ -233,13 +236,12 @@ function setupArrowControls() {
   // Add new listeners
   newLeftArrow.addEventListener('click', () => {
       currentIndex--;
-      // To Do: maybe don't go thru stormList for all this. 
-      updateArrowState('click', stormList.find(s => s.stormid === activeStormId));
+      updateArrowState('click', stormMap[activeStormId], currentIndex);
   });
 
   newRightArrow.addEventListener('click', () => {
       currentIndex++;
-      updateArrowState('click', stormList.find(s => s.stormid === activeStormId));
+      updateArrowState('click', stormMap[activeStormId], currentIndex);
   });
 }
 
@@ -307,7 +309,7 @@ function makeStormActive(storm) {
       document.getElementById('left-arrow').style.display = 'inline-block';
       document.getElementById('right-arrow').style.display = 'inline-block';
 
-      updateArrowState('init', storm);
+      updateArrowState('init', storm, currentIndex);
     }
 
     // Find the details element for the storm and open it.
@@ -335,7 +337,9 @@ function handleCheckBoxChange(event) {
   }
 }
 
-function updateArrowState(e, storm) {
+function updateArrowState(e, storm, idx) {
+  console.log(storm, idx);
+  currentIndex = idx;
     // Get only the CHECKED layers before update
     const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
         .filter(layer => layer.checked)
@@ -358,8 +362,8 @@ function updateArrowState(e, storm) {
         });
 
         // Generate new layer checkboxes
-        const layersHTML = Object.entries(storm.workingAdvisories[currentIndex].layers)
-            .map(([layerName, layerValue], index) => {
+        const layersHTML = Object.entries(storm.workingAdvisories[idx].layers)
+            .map(([layerName, layerValue]) => {
                 // Check if this layer was previously checked
                 const wasChecked = checkedLayers.includes(layerName);
                 
@@ -370,7 +374,7 @@ function updateArrowState(e, storm) {
                 return `
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" 
-                            value="${layerValue}" adv="${storm.workingAdvisories[currentIndex].advisory_id}" 
+                            value="${layerValue}" adv="${storm.workingAdvisories[idx].advisory_id}" 
                             layername="${layerName}" ${wasChecked ? 'checked' : ''}>
                         <label class="form-check-label">${layerName}</label>
                     </div>
@@ -382,7 +386,7 @@ function updateArrowState(e, storm) {
 
         // Only check for unavailable layers that were previously checked
         const unavailableCheckedLayers = checkedLayers.filter(layer => 
-            !storm.workingAdvisories[currentIndex].layers[layer]
+            !storm.workingAdvisories[idx].layers[layer]
         );
 
         if (unavailableCheckedLayers.length > 0) {
@@ -419,16 +423,69 @@ function updateArrowState(e, storm) {
     });
 
     // Update the advisory text
-    document.getElementById('advisory-text').textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
+    console.log(storm);
+    document.getElementById('storm-name').textContent = `${storm.workingAdvisories[idx].storm_status.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())} ${storm.workingAdvisories[idx].storm_name.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}`;
+    // document.getElementById('advisory-text').textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
+    // const advisorySelect = document.getElementById('advisory-text');
+    // advisorySelect.innerHTML = storm.workingAdvisories.map((advisory, idx) =>
+    //   `<option value="${idx}"${idx === currentIndex ? ' selected' : ''}>Advisory #${advisory.advisory_id}</option>`
+    // ).join('');
+
+    // // Only add the event listener once
+    // if (!advisorySelect.dataset.listenerAdded) {
+    //   advisorySelect.addEventListener('change', function() {
+    //     // Call updateArrowState with the selected advisory index
+    //     updateArrowState(null, storm, parseInt(this.value, 10));
+    //   });
+    //   advisorySelect.dataset.listenerAdded = 'true';
+    // }
+    renderAdvisoryDropdown(storm, idx);
+
+    document.getElementById('advisory-time').textContent = `${storm.workingAdvisories[idx].advisory_time}`;
 
     // Update arrow states
-    document.getElementById('left-arrow').disabled = currentIndex === 0;
-    document.getElementById('left-arrow').style.opacity = currentIndex === 0 ? 0.5 : 1;
-    document.getElementById('left-arrow').style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+    document.getElementById('left-arrow').disabled = idx === 0;
+    document.getElementById('left-arrow').style.opacity = idx === 0 ? 0.5 : 1;
+    document.getElementById('left-arrow').style.pointerEvents = idx === 0 ? 'none' : 'auto';
 
-    document.getElementById('right-arrow').disabled = currentIndex === storm.workingAdvisories.length - 1;
-    document.getElementById('right-arrow').style.opacity = currentIndex === storm.workingAdvisories.length - 1 ? 0.5 : 1;
-    document.getElementById('right-arrow').style.pointerEvents = currentIndex === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
+    document.getElementById('right-arrow').disabled = idx === storm.workingAdvisories.length - 1;
+    document.getElementById('right-arrow').style.opacity = idx === storm.workingAdvisories.length - 1 ? 0.5 : 1;
+    document.getElementById('right-arrow').style.pointerEvents = idx === storm.workingAdvisories.length - 1 ? 'none' : 'auto';
+}
+
+function promisePool(tasks, poolLimit = 4) {
+  let i = 0;
+  const results = [];
+  const executing = [];
+
+  const enqueue = () => {
+    if (i === tasks.length) return Promise.resolve();
+    const task = tasks[i++]();
+    results.push(task);
+    const e = task.then(() => executing.splice(executing.indexOf(e), 1));
+    executing.push(e);
+    let r = Promise.resolve();
+    if (executing.length >= poolLimit) {
+      r = Promise.race(executing);
+    }
+    return r.then(() => enqueue());
+  };
+
+  return enqueue().then(() => Promise.all(results));
+}
+
+function runWhenIdle(fn) {
+  return new Promise(resolve => {
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        fn().then(resolve);
+      }, { timeout: 1000 });
+    } else {
+      setTimeout(() => {
+        fn().then(resolve);
+      }, 50);
+    }
+  });
 }
 
 // Function to fetch GeoJSON and update the vector layer
@@ -491,6 +548,60 @@ function clearLayer(layer) {
   map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
 }
 
+function renderAdvisoryDropdown(storm, currentIndex) {
+  const container = document.getElementById('advisory-dropdown');
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="selected">${'Advisory #' + storm.workingAdvisories[currentIndex].advisory_id}</div>
+    <div class="dropdown-list" style="display:none"></div>
+  `;
+
+  const selected = container.querySelector('.selected');
+  const dropdownList = container.querySelector('.dropdown-list');
+
+  dropdownList.innerHTML = storm.workingAdvisories.map((advisory, idx) =>
+    `<div class="dropdown-item${idx === currentIndex ? ' selected' : ''}" data-idx="${idx}">
+      Advisory #${advisory.advisory_id}
+    </div>`
+  ).join('');
+
+  selected.onclick = (e) => {
+    e.stopPropagation();
+    container.classList.toggle('open');
+    dropdownList.style.display = container.classList.contains('open') ? 'block' : 'none';
+  };
+
+  container.onkeydown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      selected.click();
+      e.preventDefault();
+    }
+    if (e.key === 'Escape') {
+      container.classList.remove('open');
+      dropdownList.style.display = 'none';
+    }
+  };
+
+  dropdownList.onclick = (e) => {
+    if (e.target.classList.contains('dropdown-item')) {
+      currentIndex = parseInt(e.target.dataset.idx, 10);
+      console.log('Selected advisory:', currentIndex);
+      container.classList.remove('open');
+      dropdownList.style.display = 'none';
+      updateArrowState('click', storm, currentIndex);
+    }
+  };
+
+  document.addEventListener('click', function handler(e) {
+    if (!container.contains(e.target)) {
+      container.classList.remove('open');
+      dropdownList.style.display = 'none';
+      document.removeEventListener('click', handler);
+    }
+  });
+}
+
 // function clearAllLayers() {
 //   map.getLayers().forEach(layer => {
 //     console.log(layer.get('name'));
@@ -529,6 +640,5 @@ document.addEventListener("DOMContentLoaded", function() {
 
 
 
-  
-
+  //To Do - create delay when clicking arrows
 
