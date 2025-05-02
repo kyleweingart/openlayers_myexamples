@@ -20,6 +20,18 @@ const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
 // What are the correct forecast hours?
 const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
 
+// Tropical storm regions
+const tropicalStormRegions = [
+  { name: "Atlantic", code: "AL", extent: [-100, 5, -20, 45] },
+  { name: "Central Pacific", code: "CP", extent: [-180, 0, -140, 30] },
+  { name: "Eastern Pacific", code: "EP", extent: [-140, 5, -90, 30] },
+  { name: "Arabian Sea", code: "IA", extent: [50, 5, 77, 25] },
+  { name: "Bay of Bengal", code: "IB", extent: [77, 5, 100, 22] },
+  { name: "South Indian Ocean", code: "SI", extent: [20, -40, 90, -5] },
+  { name: "South Pacific", code: "SP", extent: [160, -40, -120, -5] },
+  { name: "Western Pacific", code: "WP", extent: [100, 5, 180, 40] }
+];
+
 // Initialize the map with a raster (OSM) layer
 function initMap() {
   const raster = new ol.layer.Tile({
@@ -61,6 +73,15 @@ function initMap() {
       makeStormActive(stormObj);
     }
   }, true); // Use capture phase for toggle events
+}
+
+function zoomToRegion(extent4326) {
+  const extent3857 = ol.proj.transformExtent(extent4326, 'EPSG:4326', 'EPSG:3857');
+  map.getView().fit(extent3857, {
+    duration: 1000,
+    padding: [50, 50, 50, 50],
+    maxZoom: 8
+  });
 }
 
 async function getStormLayers(storm) {
@@ -344,6 +365,14 @@ function makeStormActive(storm) {
     if (firstLayer) {
       firstLayer.checked = true; 
       firstLayer.dispatchEvent(new Event('change', {bubbles: true}));
+    }
+    
+    // Zoom to the storm's region
+    console.log(storm);
+    const region = storm.region.toUpperCase();
+    const regionInfo = tropicalStormRegions.find(r => r.code === region);
+    if (regionInfo) {
+      zoomToRegion(regionInfo.extent);
     }
   }
 }
