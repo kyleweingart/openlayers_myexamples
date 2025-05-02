@@ -1,9 +1,9 @@
 // To DO: 
 // ZOOM to Layer / Zoom to Selected Region
-// Robust overhang
 // cache layers for quick display
 
-
+// add logos
+// add download capability
 
 import styles from './layer-styles.js';
 
@@ -14,6 +14,7 @@ let map;
 let stormList;
 let activeStormId;
 let currentIndex;
+let arrowDebounceTimer = null;
 const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
 
 // What are the correct forecast hours?
@@ -202,7 +203,6 @@ async function populateStorms() {
         }
       }
     }
-  
     // Now open the details element (fires toggle event)
     firstDetails.open = true;
   }
@@ -222,27 +222,40 @@ promisePool(backgroundTasks, 1); // Adjust concurrency as needed
 }
 
 function setupArrowControls() {
-  
   // Remove existing listeners first to prevent duplicates
   const leftArrow = document.getElementById('left-arrow');
   const rightArrow = document.getElementById('right-arrow');
-  
+
   // Clone and replace elements to remove all existing listeners
   const newLeftArrow = leftArrow.cloneNode(true);
   const newRightArrow = rightArrow.cloneNode(true);
   leftArrow.parentNode.replaceChild(newLeftArrow, leftArrow);
   rightArrow.parentNode.replaceChild(newRightArrow, rightArrow);
-  
-  // Add new listeners
+
+  // Debounced click handlers
   newLeftArrow.addEventListener('click', () => {
-      currentIndex--;
+    if (arrowDebounceTimer) clearTimeout(arrowDebounceTimer);
+    currentIndex--;
+    arrowDebounceTimer = setTimeout(() => {
+      currentIndex = clampIndex(currentIndex, stormMap[activeStormId]);
       updateArrowState('click', stormMap[activeStormId], currentIndex);
+    }, 250);
   });
 
   newRightArrow.addEventListener('click', () => {
-      currentIndex++;
+    if (arrowDebounceTimer) clearTimeout(arrowDebounceTimer);
+    currentIndex++;
+    arrowDebounceTimer = setTimeout(() => {
+      currentIndex = clampIndex(currentIndex, stormMap[activeStormId]);
       updateArrowState('click', stormMap[activeStormId], currentIndex);
+    }, 250);
   });
+}
+
+function clampIndex(idx, storm) {
+  if (idx < 0) return 0;
+  if (idx > storm.workingAdvisories.length - 1) return storm.workingAdvisories.length - 1;
+  return idx;
 }
 
 // Function to create storm template using template literals
@@ -278,13 +291,23 @@ const createStormTemplate = async (storm) => {
     `;
   })
   .join('');
+
+  // Add download icon (Bootstrap "bi-download")
+  const stormDownload = `
+  <span class="storm-download-container">
+    <i class="bi bi-arrow-down-square storm-download-icon" title="Download Storm" data-stormid="${storm.stormid}" style="cursor:pointer;"></i>
+  </span>
+`;
  
   return `
-      <details data-stormid="${storm.stormid}" >
-          <summary>${stormLabel}</summary>
-          ${layersHTML}
-      </details>
-  `;
+  <details data-stormid="${storm.stormid}">
+    <summary>
+      <span class="storm-label-fixed">${stormLabel}</span>
+      ${stormDownload}
+    </summary>
+    ${layersHTML}
+  </details>
+`;
 };
 
 // Function to populate storm templates into the toc container
@@ -304,11 +327,8 @@ function makeStormActive(storm) {
     const titleBar = document.getElementById('storm-title');
   
     if (titleBar && lastAdvisory) {
-      // To Do: can I move this?
-      // Show the left and right arrows
       document.getElementById('left-arrow').style.display = 'inline-block';
       document.getElementById('right-arrow').style.display = 'inline-block';
-
       updateArrowState('init', storm, currentIndex);
     }
 
@@ -338,40 +358,37 @@ function handleCheckBoxChange(event) {
 }
 
 function updateArrowState(e, storm, idx) {
-  console.log(storm, idx);
   currentIndex = idx;
-    // Get only the CHECKED layers before update
-    const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
-        .filter(layer => layer.checked)
-        .map(layer => layer.getAttribute('layername'));
+  // Get only the CHECKED layers before update
+  const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
+    .filter(layer => layer.checked)
+    .map(layer => layer.getAttribute('layername'));
 
-    if (e === 'click') {
-        // Clear existing layers
-        checkedLayers.forEach(layer => { 
-            console.log('clear layer - line 344');  
-            const lyrName = document.querySelector(`input[layername=${layer}]`)
-            console.log(lyrName);
-            clearLayer(lyrName);
-        });
+  if (e === 'click') {
+    // Clear existing layers
+    checkedLayers.forEach(layer => { 
+      const lyrName = document.querySelector(`input[layername=${layer}]`)
+      clearLayer(lyrName);
+    });
 
-        const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
-        
-        detailsEl.querySelectorAll(".form-check").forEach(el => {
-            el.removeEventListener('change', handleCheckBoxChange);
-            el.remove();
-        });
+    const detailsEl = document.querySelector(`details[data-stormid="${storm.stormid}"]`);
+    
+    detailsEl.querySelectorAll(".form-check").forEach(el => {
+      el.removeEventListener('change', handleCheckBoxChange);
+      el.remove();
+    });
 
-        // Generate new layer checkboxes
-        const layersHTML = Object.entries(storm.workingAdvisories[idx].layers)
-            .map(([layerName, layerValue]) => {
-                // Check if this layer was previously checked
-                const wasChecked = checkedLayers.includes(layerName);
+    // Generate new layer checkboxes
+    const layersHTML = Object.entries(storm.workingAdvisories[idx].layers)
+      .map(([layerName, layerValue]) => {
+        // Check if this layer was previously checked
+        const wasChecked = checkedLayers.includes(layerName);
                 
-                if (layerValue.startsWith('http://')) {
-                    layerValue = layerValue.replace('http://', 'https://');
-                }
+        if (layerValue.startsWith('http://')) {
+          layerValue = layerValue.replace('http://', 'https://');
+        }
 
-                return `
+        return `
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="layer_${storm.stormid}" 
                             value="${layerValue}" adv="${storm.workingAdvisories[idx].advisory_id}" 
@@ -422,25 +439,9 @@ function updateArrowState(e, storm, idx) {
         }
     });
 
-    // Update the advisory text
-    console.log(storm);
+    // Update the title text
     document.getElementById('storm-name').textContent = `${storm.workingAdvisories[idx].storm_status.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())} ${storm.workingAdvisories[idx].storm_name.toLowerCase().replace(/\b\w/g, c => c.toUpperCase())}`;
-    // document.getElementById('advisory-text').textContent = `Advisory #${storm.workingAdvisories[currentIndex].advisory_id}`;
-    // const advisorySelect = document.getElementById('advisory-text');
-    // advisorySelect.innerHTML = storm.workingAdvisories.map((advisory, idx) =>
-    //   `<option value="${idx}"${idx === currentIndex ? ' selected' : ''}>Advisory #${advisory.advisory_id}</option>`
-    // ).join('');
-
-    // // Only add the event listener once
-    // if (!advisorySelect.dataset.listenerAdded) {
-    //   advisorySelect.addEventListener('change', function() {
-    //     // Call updateArrowState with the selected advisory index
-    //     updateArrowState(null, storm, parseInt(this.value, 10));
-    //   });
-    //   advisorySelect.dataset.listenerAdded = 'true';
-    // }
     renderAdvisoryDropdown(storm, idx);
-
     document.getElementById('advisory-time').textContent = `${storm.workingAdvisories[idx].advisory_time}`;
 
     // Update arrow states
@@ -586,7 +587,6 @@ function renderAdvisoryDropdown(storm, currentIndex) {
   dropdownList.onclick = (e) => {
     if (e.target.classList.contains('dropdown-item')) {
       currentIndex = parseInt(e.target.dataset.idx, 10);
-      console.log('Selected advisory:', currentIndex);
       container.classList.remove('open');
       dropdownList.style.display = 'none';
       updateArrowState('click', storm, currentIndex);
@@ -602,43 +602,50 @@ function renderAdvisoryDropdown(storm, currentIndex) {
   });
 }
 
-// function clearAllLayers() {
-//   map.getLayers().forEach(layer => {
-//     console.log(layer.get('name'));
-//     if (layer.get('name') !== 'basemap') {
-//       console.log('remove layer');
-//       map.removeLayer(layer);
-//     }
-//   })
-// }
+function setupStormDownloadIcons() {
+  const toc = document.getElementById('toc');
+  if (!toc) return;
 
-// To Do: sometimes assertion error in console when multiple storm layers turning off and on
+  toc.addEventListener('click', function(e) {
+    // Prevent <details> toggle when clicking the download icon or its container
+    if (
+      e.target.classList.contains('storm-download-icon') ||
+      e.target.classList.contains('storm-download-container')
+    ) {
+      e.stopPropagation();
 
-// Event listener for radio buttons
-// function setupLayerControls(storm) {
-//   document.querySelectorAll(`input[name="layer_${storm.stormid}"]`).forEach((lyrChkBox) => {
-//     lyrChkBox.addEventListener('change', (event) => {
-//       if (event.target.checked) {
-//         console.log('load layer - 435');
-//         // Load the GeoJSON file for the selected layer
-//         loadLayer(event.target);
-//       } else {
-//         clearLayer(event.target);
-//       }
-//     });
-//   });
-// }
+      // Download logic
+      // Get the storm id (from the icon or its parent)
+      const stormId = e.target.closest('[data-stormid]').getAttribute('data-stormid');
+      downloadStormData(stormId);
+    }
+  });
+}
 
-
+// Example download logic function (customize as needed)
+function downloadStormData(stormId) {
+  // For demonstration, download a JSON file with stormId in the name
+  // Replace this with your actual download logic
+  const data = { message: "Download for storm " + stormId };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `storm_${stormId}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
 
 // Initialize the map and setup controls
 document.addEventListener("DOMContentLoaded", function() {
   initMap();
   loadStorms()
   setupArrowControls();
+  setupStormDownloadIcons();
 });
 
 
 
-  //To Do - create delay when clicking arrows
-
+  

@@ -33,7 +33,7 @@ body, html {
     color: #2c3e50;  /* Dark blue-gray for text */
     padding: 15px;
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
     font-weight: 500;
     width: 100%;
     height: 60px;
@@ -57,7 +57,7 @@ body, html {
 
 #advisory-time {
     font-size: 1.6rem;
-    width: 400px; /* Prevents shifting, adjust as needed */
+    width: 450px; /* Prevents shifting, adjust as needed */
     display: inline-block;
     text-align: center;
     white-space: nowrap;
@@ -176,7 +176,7 @@ body, html {
 }
 
 .control-panel {
-    width: 300px;
+    width: 380px;
     background: #ffffff;
     padding: 15px;
     overflow-y: auto;
@@ -191,7 +191,7 @@ body, html {
 }
 
 .form-check-label, .form-label {
-    color: black;
+    color: black;.
 }
 
 .form-select {
@@ -252,4 +252,30 @@ body, html {
   .custom-dropdown .dropdown-item.selected {
     background: #e9ecef;
     color: #1a2533;
+  }
+
+.storm-label-fixed {
+    display: inline-block;
+    width:190px;   /*Adjust as needed for your longest label */
+    vertical-align: middle;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .storm-download-container {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;              /* Square size for alignment */
+    height: 18px;
+    background: #f0f0f0;      /* Light gray background */
+    border-radius: 6px;       /* Optional: rounded corners */
+    margin-left: 25px;
+    vertical-align: middle;
+  }
+  
+  .storm-download-icon {
+    font-size: 1.2em;
+    color: #007bff;
   }
