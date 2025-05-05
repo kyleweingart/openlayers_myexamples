@@ -652,12 +652,13 @@ function setupStormDownloadIcons() {
 }
 
 // Download popup logic
-function openDownloadPopup(storm) {
+function openDownloadPopup(stormId) {
   // Set the modal title to include the storm name
   const modalTitle = document.getElementById('downloadModalLabel');
   if (modalTitle) {
-    modalTitle.textContent = `Download Storm: ${storm}`;
+    modalTitle.textContent = `Download Storm: ${stormId}`;
   }
+  
   // Show the modal using Bootstrap's JS API
   const modal = new bootstrap.Modal(document.getElementById('downloadModal'));
   modal.show();
@@ -668,25 +669,92 @@ function openDownloadPopup(storm) {
     e.preventDefault();
     const advisory = form.querySelector('input[name="advisory"]:checked').value;
     const format = form.querySelector('input[name="format"]:checked').value;
-    alert('Download requested:\nAdvisory: ' + advisory + '\nFormat: ' + format);
-    modal.hide();
+    downloadStormData(stormId, advisory, format, modal);
   };
 }
 
-// Example download logic function (customize as needed)
-function downloadStormData(stormId) {
-  // For demonstration, download a JSON file with stormId in the name
-  // Replace this with your actual download logic
-  const data = { message: "Download for storm " + stormId };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `storm_${stormId}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+async function downloadStormData(stormId, advisory, format, modal) {
+  const loadingEl = document.getElementById('downloadLoadingOverlay');
+  if (loadingEl) loadingEl.style.display = "flex";
+
+  // Set up a timeout (e.g. 20 seconds)
+  let timeoutId;
+  const timeoutPromise = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error("Download preparation timed out. Please try again later."));
+    }, 20000); // 20 seconds
+  });
+
+  try {
+    const storm = stormMap[stormId];
+    if (!storm) throw new Error("Storm not found.");
+
+    let urls = [];
+    if (advisory === 'all') {
+      storm.workingAdvisories.forEach((adv) => {
+        Object.entries(adv.layers).forEach(([layerName, layerUrl]) => {
+          if (layerUrl.startsWith('http://')) {
+            layerUrl = layerUrl.replace('http://', 'https://');
+          }
+          urls.push({ url: layerUrl, name: layerName, adv: adv.advisory_id });
+        });
+      });
+    } else {
+      // handle current advisory if needed
+    }
+
+    // Fetch all GeoJSONs in parallel, with timeout
+    const responses = await Promise.race([
+      Promise.all(urls.map(l =>
+        fetch(l.url, {
+          headers: {
+            'Authorization': `Token ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }).then(res => res.json().then(data => ({ name: l.name, adv: l.adv, data })))
+      )),
+      timeoutPromise
+    ]);
+    clearTimeout(timeoutId);
+
+    // Create ZIP
+    const zip = new JSZip();
+    console.log('zip:', zip);
+    if (format === 'shapefile') {
+      for (const { name, adv, data } of responses) {
+        const folder = zip.folder(name);
+        const shapefileZip = shpwrite.zip(data); // returns a Blob
+        console.log('shpwrite.zip(data) returns:', shapefileZip);
+        const arrayBuffer = await shapefileZip.arrayBuffer();
+        console.log('arrayBuffer:', arrayBuffer);
+        folder.file(`${name}_adv${adv}.zip`, arrayBuffer);
+      }
+    } else {
+      // Default: GeoJSON
+      responses.forEach(({ name, adv, data }) => {
+        const folder = zip.folder(name);
+        folder.file(`${name}_adv${adv}.geojson`, JSON.stringify(data, null, 2));
+      });
+    }
+
+    // Generate ZIP and trigger download
+    await zip.generateAsync({ type: "blob" }).then(function(content) {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(content);
+      a.download = `storm_${stormId}_geojson_layers.zip`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    });
+
+    if (loadingEl) loadingEl.style.display = "none";
+    modal.hide();
+  } catch (error) {
+    if (loadingEl) loadingEl.style.display = "none";
+    modal.hide();
+    alert(error.message || "An error occurred during download.");
+  }
 }
 
 // Initialize the map and setup controls

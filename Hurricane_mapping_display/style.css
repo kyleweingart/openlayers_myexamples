@@ -274,3 +274,15 @@ body, html {
     font-size: 1.2em;
     color: #007bff;
   }
+
+  /* Download Modal Custom Styles */
+   #downloadModal .download-modal-header {
+    background: #d7e4f4;
+  }
+  
+   #downloadModal .download-modal-title {
+    color: #24487a;
+    font-weight: bold;
+  }
+
+  
