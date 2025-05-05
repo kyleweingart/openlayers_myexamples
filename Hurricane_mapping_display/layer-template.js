@@ -1,9 +1,9 @@
 // To DO: 
-// ZOOM to Layer / Zoom to Selected Region
+
 // cache layers for quick display
 
 // add logos
-// add download capability
+// add download capability logic
 
 import styles from './layer-styles.js';
 
@@ -22,14 +22,14 @@ const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
 
 // Tropical storm regions
 const tropicalStormRegions = [
-  { name: "Atlantic", code: "AL", extent: [-100, 5, -20, 45] },
-  { name: "Central Pacific", code: "CP", extent: [-180, 0, -140, 30] },
+  { name: "Atlantic", code: "AL", extent: [-100, -10, 20, 50] },
+  { name: "Central Pacific", code: "CP", extent: [-180,-20, -110, 60] },
   { name: "Eastern Pacific", code: "EP", extent: [-140, 5, -90, 30] },
   { name: "Arabian Sea", code: "IA", extent: [50, 5, 77, 25] },
   { name: "Bay of Bengal", code: "IB", extent: [77, 5, 100, 22] },
-  { name: "South Indian Ocean", code: "SI", extent: [20, -40, 90, -5] },
-  { name: "South Pacific", code: "SP", extent: [160, -40, -120, -5] },
-  { name: "Western Pacific", code: "WP", extent: [100, 5, 180, 40] }
+  { name: "South Indian Ocean", code: "SI", extent: [15, -40, 140, 0] },
+  { name: "South Pacific", code: "SP", extent: [140, -50, 190, 25] },
+  { name: "Western Pacific", code: "WP", extent: [90,-20, 200, 50] }
 ];
 
 // Initialize the map with a raster (OSM) layer
@@ -646,9 +646,31 @@ function setupStormDownloadIcons() {
       // Download logic
       // Get the storm id (from the icon or its parent)
       const stormId = e.target.closest('[data-stormid]').getAttribute('data-stormid');
-      downloadStormData(stormId);
+      openDownloadPopup(stormId);
     }
   });
+}
+
+// Download popup logic
+function openDownloadPopup(storm) {
+  // Set the modal title to include the storm name
+  const modalTitle = document.getElementById('downloadModalLabel');
+  if (modalTitle) {
+    modalTitle.textContent = `Download Storm: ${storm}`;
+  }
+  // Show the modal using Bootstrap's JS API
+  const modal = new bootstrap.Modal(document.getElementById('downloadModal'));
+  modal.show();
+
+  // Optional: handle the download form submission
+  const form = document.getElementById('downloadFormModal');
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    const advisory = form.querySelector('input[name="advisory"]:checked').value;
+    const format = form.querySelector('input[name="format"]:checked').value;
+    alert('Download requested:\nAdvisory: ' + advisory + '\nFormat: ' + format);
+    modal.hide();
+  };
 }
 
 // Example download logic function (customize as needed)

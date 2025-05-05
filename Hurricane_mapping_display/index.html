@@ -44,5 +44,50 @@
             </div>
         </div>
     </div>
+    <!-- Download Modal -->
+<div class="modal fade" id="downloadModal" tabindex="-1" aria-labelledby="downloadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header" style="background: #d7e4f4;">
+          <h5 class="modal-title text-dark" id="downloadModalLabel">Download Storm</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="downloadFormModal">
+          <div class="modal-body">
+            <div class="mb-3">
+              <strong>Advisories:</strong><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="advisory" value="all" id="allAdvisories" checked>
+                <label class="form-check-label" for="allAdvisories">All Advisories</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="advisory" value="current" id="currentAdvisory">
+                <label class="form-check-label" for="currentAdvisory">Current Advisory</label>
+              </div>
+            </div>
+            <div class="mb-3">
+              <strong>Download Format:</strong><br>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="format" value="shapefile" id="shapefile" checked>
+                <label class="form-check-label" for="shapefile">Shapefile</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="format" value="geojson" id="geojson">
+                <label class="form-check-label" for="geojson">GeoJSON</label>
+              </div>
+              <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="format" value="geopackage" id="geopackage">
+                <label class="form-check-label" for="geopackage">GeoPackage</label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer justify-content-between">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Download</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
