@@ -1,8 +1,20 @@
-body, html {
+/* body, html {
     height: 100%;
     margin: 0;
-    /* overflow: hidden; */
+    /* overflow: hidden; 
     background-color: #f8f9fa;
+}  */
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 .filter-container {
@@ -28,7 +40,7 @@ body, html {
 }
 
 .title-bar {
-    background-color: #d7e4f3;  /* Soft gray-blue */
+    /* background-color: #d7e4f3;  Soft gray-blue */
     color: #2c3e50;  /* Dark blue-gray for text */
     padding: 15px;
     text-align: center;
@@ -167,7 +179,7 @@ body, html {
 
 .main-container {
     display: flex;
-    height: calc(100% - 100px);
+    flex: 1 0 auto;
     width: 100%;
 }
 
@@ -283,6 +295,26 @@ body, html {
    #downloadModal .download-modal-title {
     color: #24487a;
     font-weight: bold;
+  }
+
+  #downloadModal .modal-content {
+    width: fit-content;
+  }
+
+  .footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1px 0 1px 0;
+    background: #f5f8fa; /* Optional: light background for footer */
+    flex-shrink: 0;
+  }
+  
+  .hurricane-mapping-logo-footer {
+    height: 110px; /* Adjust as needed */
+    width: auto;
+    display: block;
   }
 
   

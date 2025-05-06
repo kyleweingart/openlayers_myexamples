@@ -1,9 +1,13 @@
 // To DO: 
 
 // cache layers for quick display
-
 // add logos
-// add download capability logic
+// test ol assertion errors
+// make npm packages
+// click download close storm layers (should not)
+// put in s3 or somewhere for others to test
+// issues with map and footer (zoom map might be an issue/toc expaning is the issue?)
+// refine dropdown (bug with helene? i noticed)
 
 import styles from './layer-styles.js';
 
@@ -682,7 +686,7 @@ async function downloadStormData(stormId, advisory, format, modal) {
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
       reject(new Error("Download preparation timed out. Please try again later."));
-    }, 20000); // 20 seconds
+    }, 100000); // 20 seconds  // To Do: refine timeout time
   });
 
   try {
@@ -700,7 +704,16 @@ async function downloadStormData(stormId, advisory, format, modal) {
         });
       });
     } else {
-      // handle current advisory if needed
+      const lyrElem = document.querySelector(`input[name="layer_${stormId}"]`);
+      const advIndex = lyrElem.getAttribute('adv'); 
+      const advLayers = storm.workingAdvisories[advIndex - 1].layers;
+
+      Object.entries(advLayers).forEach(([layerName, layerUrl]) => {
+        if (layerUrl.startsWith('http://')) {
+          layerUrl = layerUrl.replace('http://', 'https://');
+        }
+        urls.push({ url: layerUrl, name: layerName, adv: advIndex });
+    });
     }
 
     // Fetch all GeoJSONs in parallel, with timeout
@@ -719,20 +732,19 @@ async function downloadStormData(stormId, advisory, format, modal) {
 
     // Create ZIP
     const zip = new JSZip();
-    console.log('zip:', zip);
+    
     if (format === 'shapefile') {
       for (const { name, adv, data } of responses) {
         const folder = zip.folder(name);
-        const shapefileZip = shpwrite.zip(data); // returns a Blob
-        console.log('shpwrite.zip(data) returns:', shapefileZip);
-        const arrayBuffer = await shapefileZip.arrayBuffer();
-        console.log('arrayBuffer:', arrayBuffer);
-        folder.file(`${name}_adv${adv}.zip`, arrayBuffer);
+        const shapefileZip = shpwrite.zip(data, {type: 'blob'}); // returns a Blob
+        folder.file(`${name}_adv${adv}.zip`, shapefileZip);
       }
     } else {
+      console.log('here');
       // Default: GeoJSON
       responses.forEach(({ name, adv, data }) => {
         const folder = zip.folder(name);
+        console.log(name, adv, data);
         folder.file(`${name}_adv${adv}.geojson`, JSON.stringify(data, null, 2));
       });
     }
@@ -741,7 +753,7 @@ async function downloadStormData(stormId, advisory, format, modal) {
     await zip.generateAsync({ type: "blob" }).then(function(content) {
       const a = document.createElement("a");
       a.href = URL.createObjectURL(content);
-      a.download = `storm_${stormId}_geojson_layers.zip`;
+      a.download = `${stormId}_${format}_layers.zip`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
