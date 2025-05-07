@@ -9,6 +9,7 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 body {
@@ -89,6 +90,13 @@ body {
     text-align: center;
     outline: none;
     cursor: pointer;
+}
+
+.toc {
+    flex: 1 1 auto;
+    width: 100%;
+    /* height: 100%;    */
+    overflow-y: auto;  
 }
 
 .arrow-button {
@@ -181,15 +189,22 @@ body {
     display: flex;
     flex: 1 0 auto;
     width: 100%;
+    height: 100%;
 }
 
 .control-panel {
-    width: 380px;
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+    flex: 0 0 320px;
     background: #ffffff;
-    padding: 15px;
-    overflow-y: auto;
+    padding: 15px 0px 15px 15px;    
+    overflow-y: auto !important;
     color: black;
     border-right: 1px solid #ced4da;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 160px); 
 }
 
 .map-panel {
@@ -309,6 +324,11 @@ body {
     padding: 1px 0 1px 0;
     background: #f5f8fa; /* Optional: light background for footer */
     flex-shrink: 0;
+    position: fixed;      /* <-- Add this */
+    left: 0;              /* <-- Add this */
+    bottom: 0;            /* <-- Add this */
+    z-index: 100;         /* <-- Optional: ensure it stays above other content */
+    box-shadow: 0 -2px 6px rgba(0,0,0,0.03); /* Optional: subtle shadow */
   }
   
   .hurricane-mapping-logo-footer {
