@@ -1,9 +1,3 @@
-/* body, html {
-    height: 100%;
-    margin: 0;
-    /* overflow: hidden; 
-    background-color: #f8f9fa;
-}  */
 
 html, body {
     height: 100%;
@@ -236,10 +230,10 @@ body {
     outline: none;
     cursor: pointer;
     z-index: 10;
-  }
-  .custom-dropdown .selected {
+}
+
+.custom-dropdown .selected {
     padding: 0 12px;
-    height: 2.2rem;
     line-height: 2.2rem;
     border-radius: 4px;
     background: transparent;
@@ -249,8 +243,9 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .custom-dropdown .dropdown-list {
+}
+
+.custom-dropdown .dropdown-list {
     display: none;
     position: absolute;
     left: 0;
@@ -263,20 +258,23 @@ body {
     max-height: 200px;
     overflow-y: auto;
     box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-  .custom-dropdown.open .dropdown-list {
+}
+
+.custom-dropdown.open .dropdown-list {
     display: block;
-  }
-  .custom-dropdown .dropdown-item {
+}
+
+.custom-dropdown .dropdown-item {
     padding: 8px 0;
     cursor: pointer;
     color: #2c3e50;
-  }
-  .custom-dropdown .dropdown-item:hover,
-  .custom-dropdown .dropdown-item.selected {
+}
+
+.custom-dropdown .dropdown-item:hover,
+.custom-dropdown .dropdown-item.selected {
     background: #e9ecef;
     color: #1a2533;
-  }
+}
 
 .storm-label-fixed {
     display: inline-block;
@@ -285,9 +283,9 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  
-  .storm-download-container {
+}
+
+.storm-download-container {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -297,28 +295,28 @@ body {
     border-radius: 6px;       /* Optional: rounded corners */
     margin-left: 25px;
     vertical-align: middle;
-  }
-  
-  .storm-download-icon {
+}
+
+.storm-download-icon {
     font-size: 1.2em;
     color: #007bff;
-  }
+}
 
-  /* Download Modal Custom Styles */
-   #downloadModal .download-modal-header {
+/* Download Modal Custom Styles */
+#downloadModal .download-modal-header {
     background: #d7e4f4;
-  }
-  
-   #downloadModal .download-modal-title {
+}
+
+#downloadModal .download-modal-title {
     color: #24487a;
     font-weight: bold;
-  }
+}
 
-  #downloadModal .modal-content {
+#downloadModal .modal-content {
     width: fit-content;
-  }
+}
 
-  .footer {
+.footer {
     width: 100%;
     display: flex;
     justify-content: center;
@@ -331,12 +329,12 @@ body {
     bottom: 0;            /* <-- Add this */
     z-index: 100;         /* <-- Optional: ensure it stays above other content */
     box-shadow: 0 -2px 6px rgba(0,0,0,0.03); /* Optional: subtle shadow */
-  }
-  
-  .hurricane-mapping-logo-footer {
+}
+
+.hurricane-mapping-logo-footer {
     height: 110px; /* Adjust as needed */
     width: auto;
     display: block;
-  }
+}
 
   

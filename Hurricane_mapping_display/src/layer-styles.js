@@ -1,3 +1,11 @@
+import Style from 'ol/style/Style';
+import Stroke from 'ol/style/Stroke';
+import Fill from 'ol/style/Fill';
+import RegularShape from 'ol/style/RegularShape';
+
+
+
+
 const canvas = document.createElement('canvas');
 const context = canvas.getContext('2d');
 canvas.width = 16
@@ -23,29 +31,29 @@ const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117];
 
 const styles = {
   error_cone: {
-    0: new ol.style.Style({
-      fill: new ol.style.Fill({ color: pattern }),
-      stroke: new ol.style.Stroke({ color: [51, 51, 51, 0.4], width: 1 }),
+    0: new Style({
+      fill: new Fill({ color: pattern }),
+      stroke: new Stroke({ color: [51, 51, 51, 0.4], width: 1 }),
       zIndex: 2
     }),
-    72: new ol.style.Style({
-      fill: new ol.style.Fill({ color:[224, 224, 224, 0.7] }),
-      stroke: new ol.style.Stroke({ color: [0, 0, 0, 0.4], width: 1 }),
+    72: new Style({
+      fill: new Fill({ color:[224, 224, 224, 0.7] }),
+      stroke: new Stroke({ color: [0, 0, 0, 0.4], width: 1 }),
       zIndex: 3
     }),
-    120: new ol.style.Style({
-      fill: new ol.style.Fill({ color: [255, 255, 255, 0.4] }),
-      stroke: new ol.style.Stroke({ color: [0, 0, 0, 0.4], width: 1 }),
+    120: new Style({
+      fill: new Fill({ color: [255, 255, 255, 0.4] }),
+      stroke: new Stroke({ color: [0, 0, 0, 0.4], width: 1 }),
       zIndex: 1
     })
   },
   forecast_position: {
-    default:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    default:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FFFFFF'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -54,12 +62,12 @@ const styles = {
         angle: Math.PI / 4,
       })
     }),
-    RED:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    RED:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FF0000'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -68,12 +76,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    BLUE:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    BLUE:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#0024FA'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -82,12 +90,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    WHITE:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    WHITE:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FFFFFF'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -96,12 +104,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    YELLOW:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    YELLOW:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FFFF33'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -112,36 +120,36 @@ const styles = {
     })
   },
   forecast_track_line: {
-   default: new ol.style.Style({
-    stroke: new ol.style.Stroke({
+   default: new Style({
+    stroke: new Stroke({
       color: '#777777',
       width: 2
     })
    })
   },
   past_track_line: {
-   default: new ol.style.Style({
-    stroke: new ol.style.Stroke({
+   default: new Style({
+    stroke: new Stroke({
       color: '#777777',
       width: 2
     })
    })
   },
   warning_line: {
-   default: new ol.style.Style({
-    stroke: new ol.style.Stroke({
+   default: new Style({
+    stroke: new Stroke({
       color: '#777777',
       width: 2
     })
    })
   },
   forecast_track_point: {
-    RED:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    RED:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FF0000'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -150,12 +158,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    BLUE:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    BLUE:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#0024FA'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -164,12 +172,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    WHITE:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    WHITE:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FFFFFF'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -178,12 +186,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    YELLOW:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    YELLOW:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FFFF33'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -194,56 +202,56 @@ const styles = {
     })
   },
   forecast_winds: {
-    RED:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    RED:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 0, 0, 0.4)'
         }),
     }),
-    BLUE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    BLUE:  new Style({
+        fill: new Fill({
           color: 'rgba(0, 36, 250, 0.4)'
         }),
     }),
-    WHITE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    WHITE:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 255, 0.4)'
         }),
     }),
-    YELLOW:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    YELLOW:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 51, 0.4)'
         }),
     })
   },
   past_wind: {
-    RED:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    RED:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 0, 0, 0.4)'
         }),
     }),
-    BLUE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    BLUE:  new Style({
+        fill: new Fill({
           color: 'rgba(0, 36, 250, 0.4)'
         }),
     }),
-    WHITE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    WHITE:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 255, 0.4)'
         }),
     }),
-    YELLOW:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    YELLOW:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 51, 0.4)'
         }),
     })
   },
   past_track_point: {
-    RED:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    RED:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FF0000'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -252,12 +260,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    BLUE:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    BLUE:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#0024FA'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -266,12 +274,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    WHITE:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    WHITE:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FFFFFF'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -280,12 +288,12 @@ const styles = {
         angle: Math.PI / 4,
       }),
     }),
-    YELLOW:  new ol.style.Style({
-      image: new ol.style.RegularShape({
-        fill: new ol.style.Fill({
+    YELLOW:  new Style({
+      image: new RegularShape({
+        fill: new Fill({
           color: '#FFFF33'
         }),
-        stroke: new ol.style.Stroke({
+        stroke: new Stroke({
           color: '#000000',
           width: 0.5
         }),
@@ -296,8 +304,8 @@ const styles = {
     })
   },
   wind_prob_point: {
-    default:  new ol.style.Style({
-      fill: new ol.style.Fill({
+    default:  new Style({
+      fill: new Fill({
         color: 'rgba(0, 178, 0, 0.4)'
       }),
       zIndex: 1
@@ -305,87 +313,87 @@ const styles = {
   },
   wind_prob_polygon: {
     // '#00B200'
-    GREEN:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    GREEN:  new Style({
+        fill: new Fill({
           color: 'rgba(0, 178, 0, 0.4)'
         }),
         zIndex: 1
     }),
   // '#00FF00'
-    LIMEGREEN:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    LIMEGREEN:  new Style({
+        fill: new Fill({
           color: 'rgba(0, 255, 0, 0.4)' 
         }),
         zIndex: 2
     }),
   // '#FFFF00'
-    LIGHTYELLOW:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    LIGHTYELLOW:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 0, 0.4)'
         }),
         zIndex: 3
     }),
-    BLANDYELLOW:  new ol.style.Style({
+    BLANDYELLOW:  new Style({
       // '#FFCC66'
-        fill: new ol.style.Fill({
+        fill: new Fill({
           color: 'rgba(255, 204, 102, 0.4)' 
         }),
         zIndex: 4
     }),
   // '#CC6600'
-    DARKORANGE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    DARKORANGE:  new Style({
+        fill: new Fill({
           color: 'rgba(204, 102, 0, 0.4)'
         }),
         zIndex: 5
     }),
   // '#FF8000'
-    ORANGE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    ORANGE:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 128, 0, 0.4)'
         }),
         zIndex: 6
     }),
-    RED:  new ol.style.Style({
+    RED:  new Style({
       // '#C00000'
-        fill: new ol.style.Fill({
+        fill: new Fill({
           color: 'rgba(192, 0, 0, 0.4)'
         }),
         zIndex: 7
     }),
-    DARKRED:  new ol.style.Style({
+    DARKRED:  new Style({
       // '#800000'
-        fill: new ol.style.Fill({
+        fill: new Fill({
             color: 'rgba(128, 0, 0, 0.4)'
         }),
         zIndex: 8
     }),
-    PURPLE:  new ol.style.Style({
+    PURPLE:  new Style({
       // '#6600CC'
-        fill: new ol.style.Fill({
+        fill: new Fill({
           color: 'rgba(102, 0, 204, 0.4)' 
         }),
         zIndex: 9
     })
   },
   forecast_wind_swath: {
-    RED:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    RED:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 0, 0, 0.4)'
         }),
     }),
-    BLUE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    BLUE:  new Style({
+        fill: new Fill({
           color: 'rgba(0, 36, 250, 0.4)'
         }),
     }),
-    WHITE:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    WHITE:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 255, 0.4)'
         }),
     }),
-    YELLOW:  new ol.style.Style({
-        fill: new ol.style.Fill({
+    YELLOW:  new Style({
+        fill: new Fill({
           color: 'rgba(255, 255, 51, 0.4)'
         }),
     })

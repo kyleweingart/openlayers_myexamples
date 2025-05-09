@@ -1,0 +1,23 @@
+{
+  "name": "hurricane_mapping_display",
+  "version": "1.0.0",
+  "main": "layer-styles.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@mapbox/shp-write": "^0.4.3",
+    "bootstrap": "^5.3.6",
+    "bootstrap-icons": "^1.12.1",
+    "jszip": "^3.10.1",
+    "ol": "^10.5.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}

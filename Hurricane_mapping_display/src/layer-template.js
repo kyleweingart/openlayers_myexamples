@@ -1,14 +1,23 @@
-// To DO: 
-
-// cache layers for quick display
-// test ol assertion errors
-// make npm packages
-// click download close storm layers (should not)
-// put in s3 or somewhere for others to test
-// clicking quickly still adds multiple same layer (diff advisory)
-// refine dropdown (bug with helene? i noticed when selectign a diff adv from dropdown old layers not getting removed)
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap';
+import 'bootstrap-icons/font/bootstrap-icons.css';
+import 'ol/ol.css';
+import Map from 'ol/Map';
+import View from 'ol/View';
+import TileLayer from 'ol/layer/Tile';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
+import OSM from 'ol/source/OSM';
+import GeoJSON from 'ol/format/GeoJSON';
+import {fromLonLat} from 'ol/proj';
+import {defaults as defaultControls} from 'ol/control';
+import {defaults as defaultInteractions} from 'ol/interaction';
+import JSZip from 'jszip';
+import shpwrite from '@mapbox/shp-write';
 
 import styles from './layer-styles.js';
+
+const API_BASE = import.meta.env._VITE_API_BASE || '';
 
 const mapLayers = {};
 let stormMap = {};
@@ -26,15 +35,15 @@ const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
 
 // Initialize the map with a raster (OSM) layer
 function initMap() {
-  const raster = new ol.layer.Tile({
-    source: new ol.source.OSM(),
+  const raster = new TileLayer({
+    source:  new OSM(),
     name: 'basemap'
   });
 
-  map = new ol.Map({
+  map = new Map({
     layers: [raster],
     target: document.getElementById('map'),
-    view: new ol.View({
+    view: new View({
       center: [0, 3000000], 
       zoom: 2,
     }),
@@ -78,7 +87,7 @@ function zoomToFirstLayer(layer) {
 
 async function getStormLayers(storm) {
   try {
-    const response = await fetch(`https://data.hurricanemapping.com/hmgis/advisories/?storm=${storm.stormid}`, {
+    const response = await fetch(`${API_BASE}/hmgis/advisories/?storm=${storm.stormid}`, {
         method: 'GET',
         headers: {
             'Authorization': `Token ${token}`, // Include the token here
@@ -105,7 +114,7 @@ async function getStormLayers(storm) {
 }
   
 function loadStorms() {
-  fetch(`https://data.hurricanemapping.com/hmgis/?format=json`, {
+  fetch(`${API_BASE}/hmgis/?format=json`, {
     method: 'GET', 
     headers: {
     'Authorization': `Token ${token}`, // Include the token here
@@ -154,7 +163,7 @@ async function populateStorms() {
     tocHTML += `<div class="folder year-folder">
       <div class="folder-header" onclick="this.nextElementSibling.classList.toggle('collapsed'); 
       const toggle = this.querySelector('.year-toggle');
-    toggle.textContent = toggle.textContent === '+' ? '-' : '+';">
+      toggle.textContent = toggle.textContent === '+' ? '-' : '+';">
         <span class="year-toggle">+</span> ${year}
       </div>
       <div class="folder-content collapsed">`;
@@ -165,7 +174,7 @@ async function populateStorms() {
           <div class="folder region-folder" style="margin-left:10px;">
             <div class="folder-header" onclick="this.nextElementSibling.classList.toggle('collapsed'); 
             const toggle = this.querySelector('.year-toggle');
-    toggle.textContent = toggle.textContent === '+' ? '-' : '+';">
+            toggle.textContent = toggle.textContent === '+' ? '-' : '+';">
               <span class="year-toggle">+</span> ${region}
             </div>
             <div class="folder-content collapsed" id="region-${year}-${region}" style="margin-left:20px;">
@@ -363,8 +372,6 @@ function makeStormActive(storm) {
 }
 
 function handleCheckBoxChange(event) {
-  console.log('handleCheckBoxChange');
-  
   if (event.target.checked) {
     // Load the GeoJSON file for the selected layer
     loadLayer(event.target);
@@ -382,7 +389,6 @@ function updateArrowState(e, storm, idx) {
     .filter(layer => layer.checked)
     .map(layer => layer.getAttribute('layername'));
 
-    console.log(checkedLayers);
 
   if (e === 'click') {
     // Clear existing layers
@@ -525,7 +531,8 @@ function loadLayer(layer) {
 
   if (!stormLayers[layer.attributes.layername.value]) {
     // Update the current styles based on the layer
-    fetch(`${layer.value}`, {
+    let url = layer.value.replace(/^https:\/\/data\.hurricanemapping\.com/, '');
+    fetch(`${API_BASE}${url}`, {
       method: 'GET', 
       headers: {
       'Authorization': `Token ${token}`, // Include the token here
@@ -539,15 +546,15 @@ function loadLayer(layer) {
       })
       .then((geojsonData) => {
         // Read features from the GeoJSON file
-        const features = new ol.format.GeoJSON().readFeatures(geojsonData, {
+        const features = new GeoJSON().readFeatures(geojsonData, {
           dataProjection: 'EPSG:4326', // GeoJSON standard
           featureProjection: 'EPSG:3857', // Web Mercator for OpenLayers
         });
 
-        const vectorSource = new ol.source.Vector()
+        const vectorSource = new VectorSource()
         vectorSource.addFeatures(features);
 
-        const vectorLayer = new ol.layer.Vector({
+        const vectorLayer = new VectorLayer({
           source: vectorSource,
           stormid: layer.attributes.name.value,
           advisory: layer.attributes.adv.value,
@@ -600,8 +607,6 @@ function removeAllAdvisoryLayersForStorm() {
 }
 
 function clearLayer(layer) {
-  console.log('clearLayer');
-  console.log(layer);
   map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
 }
 
@@ -610,7 +615,7 @@ function renderAdvisoryDropdown(storm, currentIndex) {
   if (!container) return;
 
   container.innerHTML = `
-    <div class="selected">${'Advisory #' + storm.workingAdvisories[currentIndex].advisory_id}</div>
+    <div class="selected" tabindex="0">${'Advisory #' + storm.workingAdvisories[currentIndex].advisory_id}</div>
     <div class="dropdown-list" style="display:none"></div>
   `;
 
@@ -627,6 +632,7 @@ function renderAdvisoryDropdown(storm, currentIndex) {
     e.stopPropagation();
     container.classList.toggle('open');
     dropdownList.style.display = container.classList.contains('open') ? 'block' : 'none';
+    selected.focus();
   };
 
   container.onkeydown = (e) => {
@@ -649,13 +655,23 @@ function renderAdvisoryDropdown(storm, currentIndex) {
     }
   };
 
-  document.addEventListener('click', function handler(e) {
+  // Remove any previous event listener before adding a new one
+  if (window._advisoryDropdownHandler) {
+    document.removeEventListener('click', window._advisoryDropdownHandler);
+  }
+  window._advisoryDropdownHandler = function(e) {
     if (!container.contains(e.target)) {
       container.classList.remove('open');
       dropdownList.style.display = 'none';
-      document.removeEventListener('click', handler);
     }
-  });
+  };
+  document.addEventListener('click', window._advisoryDropdownHandler);
+
+  // Optional: close on blur for accessibility
+  container.onblur = function() {
+    container.classList.remove('open');
+    dropdownList.style.display = 'none';
+  };
 }
 
 function setupStormDownloadIcons() {
@@ -668,6 +684,7 @@ function setupStormDownloadIcons() {
       e.target.classList.contains('storm-download-icon') ||
       e.target.classList.contains('storm-download-container')
     ) {
+      e.preventDefault();
       e.stopPropagation();
 
       // Download logic
@@ -704,12 +721,12 @@ async function downloadStormData(stormId, advisory, format, modal) {
   const loadingEl = document.getElementById('downloadLoadingOverlay');
   if (loadingEl) loadingEl.style.display = "flex";
 
-  // Set up a timeout (e.g. 20 seconds)
+  // Set up a timeout (e.g. 60 seconds)
   let timeoutId;
   const timeoutPromise = new Promise((_, reject) => {
     timeoutId = setTimeout(() => {
       reject(new Error("Download preparation timed out. Please try again later."));
-    }, 100000); // 20 seconds  // To Do: refine timeout time
+    }, 60000); // 60 seconds  
   });
 
   try {
@@ -763,11 +780,9 @@ async function downloadStormData(stormId, advisory, format, modal) {
         folder.file(`${name}_adv${adv}.zip`, shapefileZip);
       }
     } else {
-      console.log('here');
       // Default: GeoJSON
       responses.forEach(({ name, adv, data }) => {
         const folder = zip.folder(name);
-        console.log(name, adv, data);
         folder.file(`${name}_adv${adv}.geojson`, JSON.stringify(data, null, 2));
       });
     }
