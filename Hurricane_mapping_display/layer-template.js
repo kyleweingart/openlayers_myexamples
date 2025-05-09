@@ -1,13 +1,12 @@
 // To DO: 
 
 // cache layers for quick display
-// add logos
 // test ol assertion errors
 // make npm packages
 // click download close storm layers (should not)
 // put in s3 or somewhere for others to test
-// issues with map and footer (zoom map might be an issue/toc expaning is the issue?)
-// refine dropdown (bug with helene? i noticed)
+// clicking quickly still adds multiple same layer (diff advisory)
+// refine dropdown (bug with helene? i noticed when selectign a diff adv from dropdown old layers not getting removed)
 
 import styles from './layer-styles.js';
 
@@ -19,22 +18,11 @@ let stormList;
 let activeStormId;
 let currentIndex;
 let arrowDebounceTimer = null;
+let zoomToLayer = false;
 const token = 'fb790bbfff4ba5a930d0fb75c1f81dd53503fc2b';
 
 // What are the correct forecast hours?
 const forecastHrs = [0, 5, 17, 33, 45, 57, 69, 93, 117]
-
-// Tropical storm regions
-const tropicalStormRegions = [
-  { name: "Atlantic", code: "AL", extent: [-100, -10, 20, 50] },
-  { name: "Central Pacific", code: "CP", extent: [-180,-20, -110, 60] },
-  { name: "Eastern Pacific", code: "EP", extent: [-140, 5, -90, 30] },
-  { name: "Arabian Sea", code: "IA", extent: [50, 5, 77, 25] },
-  { name: "Bay of Bengal", code: "IB", extent: [77, 5, 100, 22] },
-  { name: "South Indian Ocean", code: "SI", extent: [15, -40, 140, 0] },
-  { name: "South Pacific", code: "SP", extent: [140, -50, 190, 25] },
-  { name: "Western Pacific", code: "WP", extent: [90,-20, 200, 50] }
-];
 
 // Initialize the map with a raster (OSM) layer
 function initMap() {
@@ -79,12 +67,12 @@ function initMap() {
   }, true); // Use capture phase for toggle events
 }
 
-function zoomToRegion(extent4326) {
-  const extent3857 = ol.proj.transformExtent(extent4326, 'EPSG:4326', 'EPSG:3857');
-  map.getView().fit(extent3857, {
+function zoomToFirstLayer(layer) {
+  const extent = layer.getSource().getExtent();
+  map.getView().fit(extent, {
     duration: 1000,
-    padding: [50, 50, 50, 50],
-    maxZoom: 8
+    padding: [20, 20, 20, 20],
+    maxZoom: 4
   });
 }
 
@@ -367,21 +355,16 @@ function makeStormActive(storm) {
     );
 
     if (firstLayer) {
+      zoomToLayer = true;
       firstLayer.checked = true; 
       firstLayer.dispatchEvent(new Event('change', {bubbles: true}));
-    }
-    
-    // Zoom to the storm's region
-    console.log(storm);
-    const region = storm.region.toUpperCase();
-    const regionInfo = tropicalStormRegions.find(r => r.code === region);
-    if (regionInfo) {
-      zoomToRegion(regionInfo.extent);
     }
   }
 }
 
 function handleCheckBoxChange(event) {
+  console.log('handleCheckBoxChange');
+  
   if (event.target.checked) {
     // Load the GeoJSON file for the selected layer
     loadLayer(event.target);
@@ -391,16 +374,20 @@ function handleCheckBoxChange(event) {
 }
 
 function updateArrowState(e, storm, idx) {
+  removeAllAdvisoryLayersForStorm();
+
   currentIndex = idx;
   // Get only the CHECKED layers before update
   const checkedLayers = [...document.querySelectorAll(`input[name="layer_${storm.stormid}"]`)]
     .filter(layer => layer.checked)
     .map(layer => layer.getAttribute('layername'));
 
+    console.log(checkedLayers);
+
   if (e === 'click') {
     // Clear existing layers
     checkedLayers.forEach(layer => { 
-      const lyrName = document.querySelector(`input[layername=${layer}]`)
+      const lyrName = document.querySelector(`input[name="layer_${storm.stormid}"][layername="${layer}"]`);
       clearLayer(lyrName);
     });
 
@@ -568,17 +555,53 @@ function loadLayer(layer) {
           style: styles.styleFunction.bind(styles)
         });
         stormLayers[layer.attributes.layername.value] = vectorLayer;
+        assignZIndex(vectorLayer);
         map.addLayer(vectorLayer);
+        if (zoomToLayer) {
+          zoomToFirstLayer(stormLayers[layer.attributes.layername.value]);
+          zoomToLayer = false;
+        }
       })
     .catch((error) => {
       console.error(error.message);
     });
   } else {
+    assignZIndex(stormLayers[layer.attributes.layername.value]);
     map.addLayer(stormLayers[layer.attributes.layername.value]);
+    if (zoomToLayer) {
+      zoomToFirstLayer(stormLayers[layer.attributes.layername.value]);
+      zoomToLayer = false;
+    }
   }
 }
 
+function assignZIndex(layer) {
+let zIndex = 0;
+const features = layer.getSource().getFeatures();
+if (features.length > 0) {
+  const geomType = features[0].getGeometry().getType();
+  if (geomType === 'Point' || geomType === 'MultiPoint') {
+    zIndex = 30; // top
+  } else if (geomType === 'LineString' || geomType === 'MultiLineString') {
+    zIndex = 20; // middle
+  } else if (geomType === 'Polygon' || geomType === 'MultiPolygon') {
+    zIndex = 10; // bottom
+  }
+}
+layer.setZIndex(zIndex);
+}
+
+function removeAllAdvisoryLayersForStorm() {
+  map.getLayers().getArray().forEach((layer) => {
+    if (layer.get('name') !== 'basemap') {
+      map.removeLayer(layer);
+    }
+  });
+}
+
 function clearLayer(layer) {
+  console.log('clearLayer');
+  console.log(layer);
   map.removeLayer(mapLayers[layer.attributes.name.value][layer.attributes.adv.value][layer.attributes.layername.value]);
 }
 
@@ -776,7 +799,3 @@ document.addEventListener("DOMContentLoaded", function() {
   setupArrowControls();
   setupStormDownloadIcons();
 });
-
-
-
-  
