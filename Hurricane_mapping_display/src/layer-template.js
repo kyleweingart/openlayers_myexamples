@@ -17,7 +17,7 @@ import shpwrite from '@mapbox/shp-write';
 
 import styles from './layer-styles.js';
 
-const API_BASE = import.meta.env._VITE_API_BASE || '';
+const API_BASE = import.meta.env.VITE_API_BASE || '';
 
 const mapLayers = {};
 let stormMap = {};
